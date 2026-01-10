@@ -1,0 +1,145 @@
+["setuptools"]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "caredaily"
+description = "CLI and API interface for CareDaily applications."
+readme = "README.md"
+version = "1.0.0"
+requires-python = "~=3.10"
+license = { file="LICENSE.txt" }
+authors = [
+    { name = "Destry Teeter", email = "destry@caredaily.ai" },
+]
+classifiers = [
+    "Private :: Do Not Upload",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+
+dependencies = [
+    "click",
+    "python-dotenv",
+    "tabulate",
+    "requests",
+    "pydantic",
+]
+
+[project.urls]
+homepage = "https://github.com/peoplepowerco/botlab-core"
+documentation = "https://iotapps.docs.apiary.io"
+
+[project.scripts]
+caredaily = "caredaily.cli.app:app"
+
+[tool.setuptools.dynamic]
+version = { attr = "src.caredaily.__version__" }
+
+[tool.isort]
+combine_as_imports = true
+include_trailing_comma = true
+line_length = 88
+multi_line_output = 3
+order_by_type = false
+
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+
+
+# Same as Black.
+line-length = 88
+indent-width = 4
+
+# Assume Python 3.8
+target-version = "py310"
+
+[tool.ruff.lint]
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
+# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
+# McCabe complexity (`C901`) by default.
+select = ["E4", "E7", "E9", "F"]
+ignore = []
+
+extend-select = ["I"]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.isort]
+case-sensitive = false
+combine-as-imports = true
+force-sort-within-sections = false
+known-first-party = []
+known-third-party = []
+lines-after-imports = -1
+order-by-type = false
+section-order = [
+    "future",
+    "standard-library",
+    "third-party",
+    "first-party",
+    "local-folder"
+]
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
+
+# Enable auto-formatting of code examples in docstrings. Markdown,
+# reStructuredText code/literal blocks and doctests are all supported.
+#
+# This is currently disabled by default, but it is planned for this
+# to be opt-out in the future.
+docstring-code-format = false
+
+# Set the line length limit used when formatting code snippets in
+# docstrings.
+#
+# This only has an effect when the `docstring-code-format` setting is
+# enabled.
+docstring-code-line-length = "dynamic"
