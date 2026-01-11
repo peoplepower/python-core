@@ -82,7 +82,7 @@ def cloud_connectivity(
             )
         elif version:
             result = (
-                ctx.obj["caredaily"].app_api(CloudConnectivity).get_version(json=True)
+                ctx.obj["caredaily"].app_api(CloudConnectivity).get_version(json_format=True)
             )
         elif connection_settings:
             result = (
@@ -96,7 +96,11 @@ def cloud_connectivity(
             )
         else:
             raise click.UsageError("At least one option is required.")
-        click.echo(result.data)
+        try:
+            import json
+            click.echo(json.dumps(result.data, indent=4))
+        except Exception:
+            click.echo(result.data)
     except click.UsageError as e:
         click.echo(e)
     except Exception as e:

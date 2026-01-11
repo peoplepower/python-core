@@ -7,7 +7,7 @@
 from enum import Enum
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class ResultCode(Enum):
@@ -176,6 +176,8 @@ class SignatureAlgorithm(Enum):
     SHA512withRSA = "SHA512withRSA"	
 
 class Server(BaseModel):
+    model_config = ConfigDict(use_enum_values=True)
+
     # Server Type
     type: Optional[ServerType] = None
     # Server Host
@@ -190,9 +192,6 @@ class Server(BaseModel):
     version: Optional[int] = None
     # TLS version	Optional
     tlsversion: Optional[int] = None
-
-    class Config:
-        use_enum_values = True
 
 
 class MQTT(BaseModel):
@@ -216,6 +215,7 @@ class TimeZone(BaseModel):
 
 
 class Cloud(BaseModel):
+    model_config = ConfigDict(use_enum_values=True)
     # Current server time
     current_time: Optional[str] = Field(None, alias="currentTime")
     # Current server time in milliseconds
@@ -230,9 +230,6 @@ class Cloud(BaseModel):
     type: Optional[int] = None
     # Cloud version
     version: Optional[int] = None
-
-    class Config:
-        use_enum_values = True
 
 class PythonRuntime(Enum):
     PYTHON_3_8 = 2

@@ -37,17 +37,19 @@ def interactive(ctx, profile, username, password):
         credentials_object = ConfigParser()
 
         # Determine the user profile directory based on the operating system
-        if os.name == "nt":  # Windows
-            user_profile = os.environ["UserProfile"]
-        else:  # Unix-based systems
-            user_profile = os.environ["HOME"]
+        integration_path = os.environ.get("CAREDAILY_INTEGRATION_PATH")
+        if not integration_path:
+            if os.name == "nt":  # Windows
+                integration_path = os.environ["UserProfile"]
+            else:  # Unix-based systems
+                integration_path = os.environ["HOME"]
 
         profile = profile or os.environ.get("CAREDAILY_PROFILE")
         if not profile:
             click.echo("Profile not specified. Use CAREDAILY_PROFILE environment variable or --profile option.")
             return
-        config_path = os.path.join(user_profile, ".caredaily", "config")
-        credentials_path = os.path.join(user_profile, ".caredaily", "credentials")
+        config_path = os.path.join(integration_path, ".caredaily", "config")
+        credentials_path = os.path.join(integration_path, ".caredaily", "credentials")
 
         # Read the configuration file
         config_object.read(config_path)
@@ -234,10 +236,12 @@ def list(ctx, profile):
     credentials_object = ConfigParser()
 
     # Determine the user profile directory based on the operating system
-    if os.name == "nt":  # Windows
-        user_profile = os.environ["UserProfile"]
-    else:  # Unix-based systems
-        user_profile = os.environ["HOME"]
+    integration_path = os.environ.get("CAREDAILY_INTEGRATION_PATH")
+    if not integration_path:
+        if os.name == "nt":  # Windows
+            integration_path = os.environ["UserProfile"]
+        else:  # Unix-based systems
+            integration_path = os.environ["HOME"]
 
     # Determine the profile type and location
     profile_type = "None"
@@ -254,8 +258,8 @@ def list(ctx, profile):
     config["profile"].location = profile_location
 
     # Paths to configuration and credentials files
-    config_path = os.path.join(user_profile, ".caredaily", "config")
-    credentials_path = os.path.join(user_profile, ".caredaily", "credentials")
+    config_path = os.path.join(integration_path, ".caredaily", "config")
+    credentials_path = os.path.join(integration_path, ".caredaily", "credentials")
 
     # Read the configuration file
     config_object.read(config_path)
@@ -336,13 +340,15 @@ def list_profiles(ctx):
     """
 
     # Determine the user profile directory based on the operating system
-    if os.name == "nt":  # Windows
-        user_profile = os.environ["UserProfile"]
-    else:  # Unix-based systems
-        user_profile = os.environ["HOME"]
+    integration_path = os.environ.get("CAREDAILY_INTEGRATION_PATH")
+    if not integration_path:
+        if os.name == "nt":  # Windows
+            integration_path = os.environ["UserProfile"]
+        else:  # Unix-based systems
+            integration_path = os.environ["HOME"]
 
     # Path to the credentials file
-    credentials_path = os.path.join(user_profile, ".caredaily", "credentials")
+    credentials_path = os.path.join(integration_path, ".caredaily", "credentials")
 
     # Read the credentials file
     credentials_object = ConfigParser()
@@ -362,12 +368,14 @@ def init(ctx):
     """
     try:
         # Determine the user profile directory based on the operating system
-        if os.name == "nt":  # Windows
-            user_profile = os.environ["UserProfile"]
-        else:  # Unix-based systems
-            user_profile = os.environ["HOME"]
+        integration_path = os.environ.get("CAREDAILY_INTEGRATION_PATH")
+        if not integration_path:
+            if os.name == "nt":  # Windows
+                integration_path = os.environ["UserProfile"]
+            else:  # Unix-based systems
+                integration_path = os.environ["HOME"]
 
-        caredaily_dir = os.path.join(user_profile, ".caredaily")
+        caredaily_dir = os.path.join(integration_path, ".caredaily")
         config_path = os.path.join(caredaily_dir, "config")
         credentials_path = os.path.join(caredaily_dir, "credentials")
 

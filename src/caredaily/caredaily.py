@@ -17,7 +17,7 @@ from .apis import (
     AdminDevices,
     AdminLocations,
     AdminTags,
-    AI,
+    Analytic,
     AppFiles,
     Authentication,
     Billing,
@@ -34,29 +34,25 @@ from .apis import (
     DeviceTypesAndParameters,
     EnergyManagement,
     Execution,
+    Firmware,
     Groups,
     Locations,
     Narratives,
     Organizations,
     PaidServices,
     ProfessionalMonitoring,
-    Questions,
     RAG,
+    Reports,
     Rules,
-    Services,
     System,
     SystemAndUserProperties,
-    Tags,
     UserAccounts,
     UserCommunication,
     UserGroups,
     Users,
-    Variables,
-    VoiceCalls,
     Weather,
     Websocket,
 )
-
 from .exceptions import CareDailyException
 
 
@@ -71,14 +67,16 @@ class CareDaily:
             config_object = ConfigParser()
             credentials_object = ConfigParser()
 
-            if os.name == "nt":  # Windows
-                user_profile = os.environ["UserProfile"]
-            else:  # Unix-based systems
-                user_profile = os.environ["HOME"]
+            integration_path = os.environ.get("CAREDAILY_INTEGRATION_PATH")
+            if not integration_path:
+                if os.name == "nt":  # Windows
+                    integration_path = os.environ["UserProfile"]
+                else:  # Unix-based systems
+                    integration_path = os.environ["HOME"]
 
             profile = profile or os.environ.get("CAREDAILY_PROFILE")
-            config_path = os.path.join(user_profile, ".caredaily", "config")
-            credentials_path = os.path.join(user_profile, ".caredaily", "credentials")
+            config_path = os.path.join(integration_path, ".caredaily", "config")
+            credentials_path = os.path.join(integration_path, ".caredaily", "credentials")
 
             config_object.read(config_path)
             default_config = {}
@@ -98,9 +96,8 @@ class CareDaily:
                 "hostname"
             )
             try:
-                __config["ssl_verify"] = eval(
-                    f"{profile_config.get("ssl_verify") or default_config.get("ssl_verify") or "True"}".capitalize()
-                )
+                ssl_verify_value = profile_config.get("ssl_verify") or default_config.get("ssl_verify") or "True"
+                __config["ssl_verify"] = eval(ssl_verify_value.capitalize())
             except Exception as e:
                 self.logger.warning(f"Error while reading ssl_verify: {e}")
                 __config["ssl_verify"] = True
@@ -234,35 +231,22 @@ class CareDaily:
             return Narratives(self._config)
         if type == Billing:
             return Billing(self._config)
+        if type == Firmware:
+            return Firmware(self._config)
+        if type == Reports:
+            return Reports(self._config)
         return None
 
     # Bot APIs
     def bot_api(self, type: type):
+        if type == Analytic:
+            return Analytic(self._config)
         if type == BotDeveloper:
             return BotDeveloper(self._config)
         if type == DeveloperTeams:
             return DeveloperTeams(self._config)
         if type == BotStore:
             return BotStore(self._config)
-        return None
-
-    # Service APIs
-    def service_api(self, type: type):
-        if type == Services:
-            return Services(self._config)
-        if type == Questions:
-            return Questions(self._config)
-        if type == Tags:
-            return Tags(self._config)
-        if type == Variables:
-            return Variables(self._config)
-        if type == VoiceCalls:
-            return VoiceCalls(self._config)
-        if type == AI:
-            return AI(self._config)
-
-    # Device APIs
-    def device_api(self, type: type):
         if type == Execution:
             self.logger.debug(f"Execution: config={self._config}")
             return Execution(self._config)

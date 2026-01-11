@@ -4,15 +4,22 @@
 #   "requests",
 # ]
 # ///
+import json
+from typing import Dict, List
 
-
-from .api import API
-
-from ..models import (
+from ...models import (
     APIKeyType,
 )
 
+from ..api import API
+
 class Execution(API):
+    """
+    Provides methods for listening to device execution analytics and events via the DeviceIO API.
+
+    Reference:
+        https://app.peoplepowerco.com/cloud/apidocs/deviceio.html#tag/Execution
+    """
     def listen(
             self,
             app_instance_id: int,
@@ -20,6 +27,18 @@ class Execution(API):
             clean_time_ms: int = None,
             clean: bool = None,
     ):
+        """
+        Listen for device execution analytics/events for a given app instance.
+
+        Args:
+            app_instance_id: The ID of the app instance to listen for events on.
+            timeout: Optional timeout in seconds for the listen request.
+            clean_time_ms: Optional time in milliseconds to clean up old events.
+            clean: Optional flag to clean up events after listening.
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/deviceio.html#tag/Execution/operation/Listen
+        """
         params = {
             "appInstanceId": app_instance_id,
             "timeout": timeout,
