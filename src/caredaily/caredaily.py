@@ -147,7 +147,7 @@ class CareDaily:
             return
         if key == "logger":
             self.logger = value or Logger(__name__)
-        if value:
+        if value is not None:
             self._config[key] = value
         elif key in self._config:
             del self._config[key]

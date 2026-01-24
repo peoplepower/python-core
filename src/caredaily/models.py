@@ -232,10 +232,8 @@ class Cloud(BaseModel):
     version: Optional[int] = None
 
 class PythonRuntime(Enum):
-    PYTHON_3_8 = 2
-    PYTHON_3_9 = 3
     PYTHON_3_10 = 4
     PYTHON_3_11 = 5
     PYTHON_3_12 = 6
     PYTHON_3_13 = 7
-    # PYTHON_3_14 = 8
+    PYTHON_3_14 = 8

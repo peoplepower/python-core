@@ -11,6 +11,7 @@ from ..api import API
 
 from ...models import (
     Result,
+    APIKeyType,
 )
 
 
@@ -57,7 +58,8 @@ class Reports(API):
             f"/espapi/reports/groups/{organization_id}",
             ep_params=params if params else None,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -95,7 +97,8 @@ class Reports(API):
             f"/espapi/reports/groups/{organization_id}",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -129,7 +132,8 @@ class Reports(API):
             f"/espapi/reports/groups/{organization_id}",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -172,7 +176,8 @@ class Reports(API):
             "/espapi/reports/reports",
             ep_params=params if params else None,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -215,7 +220,8 @@ class Reports(API):
             "/espapi/reports/generate",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -262,7 +268,8 @@ class Reports(API):
             "/espapi/reports/data",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -286,7 +293,8 @@ class Reports(API):
         result: Result = self.adapter.get(
             f"/espapi/reports/data/{token}",
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result

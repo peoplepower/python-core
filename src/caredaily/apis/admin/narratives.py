@@ -101,7 +101,8 @@ class Narratives(API):
             f"/espapi/admin/json/organizations/{organization_id}/narratives",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result

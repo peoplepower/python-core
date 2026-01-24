@@ -9,7 +9,10 @@ from typing import Dict
 
 from ..api import API
 
-from ...models import Result
+from ...models import (
+    Result,
+    APIKeyType,
+)
 
 
 class UserGroups(API):
@@ -50,7 +53,8 @@ class UserGroups(API):
             "/espapi/admin/json/userGroups",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -75,7 +79,8 @@ class UserGroups(API):
             "/espapi/admin/json/userGroups",
             ep_json=group_data if group_data else None,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -106,7 +111,8 @@ class UserGroups(API):
             ep_params=params,
             ep_json=group_data if group_data else None,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -134,7 +140,8 @@ class UserGroups(API):
             "/espapi/admin/json/userGroups",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -165,7 +172,8 @@ class UserGroups(API):
             "/espapi/admin/json/userGroups/members",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -196,7 +204,8 @@ class UserGroups(API):
             "/espapi/admin/json/userGroups/members",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result

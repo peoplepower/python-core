@@ -88,9 +88,8 @@ class BotStore(API):
             f"/espapi/cloud/appstore/organizations/{organization_id}",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                # Uses API_KEY with admin key type
-                self.adapter._headers.get("ADMIN_KEY"),
-                APIKeyType.USER,
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER,
             ),
         )
 
@@ -225,9 +224,14 @@ class BotStore(API):
             "organizationId": organization_id,
         }
         params = {k: v for k, v in params.items() if v is not None}
+        key = self.adapter._headers.get("ADMIN_KEY") or self.adapter._headers.get("API_KEY")
         return self.adapter.post(
             "/espapi/cloud/appstore/appInstance",
             ep_params=params,
+            ep_headers=self.adapter._get_headers(
+                api_key=key,
+                key_type=APIKeyType.USER,
+            )
         )
 
     def configure_my_bot(self, app_instance_id: int, status: int = None, data: Dict = None):
@@ -249,7 +253,7 @@ class BotStore(API):
         params = {k: v for k, v in params.items() if v is not None}
         return self.adapter.put(
             "/espapi/cloud/appstore/appInstance",
-            ep_json=json.dumps(data),
+            ep_data=json.dumps(data) if data else None,
             ep_params=params,
         )
 
@@ -357,7 +361,12 @@ class BotStore(API):
         """
         params = {"locationId": location_id, "organizationId": organization_id}
         params = {k: v for k, v in params.items() if v is not None}
+        key = self.adapter._headers.get("ADMIN_KEY") or self.adapter._headers.get("API_KEY")
         return self.adapter.get(
             "/espapi/cloud/appstore/summary",
             ep_params=params,
+            ep_headers=self.adapter._get_headers(
+                api_key=key,
+                key_type=APIKeyType.USER,
+            ),
         )

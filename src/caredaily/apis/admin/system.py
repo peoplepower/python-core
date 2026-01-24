@@ -43,7 +43,8 @@ class System(API):
             "/espapi/admin/json/status",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"ADMIN_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.ADMIN
             ),
         )
         return result

@@ -108,7 +108,8 @@ class Locations(API):
             "/espapi/admin/json/locations",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -145,7 +146,8 @@ class Locations(API):
             ep_params=params,
             ep_json=location_data if location_data else None,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -178,7 +180,8 @@ class Locations(API):
             ep_params=params,
             ep_json=location_data if location_data else None,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -208,7 +211,8 @@ class Locations(API):
             f"/espapi/admin/json/organizations/{organization_id}/locations",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -251,7 +255,8 @@ class Locations(API):
             f"/espapi/admin/json/organizations/{organization_id}/locationStatus",
             ep_json=data if data else None,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result

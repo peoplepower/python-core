@@ -46,7 +46,8 @@ class Groups(API):
             f"/espapi/admin/json/organizations/{organization_id}/groups",
             ep_json=group_data if group_data else None,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -77,7 +78,8 @@ class Groups(API):
             f"/espapi/admin/json/organizations/{organization_id}/groups",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -106,7 +108,8 @@ class Groups(API):
             f"/espapi/admin/json/organizations/{organization_id}/groups/{group_id}",
             ep_json=group_data if group_data else None,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -132,7 +135,8 @@ class Groups(API):
         result: Result = self.adapter.delete(
             f"/espapi/admin/json/organizations/{organization_id}/groups/{group_id}",
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result

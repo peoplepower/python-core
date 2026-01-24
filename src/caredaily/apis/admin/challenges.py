@@ -61,7 +61,8 @@ class Challenges(API):
             ep_params=params,
             ep_json=challenge_data if challenge_data else None,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -136,7 +137,8 @@ class Challenges(API):
             f"/espapi/admin/json/organizations/{organization_id}/challenges/{challenge_id}",
             ep_json=challenge_data if challenge_data else None,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -162,7 +164,8 @@ class Challenges(API):
         result: Result = self.adapter.delete(
             f"/espapi/admin/json/organizations/{organization_id}/challenges/{challenge_id}",
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -190,7 +193,8 @@ class Challenges(API):
         result: Result = self.adapter.put(
             f"/espapi/admin/json/organizations/{organization_id}/challenges/{challenge_id}/status/{status}",
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result

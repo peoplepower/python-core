@@ -7,7 +7,10 @@
 
 from ..api import API
 
-from ...models import Result
+from ...models import (
+    Result,
+    APIKeyType,
+)
 
 
 class Users(API):
@@ -72,7 +75,8 @@ class Users(API):
             "/espapi/admin/json/users",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -90,7 +94,8 @@ class Users(API):
         result: Result = self.adapter.get(
             "/espapi/admin/json/roles",
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -118,7 +123,8 @@ class Users(API):
         result: Result = self.adapter.put(
             f"/espapi/admin/json/users/{user_id}/roles/{role_id}",
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -144,7 +150,8 @@ class Users(API):
         result: Result = self.adapter.delete(
             f"/espapi/admin/json/users/{user_id}/roles",
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -175,7 +182,8 @@ class Users(API):
             f"/espapi/admin/json/organizations/{organization_id}/admins",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -208,7 +216,8 @@ class Users(API):
             f"/espapi/admin/json/organizations/{organization_id}/admins/{user_id}",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -234,7 +243,8 @@ class Users(API):
         result: Result = self.adapter.delete(
             f"/espapi/admin/json/organizations/{organization_id}/admins/{user_id}",
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -265,7 +275,8 @@ class Users(API):
         result: Result = self.adapter.get(
             f"/espapi/admin/json/organizations/{organization_id}/notificationUsers",
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -305,7 +316,8 @@ class Users(API):
             f"/espapi/admin/json/organizations/{organization_id}/notificationUsers",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result

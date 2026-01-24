@@ -44,7 +44,8 @@ class Billing(API):
         result: Result = self.adapter.get(
             "/espapi/admin/json/billingItems",
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -69,7 +70,8 @@ class Billing(API):
             "/espapi/admin/json/billingPlans",
             ep_json=plan_data if plan_data else None,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -100,7 +102,8 @@ class Billing(API):
             ep_params=params,
             ep_json=plan_data if plan_data else None,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -123,7 +126,8 @@ class Billing(API):
         result: Result = self.adapter.get(
             "/espapi/admin/json/billingPlans",
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -150,7 +154,8 @@ class Billing(API):
             f"/espapi/admin/json/billingPlans/{plan_id}/versions",
             ep_json=version_data if version_data else None,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -183,7 +188,8 @@ class Billing(API):
             ep_params=params,
             ep_json=version_data if version_data else None,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -207,7 +213,8 @@ class Billing(API):
         result: Result = self.adapter.get(
             f"/espapi/admin/json/billingPlans/{plan_id}/versions",
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -241,7 +248,8 @@ class Billing(API):
             f"/espapi/admin/json/organizations/{organization_id}/billingPlans",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -275,7 +283,8 @@ class Billing(API):
             f"/espapi/admin/json/organizations/{organization_id}/billingPlans",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -306,7 +315,8 @@ class Billing(API):
             f"/espapi/admin/json/organizations/{organization_id}/billingPlans",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -348,7 +358,8 @@ class Billing(API):
             f"/espapi/admin/json/organizations/{organization_id}/bills",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -382,7 +393,8 @@ class Billing(API):
             f"/espapi/admin/json/organizations/{organization_id}/bills",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
@@ -414,7 +426,8 @@ class Billing(API):
             f"/espapi/admin/json/organizations/{organization_id}/bills/{bill_id}",
             ep_params=params,
             ep_headers=self.adapter._get_headers(
-                {"API_KEY": self.adapter._headers.get("ADMIN_KEY")}
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
             ),
         )
         return result
