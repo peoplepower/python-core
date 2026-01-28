@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import MagicMock
 
 from caredaily.apis.admin import Users
+from caredaily.models import APIKeyType
 
 
 class TestUsers(unittest.TestCase):
@@ -27,7 +28,7 @@ class TestUsers(unittest.TestCase):
         self.assertEqual(kwargs['ep_params']['locationId'], 2)
         self.assertEqual(kwargs['ep_params']['searchBy'], 'test')
         self.assertEqual(kwargs['ep_params']['limit'], 10)
-        self.mock_adapter._get_headers.assert_called_once_with({'API_KEY': 'admin_key'})
+        self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
         self.assertEqual(result, 'users-result')
 
     def test_get_users_minimal(self):
@@ -43,7 +44,7 @@ class TestUsers(unittest.TestCase):
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
         self.assertEqual(args[0], '/espapi/admin/json/roles')
-        self.mock_adapter._get_headers.assert_called_once_with({'API_KEY': 'admin_key'})
+        self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
         self.assertEqual(result, 'roles-result')
 
     def test_grant_user_role(self):
@@ -52,7 +53,7 @@ class TestUsers(unittest.TestCase):
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
         self.assertEqual(args[0], '/espapi/admin/json/users/1/roles/2')
-        self.mock_adapter._get_headers.assert_called_once_with({'API_KEY': 'admin_key'})
+        self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
         self.assertEqual(result, 'grant-role-result')
 
     def test_revoke_user_role(self):
@@ -61,7 +62,7 @@ class TestUsers(unittest.TestCase):
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
         self.assertEqual(args[0], '/espapi/admin/json/users/1/roles')
-        self.mock_adapter._get_headers.assert_called_once_with({'API_KEY': 'admin_key'})
+        self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
         self.assertEqual(result, 'revoke-role-result')
 
     def test_get_organization_admins(self):
@@ -71,7 +72,7 @@ class TestUsers(unittest.TestCase):
         args, kwargs = self.mock_adapter.get.call_args
         self.assertEqual(args[0], '/espapi/admin/json/organizations/1/admins')
         self.assertEqual(kwargs['ep_params']['parents'], True)
-        self.mock_adapter._get_headers.assert_called_once_with({'API_KEY': 'admin_key'})
+        self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
         self.assertEqual(result, 'admins-result')
 
     def test_get_organization_admins_no_parents(self):
@@ -88,7 +89,7 @@ class TestUsers(unittest.TestCase):
         args, kwargs = self.mock_adapter.put.call_args
         self.assertEqual(args[0], '/espapi/admin/json/organizations/1/admins/2')
         self.assertEqual(kwargs['ep_params']['brand'], 'test_brand')
-        self.mock_adapter._get_headers.assert_called_once_with({'API_KEY': 'admin_key'})
+        self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
         self.assertEqual(result, 'add-admin-result')
 
     def test_add_organization_admin_no_brand(self):
@@ -104,7 +105,7 @@ class TestUsers(unittest.TestCase):
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
         self.assertEqual(args[0], '/espapi/admin/json/organizations/1/admins/2')
-        self.mock_adapter._get_headers.assert_called_once_with({'API_KEY': 'admin_key'})
+        self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
         self.assertEqual(result, 'remove-admin-result')
 
     def test_get_notification_users(self):
@@ -113,7 +114,7 @@ class TestUsers(unittest.TestCase):
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
         self.assertEqual(args[0], '/espapi/admin/json/organizations/1/notificationUsers')
-        self.mock_adapter._get_headers.assert_called_once_with({'API_KEY': 'admin_key'})
+        self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
         self.assertEqual(result, 'notification-users-result')
 
     def test_update_notification_user(self):
@@ -130,7 +131,7 @@ class TestUsers(unittest.TestCase):
         self.assertEqual(kwargs['ep_params']['userId'], 2)
         self.assertEqual(kwargs['ep_params']['addCategory'], 1)
         self.assertEqual(kwargs['ep_params']['deleteCategory'], 2)
-        self.mock_adapter._get_headers.assert_called_once_with({'API_KEY': 'admin_key'})
+        self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
         self.assertEqual(result, 'update-notification-result')
 
     def test_update_notification_user_partial(self):

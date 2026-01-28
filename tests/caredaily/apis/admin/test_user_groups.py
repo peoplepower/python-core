@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import MagicMock
 
 from caredaily.apis.admin import UserGroups
+from caredaily.models import APIKeyType
 
 
 class TestUserGroups(unittest.TestCase):
@@ -20,7 +21,7 @@ class TestUserGroups(unittest.TestCase):
         self.assertEqual(args[0], '/espapi/admin/json/userGroups')
         self.assertEqual(kwargs['ep_params']['organizationId'], 1)
         self.assertEqual(kwargs['ep_params']['groupId'], 2)
-        self.mock_adapter._get_headers.assert_called_once_with({'API_KEY': 'admin_key'})
+        self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
         self.assertEqual(result, 'groups-result')
 
     def test_get_user_groups_no_params(self):
@@ -38,7 +39,7 @@ class TestUserGroups(unittest.TestCase):
         args, kwargs = self.mock_adapter.post.call_args
         self.assertEqual(args[0], '/espapi/admin/json/userGroups')
         self.assertEqual(kwargs['ep_json'], group_data)
-        self.mock_adapter._get_headers.assert_called_once_with({'API_KEY': 'admin_key'})
+        self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
         self.assertEqual(result, 'create-result')
 
     def test_update_user_group(self):
@@ -50,7 +51,7 @@ class TestUserGroups(unittest.TestCase):
         self.assertEqual(args[0], '/espapi/admin/json/userGroups')
         self.assertEqual(kwargs['ep_params']['groupId'], 1)
         self.assertEqual(kwargs['ep_json'], group_data)
-        self.mock_adapter._get_headers.assert_called_once_with({'API_KEY': 'admin_key'})
+        self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
         self.assertEqual(result, 'update-result')
 
     def test_delete_user_group(self):
@@ -60,7 +61,7 @@ class TestUserGroups(unittest.TestCase):
         args, kwargs = self.mock_adapter.delete.call_args
         self.assertEqual(args[0], '/espapi/admin/json/userGroups')
         self.assertEqual(kwargs['ep_params']['groupId'], 1)
-        self.mock_adapter._get_headers.assert_called_once_with({'API_KEY': 'admin_key'})
+        self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
         self.assertEqual(result, 'delete-result')
 
     def test_add_user_group_member(self):
@@ -71,7 +72,7 @@ class TestUserGroups(unittest.TestCase):
         self.assertEqual(args[0], '/espapi/admin/json/userGroups/members')
         self.assertEqual(kwargs['ep_params']['groupId'], 1)
         self.assertEqual(kwargs['ep_params']['userId'], 2)
-        self.mock_adapter._get_headers.assert_called_once_with({'API_KEY': 'admin_key'})
+        self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
         self.assertEqual(result, 'add-member-result')
 
     def test_remove_user_group_member(self):
@@ -82,5 +83,5 @@ class TestUserGroups(unittest.TestCase):
         self.assertEqual(args[0], '/espapi/admin/json/userGroups/members')
         self.assertEqual(kwargs['ep_params']['groupId'], 1)
         self.assertEqual(kwargs['ep_params']['userId'], 2)
-        self.mock_adapter._get_headers.assert_called_once_with({'API_KEY': 'admin_key'})
+        self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
         self.assertEqual(result, 'remove-member-result')

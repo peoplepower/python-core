@@ -19,7 +19,7 @@ from caredaily.exceptions import CareDailyException
 # Load environment variables from .env file in the project root
 # This allows tests to use API keys from .env without exporting them
 project_root = Path(__file__).parent.parent 
-env_file = project_root / ".env"
+env_file = project_root / ".test_env"
 if env_file.exists():
     load_dotenv(env_file)
 
@@ -119,7 +119,7 @@ def app_client():
     Raises:
         pytest.skip: If App API key is not available or configuration fails
     """
-    return CareDaily(raise_errors=True)
+    # return CareDaily(raise_errors=True)
     try:
         return CareDaily(raise_errors=True)
     except CareDailyException as e:
@@ -141,7 +141,7 @@ def admin_client():
     Raises:
         pytest.skip: If Admin API key is not available or configuration fails
     """
-    return CareDaily(profile="admin", raise_errors=True)
+    # return CareDaily(profile="admin", raise_errors=True)
     try:
         return CareDaily(profile="admin", raise_errors=True)
     except CareDailyException as e:

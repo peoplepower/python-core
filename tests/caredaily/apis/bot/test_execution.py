@@ -158,12 +158,12 @@ class TestExecution(unittest.TestCase):
         self.mock_adapter._headers = {}
         default_headers = {"Content-Type": "application/json"}
         self.mock_adapter._get_headers.return_value = default_headers
-        
+
         self.exec_api.listen(app_instance_id=1)
-        
+
         call_args = self.mock_adapter.get.call_args
-        # Should use default headers
-        self.mock_adapter._get_headers.assert_called_with()
+        # Should use default headers with None key and USER type
+        self.mock_adapter._get_headers.assert_called_with(api_key=None, key_type=APIKeyType.USER)
         self.assertEqual(call_args[1]["ep_headers"], default_headers)
 
     def test_listen_headers_with_admin_key(self):
@@ -171,25 +171,15 @@ class TestExecution(unittest.TestCase):
         self.mock_adapter.get.return_value = {'result': 'ok'}
         admin_key = "admin_key_123"
         self.mock_adapter._headers = {"ADMIN_KEY": admin_key}
-        
-        # First call returns default headers, second call returns headers with USER key type
-        default_headers = {"Content-Type": "application/json"}
+
         user_headers = {"Content-Type": "application/json", "API_KEY": admin_key}
-        self.mock_adapter._get_headers = MagicMock(side_effect=[default_headers, user_headers])
-        
+        self.mock_adapter._get_headers.return_value = user_headers
+
         self.exec_api.listen(app_instance_id=1)
-        
-        # Verify _get_headers was called twice: once default, once with admin_key and USER key type
-        self.assertEqual(self.mock_adapter._get_headers.call_count, 2)
-        
-        # First call: default headers
-        first_call = self.mock_adapter._get_headers.call_args_list[0]
-        self.assertEqual(first_call, call())
-        
-        # Second call: with admin_key and USER key type
-        second_call = self.mock_adapter._get_headers.call_args_list[1]
-        self.assertEqual(second_call, call(admin_key, key_type=APIKeyType.USER))
-        
+
+        # Verify _get_headers was called once with admin_key and USER key type
+        self.mock_adapter._get_headers.assert_called_once_with(api_key=admin_key, key_type=APIKeyType.USER)
+
         # Verify the final headers passed to get() are the user headers
         call_args = self.mock_adapter.get.call_args
         self.assertEqual(call_args[1]["ep_headers"], user_headers)

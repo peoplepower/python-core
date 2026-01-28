@@ -55,6 +55,11 @@ from .apis import (
 )
 from .exceptions import CareDailyException
 
+from dotenv import load_dotenv, find_dotenv
+
+# Load environment variables from .env file (looks for .env in current or parent directories by default)
+env_filepath = find_dotenv()
+load_dotenv()
 
 class CareDaily:
     def __init__(self, profile: str = None, raise_errors: bool = True):

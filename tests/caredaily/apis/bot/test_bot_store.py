@@ -38,7 +38,7 @@ class TestBotStore(unittest.TestCase):
         self.assertEqual(kwargs['ep_params']['bundle'], 'com.example.bot')
         self.assertEqual(kwargs['ep_params']['status'], 1)
         self.assertEqual(kwargs['ep_params']['development'], True)
-        self.mock_adapter._get_headers.assert_called_once_with('admin_key', APIKeyType.USER)
+        self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
         self.assertEqual(result, {'status': 'approved'})
 
     def test_approve_bot_for_organization_without_development(self):
@@ -138,7 +138,7 @@ class TestBotStore(unittest.TestCase):
         args, kwargs = self.mock_adapter.put.call_args
         self.assertEqual(kwargs['ep_params']['appInstanceId'], 123)
         self.assertEqual(kwargs['ep_params']['status'], 1)
-        self.assertEqual(kwargs['ep_json'], json.dumps(data))
+        self.assertEqual(kwargs['ep_data'], json.dumps(data))
         self.assertEqual(result, {'status': 'ok'})
 
     def test_configure_my_bot_without_status(self):
@@ -152,7 +152,7 @@ class TestBotStore(unittest.TestCase):
         self.mock_adapter.put.return_value = {'status': 'ok'}
         self.bot_store.configure_my_bot(123, status=1)
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertIsNotNone(kwargs['ep_json'])
+        self.assertIsNone(kwargs['ep_data'])
 
     def test_get_my_bots(self):
         self.mock_adapter.get.return_value = {'bots': []}

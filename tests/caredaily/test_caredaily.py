@@ -186,9 +186,10 @@ class TestCareDaily(unittest.TestCase):
 
         self.assertIn("missing 'profile nonexistent' section", str(context.exception))
 
-    @patch.dict(os.environ, {"CAREDAILY_INTEGRATION_PATH": ""})
+    @patch.dict(os.environ, {"CAREDAILY_INTEGRATION_PATH": "", "CAREDAILY_PROFILE": ""}, clear=False)
     def test_init_missing_credentials_default_with_raise_errors(self, mock_home=None):
         os.environ["CAREDAILY_INTEGRATION_PATH"] = self.temp_dir
+        os.environ["CAREDAILY_PROFILE"] = ""
 
         # Create credentials without default section
         credentials = ConfigParser()
@@ -295,10 +296,11 @@ class TestCareDaily(unittest.TestCase):
 
         # Set a value first
         caredaily._config["ssl_verify"] = True
-        # Update with False (falsy value) should delete it
+        # Update with False (falsy value but not None) should set it to False
         caredaily.update_config("ssl_verify", False)
-        # Since False is falsy, the key should be deleted per the implementation
-        self.assertNotIn("ssl_verify", caredaily._config)
+        # False is a valid value (implementation checks 'value is not None')
+        self.assertIn("ssl_verify", caredaily._config)
+        self.assertEqual(caredaily._config["ssl_verify"], False)
 
     @patch.dict(os.environ, {"CAREDAILY_INTEGRATION_PATH": ""})
     def test_update_config_invalid_key(self, mock_home=None):

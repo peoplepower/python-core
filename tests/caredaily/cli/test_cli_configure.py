@@ -315,11 +315,12 @@ class TestCliConfigure(unittest.TestCase):
     def test_interactive_without_profile(self, mock_caredaily_class):
         """Test interactive command without profile specified"""
         os.environ["HOME"] = self.temp_dir
+        os.environ["CAREDAILY_INTEGRATION_PATH"] = self.temp_dir
 
         mock_caredaily = MagicMock()
         mock_caredaily_class.return_value = mock_caredaily
 
-        result = self.runner.invoke(app, ["configure", "interactive"])
+        result = self.runner.invoke(app, ["configure", "interactive"], env={"HOME": self.temp_dir, "CAREDAILY_INTEGRATION_PATH": self.temp_dir})
         self.assertEqual(result.exit_code, 0)
         self.assertIn("Profile not specified", result.output)
 
@@ -615,6 +616,7 @@ class TestCliConfigure(unittest.TestCase):
     def test_interactive_uses_env_profile(self, mock_caredaily_class):
         """Test interactive command uses CAREDAILY_PROFILE from environment"""
         os.environ["HOME"] = self.temp_dir
+        os.environ["CAREDAILY_INTEGRATION_PATH"] = self.temp_dir
 
         # Add profile to config
         config = ConfigParser()
@@ -646,6 +648,7 @@ class TestCliConfigure(unittest.TestCase):
             app,
             ["configure", "interactive"],
             input="env.example.com\ny\n\nn\nenv_key\n0\n",
+            env={"HOME": self.temp_dir, "CAREDAILY_PROFILE": "envprofile", "CAREDAILY_INTEGRATION_PATH": self.temp_dir},
         )
         self.assertEqual(result.exit_code, 0)
         self.assertIn("Configured 'envprofile' successfully", result.output)

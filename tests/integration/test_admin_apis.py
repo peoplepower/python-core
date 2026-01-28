@@ -19,8 +19,10 @@ class TestOrganizationsAdminLive:
     """Integration tests for Organizations Admin API (read-only operations)."""
     
     @pytest.mark.requires_admin_key
-    def test_get_organizations(self, admin_client):
+    def test_get_organizations(self, admin_client, has_admin_key):
         """Test getting organizations list (read-only operation)."""
+        if not has_admin_key:
+            pytest.skip("Admin API key not available.")
         try:
             api = admin_client.admin_api(Organizations)
             result = api.get_organizations(organization_id=0)
@@ -34,8 +36,10 @@ class TestOrganizationsAdminLive:
             raise e
     
     @pytest.mark.requires_admin_key
-    def test_get_organization_totals(self, admin_client):
+    def test_get_organization_totals(self, admin_client, has_admin_key):
         """Test getting organization totals (read-only operation)."""
+        if not has_admin_key:
+            pytest.skip("Admin API key not available.")
         try:
             api = admin_client.admin_api(Organizations)
             result = api.get_organization_totals(organization_id=0)
@@ -48,8 +52,10 @@ class TestOrganizationsAdminLive:
             assert e.context["resultCode"] == ResultCode.ACCESS_DENIED.value
     
     @pytest.mark.requires_admin_key
-    def test_get_brands(self, admin_client):
+    def test_get_brands(self, admin_client, has_admin_key):
         """Test getting brands list (read-only operation)."""
+        if not has_admin_key:
+            pytest.skip("Admin API key not available.")
         try:
             api = admin_client.admin_api(Organizations)
             api.get_brands()
