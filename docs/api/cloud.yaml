@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: 'Care Daily AI and IoT Platform: Application API'
-  version: '57'
+  version: '58'
   description: |-
     The Care Daily AI and IoT Platform is the most comprehensive carrier-grade software suite ever developed for the creation and deployment of family-centric smart home and building services.
     The Care Daily AI Platform supports an AI Marketplace for 24/7 assistive services built with IoT devices, including coordination and communications between families and professionals.
@@ -1030,6 +1030,64 @@ paths:
                 resultCode: 0
 
 
+  /cloud/json/authToken:
+    get:
+      tags:
+        - Authentication
+      summary: Generate authorization token
+      operationId: Get Auth Token
+      description: |-
+        Generate an authorization tokens, which can be used in other services.
+        
+        | Token Type | Name | Services | Required Parameters |
+        | :--------: | ---- | -------- | ------------------- |
+        | 7 | Location | MCP Server | Location ID |
+      security:
+        - userApiKey: []
+      parameters:
+        - name: tokenType
+          in: query
+          description: Requested token type
+          required: true
+          schema:
+            type: integer
+        - name: expiry
+          in: query
+          description: Token expiry time from now in seconds
+          required: true
+          schema:
+            type: integer
+        - name: locationId
+          in: query
+          description: Location ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Authorization token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  key:
+                    type: string
+                    description: Token
+                  keyExpire:
+                    type: string
+                    description: Expiration timestamp in ISO 8601 format YYYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]
+                  keyExpireMs:
+                    type: integer
+                    description: Expiration timestamp in milliseconds
+              example:
+                resultCode: 0
+                key: UugJtGEXxMfnVyql4N4crIAfqOUlJ
+                keyExpire: '2019-07-01T14:54:54-04:00'
+                keyExpireMs: 1562007294000
+
+
   /cloud/json/totp:
     post:
       tags:
@@ -1677,27 +1735,49 @@ paths:
                     properties:
                       id:
                         type: integer
+                        description: User ID
                       userName:
                         type: string
+                        description: Username
                       altUsername:
                         type: string
+                        description: Alternative (second) username
+                      passwordSet:
+                        type: boolean
+                        description: User has a password
+                      passwordStrong:
+                        type: boolean
+                        description: The password corresponds to the "strong" password criteria
                       firstName:
                         type: string
+                        description: User's first name
                       lastName:
                         type: string
+                        description: User's last name
                       communityName:
                         type: string
+                        description: User's community pseudo name
                       email:
                         type: object
                         properties:
                           email:
                             type: string
+                            description: An email address
                           verified:
                             type: boolean
+                            description: The email address was verified
                           status:
                             type: integer
+                            description: |-
+                              Email address status.<br>
+                              0 - OK<br>
+                              1 - Hard Bounce<br>
+                              2 - Spam complaint<br>
+                              3 - Bad address<br>
+                              4 - Spam notification
                       permission:
                         type: array
+                        description: User role permissions
                         items:
                           type: integer
                       role:
@@ -1705,33 +1785,68 @@ paths:
                         properties:
                           id:
                             type: integer
+                            description: Role ID
                           name:
                             type: string
+                            description: Role name
                           description:
                             type: string
+                            description: Role description
                       anonymous:
                         type: boolean
+                        description: |-
+                          When the user sends messages in a community social network, enabling this flag will cause their name to be hidden when they send messages and on lists of individuals who are part of a group inside an organization, etc.
                       phone:
                         type: string
+                        description: Phone number
                       phoneType:
                         type: integer
+                        description: Phone type
                       smsStatus:
                         type: integer
+                        description: |-
+                          If a user can receive SMS.<br>
+                          0 - Unknown<br>
+                          1 - Yes, verified<br>
+                          2 - Probably, but not verified<br>
+                          3 - No, invalid phone number
                       language:
                         type: string
+                        description: User's preferred language. For example en - English, fr - French, ru - Russian, cn - Chinese, etc.
                       medicalRecordNumber:
                         type: string
                         description: Medical Record Number
                       pronounId:
                         type: integer
+                        description: User's pronoun ID. See the get pronouns API.
+                      avatarFileId:
+                        type: integer
+                        description: Avatar app file ID
                       accessibility:
                         type: integer
+                        description: |-
+                          Bitmask representation of accessibility preferences.<br>
+                          0 - None<br>
+                          1 - Visual impairment<br>
+                          2 - Hearing impairment<br>
+                          4 - Mobility impairment<br>
+                          8 - Communication impairment<br>
+                          16 - Physical impairment<br>
+                          32 - Cognitive impairment
                       birthDate:
                         type: string
+                        description: User's birth date in the `yyyy-MM-dd` format
                       gender:
                         type: integer
+                        description: |-
+                          User's gender.<br>
+                          0 - Unknown or prefer not to set<br>
+                          1 - Male<br>
+                          2 - Female<br>
+                          3 - Other
                       organizationId:
                         type: integer
+                        description: Organization ID used for the user's creation
                       authClients:
                         type: array
                         items:
@@ -1745,17 +1860,24 @@ paths:
                               type: integer
                       externalUsers:
                         type: array
+                        description: Partner system user identifiers, e.g. EHR patient ID
                         items:
                           type: object
                           properties:
-                            role:
-                              type: integer
                             applicationId:
                               type: integer
+                              description: Partner application ID
                             externalUserId:
                               type: string
-                            externalLocationId:
-                              type: string
+                              description: External user ID
+                            role:
+                              type: integer
+                              description: |-
+                                External user's role<br>
+                                0 - resident<br>
+                                1 - related party<br>
+                                2 - SSO<br>
+                                6 - physitian/doctor
                           required:
                             - role
                             - applicationId
@@ -4642,82 +4764,6 @@ paths:
                 devicesTotal: 3
                 filesTotal: 50
                 rulesTotal: 10
-
-
-  /cloud/json/presence:
-    get:
-      summary: Get Presence IDs
-      operationId: Get Presence IDs
-      description: >-
-        These APIs determine if a person is physically present nearby one of location gateways, where the user has read access.
-        It return UUIDs provided by all gateways, where the user has read access.
-      tags:
-        - Locations
-      security:
-        - userApiKey: []
-      responses:
-        '200':
-          description: iBeacon UUIDs
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-                  ibeaconUuids:
-                    type: array
-                    items:
-                      type: string
-              example:
-                resultCode: 0
-                ibeaconUuids:
-                  - ABCD-1234-EFGH-5678
-                  - QWER-0987-ASDF-4321
-
-    post:
-      summary: Authorize Access
-      operationId: Authorize Access
-      description: Authorize access to the location, where the gateway with provided parameters is located.
-      tags:
-        - Locations
-      security:
-        - userApiKey: []
-      requestBody:
-        content:
-          application/json:
-            example:
-              paramsMap:
-                ibeaconUuid: ABCD-1234-EFGH-5678
-                ibeaconMajor: '12'
-                ibeaconMinor: '45'
-            schema:
-              type: object
-              properties:
-                paramsMap:
-                  type: object
-                  properties:
-                    ibeaconUuid:
-                      type: string
-                    ibeaconMajor:
-                      type: string
-                    ibeaconMinor:
-                      type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-                  locationId:
-                    type: integer
-              example:
-                resultCode: 0
-                locationId: 456
 
 
   /cloud/appstore/stream:
@@ -10315,8 +10361,8 @@ paths:
 
   /cloud/json/questions:
     get:
-      summary: Get Questions
-      operationId: Get Questions
+      summary: Get Bot Questions
+      operationId: Get Bot Questions
       description: |-
         Questions enable bidirectional conversations to take place between the users' location and data analytics services.
         Questions enable the user to add context to the data.
@@ -10681,8 +10727,8 @@ paths:
                     answerModified: false
 
     put:
-      summary: Answer Questions
-      operationId: Answer Questions
+      summary: Answer Bot Questions
+      operationId: Answer Bot Questions
       description: |-
         After answering a question, if the question is aggregated publicly then the user should also see how other people voted.
 
@@ -10790,15 +10836,171 @@ paths:
                     answerModified: false
 
 
-  /cloud/json/surveyNotification:
-    post:
-      summary: Post Survey Notification
-      operationId: Post Survey Notification
-      description: Send an email to a user or to an organization notification users to answer a survey.
+  /cloud/json/surveyAnswers:
+    get:
+      summary: Get Survey Answers
+      operationId: Get Survey Answers
+      description: |-
+        Returns history of survey answers.
       tags:
         - Questions
       security:
-        - adminApiKey: []
+        - userApiKey: []
+        - botApiKey: []
+      parameters:
+        - name: locationId
+          in: query
+          description: Location ID
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: query
+          description: User ID filter
+          schema:
+            type: integer
+        - name: surveyKey
+          in: query
+          description: Survey filter
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: |-
+            Survey answer status filter:<br>
+            0 - Open<br>
+            1 - Closed
+          schema:
+            type: integer
+        - name: startDate
+          in: query
+          description: Answers start date
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          description: Answers end date
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Survey answers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  answers:
+                    type: array
+                    description: Survey answer records
+                    items:
+                      type: object
+                      properties:
+                        answerId:
+                          type: integer
+                          description: Answer record ID
+                        status:
+                          type: integer
+                          description: |-
+                            Answer record status:<br>
+                            0 - open,<br>
+                            1 - closed
+                        userId:
+                          type: integer
+                          description: User ID
+                        locationId:
+                          type: integer
+                          description: Location ID
+                        startDate:
+                          type: string
+                          description: Answering start date
+                        startDateMs:
+                          type: string
+                          description: Answering start time
+                        notificationDate:
+                          type: string
+                          description: Last notificatyion send date
+                        notificationDateMs:
+                          type: string
+                          description: Last notificatyion send time
+                        endDate:
+                          type: string
+                          description: Answering end date
+                        endDateMs:
+                          type: string
+                          description: Answering end time
+                        survey:
+                          type: object
+                          properties:
+                            surveyKey:
+                              type: string
+                              description: Unique Survey Key
+                            organizationId:
+                              type: integer
+                              description: ID of organization, which is the owner of the survey
+                            status:
+                              type: integer
+                              description: |-
+                                Survey status:<br>
+                                0 - inactive,<br>
+                                1 - active,<br>
+                                2 - closed
+                            title:
+                              type: string
+                              description: Title
+                            description:
+                              type: string
+                              description: Description
+              example:
+                resultCode: 0
+                answers:
+                  - answerId: 12345
+                    status: 1
+                    userId: 678
+                    locationId: 456
+                    startDate: '2026-01-15T09:30:00-07:00'
+                    startDateMs: '1736952600000'
+                    notificationDate: '2026-01-15T09:30:00-07:00'
+                    notificationDateMs: '1736952600000'
+                    endDate: '2026-01-15T10:15:00-07:00'
+                    endDateMs: '1736955300000'
+                    survey:
+                      surveyKey: 'monthly_wellness_check'
+                      organizationId: 100
+                      status: 1
+                      title: 'Monthly Wellness Check'
+                      description: 'Regular wellness assessment survey'
+                  - answerId: 12346
+                    status: 0
+                    userId: 679
+                    locationId: 456
+                    startDate: '2026-01-20T14:00:00-07:00'
+                    startDateMs: '1737406800000'
+                    survey:
+                      surveyKey: 'intake_assessment'
+                      organizationId: 100
+                      status: 1
+                      title: 'Patient Intake Assessment'
+                      description: 'Initial patient evaluation survey'
+
+    post:
+      summary: Start Answering Survey
+      operationId: Start Answering Survey
+      description: |-
+        Intitiates a survey answering. This API creates a new survey answer record for the requested user or returns an existing answer record.
+        
+        A user or a bot can submit answers to some survey questions in this request. Also question answers can be copied from a previously submitted survey by ID. 
+        
+        The API can send an email to a user or to an organization notification users with a link to answer the survey or to view the existing answers,
+        if the `sendToUser` or the `notificationCategory` parameters are provided.
+        
+        The API returns the answer record with an authentication token and a URL to answer the survey for the user or view the previous answers.
+      tags:
+        - Questions
+      security:
+        - userApiKey: []
         - botApiKey: []
       parameters:
         - name: locationId
@@ -10815,17 +11017,23 @@ paths:
             type: string
         - name: userId
           in: query
-          description: Answer a survey for specific user
+          description: Answer a survey for this user
+          required: true
           schema:
             type: integer
-        - name: role
+        - name: answerId
           in: query
-          description: Answer a survey for users with this role on the location
+          description: An existing answer record ID to recreate previous API response and action
+          schema:
+            type: integer
+        - name: preAnswerId
+          in: query
+          description: Copy question answers from this answer record
           schema:
             type: integer
         - name: sendToUser
           in: query
-          description: Send the email directly to the user
+          description: Send the email directly to the location users
           schema:
             type: boolean
         - name: notificationCategory
@@ -10833,9 +11041,43 @@ paths:
           description: Send the email to organization notification user with this category
           schema:
             type: integer
+      requestBody:
+        content:
+          application/json:
+            example:
+              questions:
+                - questionKey: Question#1
+                  answer: '1'
+                - questionKey: Question#2
+                  answer: '0'
+              notificationModel:
+                connectionDate: 2026-02-02
+            schema:
+              type: object
+              properties:
+                questions:
+                  type: array
+                  description: Optional answers to the survey questions
+                  items:
+                    type: object
+                    properties:
+                      questionKey:
+                        type: string
+                        description: Question key
+                      answer:
+                        type: string
+                        description: Question answer
+                    required:
+                      - questionKey
+                      - answer
+                notificationModel:
+                  type: object
+                  additionalProperties:
+                    type: string
+                  description: Additional notification template parameters as a string map
       responses:
         '200':
-          description: OK
+          description: Answer the survey URL
           content:
             application/json:
               schema:
@@ -10843,19 +11085,91 @@ paths:
                 properties:
                   resultCode:
                     type: integer
+                  answer:
+                    description: Survey answer record
+                    type: object
+                    properties:
+                      answerId:
+                        type: integer
+                        description: Answer record ID
+                      status:
+                        type: integer
+                        description: |-
+                          Answer record status:<br>
+                          0 - open,<br>
+                          1 - closed
+                      userId:
+                        type: integer
+                        description: User ID
+                      locationId:
+                        type: integer
+                        description: Location ID
+                      startDate:
+                        type: string
+                        description: Answering start date
+                      startDateMs:
+                        type: string
+                        description: Answering start time
+                      notificationDate:
+                        type: string
+                        description: Last notificatyion send date
+                      notificationDateMs:
+                        type: string
+                        description: Last notificatyion send time
+                      endDate:
+                        type: string
+                        description: Answering end date
+                      endDateMs:
+                        type: string
+                        description: Answering end time
+                      token:
+                        type: string
+                        description: Answer the survey authentication token
+                      surveyUrl:
+                        type: string
+                        description: Answer the survey URL
               example:
                 resultCode: 0
+                answer:
+                  answerId: 12345
+                  status: 1
+                  userId: 678
+                  locationId: 456
+                  startDate: '2026-01-15T09:30:00-07:00'
+                  startDateMs: '1736952600000'
+                  notificationDate: '2026-01-15T09:30:00-07:00'
+                  notificationDateMs: '1736952600000'
+                  endDate: '2026-01-15T10:15:00-07:00'
+                  endDateMs: '1736955300000'
+                  token: abc.def.ghijklm
+                  surveyUrl: https://app.caredaily.ai/espapi/redirect/survey/abc.def.ghijklm
 
 
   /cloud/json/surveyQuestions:
     get:
       summary: Get Survey Questions
       operationId: Get Survey Questions
-      description: Return open organization survey details, sections, questions, and previously submitted answers.
+      description: |-
+        Return open organization survey details, sections, questions, and previously submitted answers.
+        
+        The request can be authenticated either by a survey answer token (Bearer JWT) or by a user or bot API key.
       tags:
         - Questions
       security:
-        - surveyApiKey: []
+        - surveyAnswerAuth: []
+        - userApiKey: []
+        - botApiKey: []
+      parameters:
+        - name: locationId
+          in: query
+          description: Location ID when a user or a bot is authenticated
+          schema:
+            type: integer
+        - name: answerId
+          in: query
+          description: Answer ID when a user or a bot is authenticated
+          schema:
+            type: integer
       responses:
         '200':
           description: Survey Questions
@@ -10879,8 +11193,9 @@ paths:
                         type: integer
                         description: |-
                           Survey status:<br>
-                          0 - inactive (cannot be answered)<br>
-                          1 - active
+                          0 - inactive,<br>
+                          1 - active,<br>
+                          2 - closed
                       answerStatus:
                         type: integer
                         description: |-
@@ -10919,96 +11234,160 @@ paths:
                             sectionId:
                               type: integer
                               description: Section ID
-                            parentSectionId:
-                              type: integer
-                              description: Parent Section ID (optional)
                             orderNum:
                               type: integer
                               description: Ordering number within the survey or the parent section
                             title:
                               type: string
                               description: Optinal section title
-                      questions:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            questionKey:
+                            description:
                               type: string
-                              description: Question key uniqie within the survey
-                            sectionId:
-                              type: integer
-                              description: Section ID
-                            orderNum:
-                              type: integer
-                              description: Ordering number within the the section
-                            question:
-                              type: string
-                              description: Question text
-                            responseType:
-                              type: integer
-                              description: Answer type
-                            displayType:
-                              type: integer
-                              description: UI display type for each type of answer (for example, yes/no vs. on/off switch, or a slider that shows integers vs. a slider that shows minutes:seconds)
-                            answerFormat:
-                              type: string
-                              description: Regular expression to validate answer format in UI.
-                            slider:
-                              type: object
-                              description: Slider
-                              properties:
-                                min:
-                                  type: integer
-                                  description: Answer minimum value
-                                max:
-                                  type: integer
-                                  description: Answer maximum value
-                                inc:
-                                  type: integer
-                                  description: Slider increment
-                                minDesc:
-                                  type: string
-                                  description: Description of slider minimum value
-                                maxDesc:
-                                  type: string
-                                  description: Description of slider maximum value
-                                unitsDesc:
-                                  type: string
-                                  description: Unit description
-                            responseOptions:
+                              description: Section description
+                            questions:
                               type: array
-                              description:
                               items:
                                 type: object
                                 properties:
-                                  id:
-                                    type: integer
-                                    description: ID number for types of questions that feature a list of options
-                                  text:
+                                  questionKey:
                                     type: string
-                                    description: Description of the option
-                                required:
-                                  - id
-                                  - text
-                            answer:
-                              type: string
-                              description: Previous answer value
-                            answerDate:
-                              type: string
-                              description: Previous answer date
-                            answerDateMs:
-                              type: string
-                              description: Previous answer time
+                                    description: Question key uniqie within the survey
+                                  orderNum:
+                                    type: integer
+                                    description: Ordering number within the the section
+                                  question:
+                                    type: string
+                                    description: Question text
+                                  description:
+                                    type: string
+                                    description: Question description
+                                  responseType:
+                                    type: integer
+                                    description: Answer type
+                                  optional:
+                                    type: boolean
+                                    description: If the answer is optional to submit the survey
+                                  displayType:
+                                    type: integer
+                                    description: UI display type for each type of answer (for example, yes/no vs. on/off switch, or a slider that shows integers vs. a slider that shows minutes:seconds)
+                                  answerFormat:
+                                    type: string
+                                    description: Regular expression to validate answer format in UI.
+                                  slider:
+                                    type: object
+                                    description: Slider
+                                    properties:
+                                      min:
+                                        type: integer
+                                        description: Answer minimum value
+                                      max:
+                                        type: integer
+                                        description: Answer maximum value
+                                      inc:
+                                        type: integer
+                                        description: Slider increment
+                                      minDesc:
+                                        type: string
+                                        description: Description of slider minimum value
+                                      maxDesc:
+                                        type: string
+                                        description: Description of slider maximum value
+                                      unitsDesc:
+                                        type: string
+                                        description: Unit description
+                                  responseOptions:
+                                    type: array
+                                    description:
+                                    items:
+                                      type: object
+                                      properties:
+                                        id:
+                                          type: integer
+                                          description: ID number for types of questions that feature a list of options
+                                        text:
+                                          type: string
+                                          description: Description of the option
+                                      required:
+                                        - id
+                                        - text
+                                  answer:
+                                    type: string
+                                    description: Previous answer value
+                                  answerDate:
+                                    type: string
+                                    description: Previous answer date
+                                  answerDateMs:
+                                    type: string
+                                    description: Previous answer time
               example:
                 resultCode: 0
                 survey:
                   surveyKey: ConnectionSurvey
                   organizationId: 100
                   status: 1
+                  answerStatus: 0
                   title: Connections Survey
                   description: Successful Aging Connections Questionnaire
+                  instructions: Please answer all questions honestly
                   pagination: true
+                  startDate: '2026-01-15T09:30:00-07:00'
+                  startDateMs: 1736952600000
+                  notificationDate: '2026-01-15T09:30:00-07:00'
+                  notificationDateMs: 1736952600000
+                  sections:
+                    - sectionId: 1
+                      orderNum: 1
+                      title: Personal Information
+                      questions:
+                        - questionKey: age_range
+                          orderNum: 1
+                          question: What is your age range?
+                          description: Select the range that includes your current age
+                          responseType: 4
+                          optional: false
+                          displayType: 1
+                          responseOptions:
+                            - id: 1
+                              text: 18-30
+                            - id: 2
+                              text: 31-50
+                            - id: 3
+                              text: 51-70
+                            - id: 4
+                              text: 71+
+                        - questionKey: living_alone
+                          orderNum: 2
+                          question: Do you live alone?
+                          responseType: 1
+                          optional: false
+                          displayType: 1
+                          answer: 'true'
+                          answerDate: '2026-01-15T10:00:00-07:00'
+                          answerDateMs: '1736954400000'
+                    - sectionId: 2
+                      orderNum: 2
+                      title: Health Assessment
+                      questions:
+                        - questionKey: pain_level
+                          orderNum: 1
+                          question: Rate your current pain level
+                          description: Use the slider to indicate your pain level
+                          responseType: 2
+                          optional: false
+                          displayType: 2
+                          slider:
+                            min: 0
+                            max: 10
+                            inc: 1
+                            minDesc: No pain
+                            maxDesc: Severe pain
+                            unitsDesc: points
+                        - questionKey: medication_notes
+                          orderNum: 2
+                          question: Any notes about your medications?
+                          responseType: 3
+                          optional: true
+                          displayType: 1
+                          answerFormat: '^.{0,500}$'
 
     put:
       summary: Answer Survey Questions
@@ -11021,11 +11400,25 @@ paths:
         
         An optional parameter `status` is used to finalize the latest survey response.
         In this case the API checks that all questions answered and triggers bots.
+        
+        The request can be authenticated either by a survey answer token (Bearer JWT) or by a user or bot API key.
       tags:
         - Questions
       security:
-        - surveyApiKey: []
+        - surveyAnswerAuth: []
+        - userApiKey: []
+        - botApiKey: []
       parameters:
+        - name: locationId
+          in: query
+          description: Location ID when a user or a bot is authenticated
+          schema:
+            type: integer
+        - name: answerId
+          in: query
+          description: Answer ID when a user or a bot is authenticated
+          schema:
+            type: integer
         - name: status
           in: query
           description: |-
@@ -12253,9 +12646,9 @@ paths:
               example:
                 resultCode: 0
                 contentUrl: >-
-                  https://s3.amazonaws.com/bucket1/object1?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20180704T220443Z&X-Amz-SignedHeaders=host&X-Amz-Expires=10&X-Amz-Credential={credential}&X-Amz-Signature={signature}
+                  https://s3.amazonaws.com/bucket1/object1?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20180704T220443Z&X-Amz-SignedHeaders=host&X-Amz-Expires=10&X-Amz-Credential=AKIAJPAZD&X-Amz-Signature=af7329c26
                 thumbnailUrl: >-
-                  https://s3.amazonaws.com/bucket2/object1?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20180704T220443Z&X-Amz-SignedHeaders=host&X-Amz-Expires=10&X-Amz-Credential={credential}&X-Amz-Signature={signature}
+                  https://s3.amazonaws.com/bucket2/object1?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20180704T220443Z&X-Amz-SignedHeaders=host&X-Amz-Expires=10&X-Amz-Credential=AKIAJPAZD&X-Amz-Signature=af7329c26
 
 
   /cloud/json/filesSummary/{aggregation}:
@@ -19705,7 +20098,10 @@ paths:
     get:
       summary: Get Third-Party Clouds
       operationId: Get Third-Party Clouds
-      description: This API returns a list of supported third-party clouds/applications, where a user may obtain authorization.
+      description: |-
+        OAuth 2.0 Client.
+        
+        This API returns supported third-party clouds/applications, where a user may obtain authorization, so Care Daily can access user's data there as a client.
       tags:
         - Clouds Integration
       responses:
@@ -19751,7 +20147,7 @@ paths:
       summary: Access a Third-Party Cloud
       operationId: Access a Third-Party Cloud
       description: |-
-        This URL is meant to be loaded in a web view.
+        OAuth 2.0 Client. This URL is meant to be loaded in a web view.
 
         It will redirect a user to the third party application web page for authenticating and authorizing access to user's data in the external application.
 
@@ -19800,6 +20196,8 @@ paths:
       summary: Revoke Access to a Third-Party Cloud
       operationId: Revoke Access to a Third-Party Cloud
       description: |-
+        OAuth 2.0 Client.
+        
         The user may revoke authorization for the Care Daily AI Platform to access the user's data on a third-party host.
 
         This operation will delete all corresponding access and refresh tokens.
@@ -19839,26 +20237,23 @@ paths:
       summary: Authorize a Third-Party Application
       operationId: Authorize a Third-Party Application
       description: |-
-        OAuth allows the Care Daily AI Platform to act as a client or a host for a third-party application.
-  
-        As a host, the Care Daily AI Platform provides authorization information to third party applications using the OAuth 2.0 open standard.        
+        OAuth 2.0 Host.
         
+        OAuth 2.0 allows the Care Daily AI Platform to act as a host for a third-party application.
+        The Care Daily AI Platform provides authorization information to third party applications using the OAuth 2.0 open standard.        
+        
+        Each OAuth 2.0 client has to be registered in Care Daily before requesting authorization.
+        The registration information includes the client ID, secret, and the callback URL.
+
         This endpoint begins the process of authorizing a third-party application (the client) to access the user's data.
         The client has to redirect the user to this HTTP GET URL.
         The request will be processed in the following steps:
 
-        1. The user is redirected to the Care Daily login web page, where he or she has to enter his or her username and password.
+        1. The user is redirected to the Care Daily login web page, where he or she has to complete the authentication process by the username and password or a passcode.
 
         2. After successful authentication, the user is redirected to the approval page, where he or she has to allow or deny the client access to data.
 
-        3. From the approval page, the user is redirected to the Care Daily AI Platform approval URL.
-
-        4. The Care Daily AI Platform redirects the user to the third-party callback URL with an authorization or error code.
-
-        Each client has to be registered in Care Daily before requesting authorization.
-        The registration information includes the client ID, secret, and the callback URL.
-
-        At the end of this process, the user will be redirected to the callback URL (HTTP Status Code 303, see Other) with the following query parameters:
+        3. From the approval page, the Care Daily AI Platform redirects the user to the third-party client callback URL with an authorization or error code:
 
         | Parameter | Type | Details |
         | --------- | :--: | ------- |
@@ -19866,27 +20261,27 @@ paths:
         | code | string | The authorization code, if the process was successful |
         | error | string | The authorization error code, if the process was unsuccessful.<br><b>access_denied</b><br><b>unsupported_response_type</b><br><b>server_error</b> |
 
-        The application has to GET the Access Token with a separate API call to access data from the Care Daily AI Platform.
+        The application has to obtain the Access Token with a separate API call to access data from the Care Daily AI Platform.
 
-        You may find the list of authorized third-party apps in the /user GET information API.
+        You may find the list of authorized third-party OAuth 2.0 clients in the get user information API.
       tags:
         - Clouds Integration
       parameters:
         - name: brand
           in: path
-          description: Brand
+          description: Redirection web page brand
           required: true
           schema:
             type: string
         - name: client_id
           in: query
-          description: OAuth Client ID
+          description: OAuth 2.0 Client ID
           required: true
           schema:
             type: string
         - name: response_type
           in: query
-          description: OAuth 2 response type. The "code" response type is the only one currently supported.
+          description: OAuth 2.0 response type. The `code` response type is the only one supported.
           required: true
           schema:
             type: string
@@ -19897,7 +20292,7 @@ paths:
             type: string
       responses:
         '303':
-          description: Redirect to the web page to login to the Care Daily AI Platform
+          description: Redirect to the branded web page to login to the Care Daily AI Platform
           headers:
             Location:
               schema:
@@ -19910,11 +20305,13 @@ paths:
       summary: Approve or Deny Authorization
       operationId: Approve or Deny Authorization
       description: |-
-        Allow a user to approve or deny an authorization request from the third-party application.
+        OAuth 2.0 Host.
+        
+        Allow a user to approve or deny an authorization request from the third-party OAuth 2.0 client.
 
-        The user can choose the location to access.
+        The user has to choose the location to access.
 
-        The user will be redirected to the external application web page.
+        The user will be redirected to the the OAuth 2.0 client callback URL.
       tags:
         - Clouds Integration
       security:
@@ -19923,8 +20320,8 @@ paths:
         - name: approved
           in: path
           description: |-
-            true - The third-party app is approved<br>
-            false - The third-party app is not approved
+            true - The third-party client is approved<br>
+            false - The third-party client is not approved
           required: true
           schema:
             type: boolean
@@ -19948,6 +20345,7 @@ paths:
         - name: locationId
           in: query
           description: Location ID, where the third-party app is going to have access
+          required: true
           schema:
             type: integer
         - name: brand
@@ -19957,7 +20355,7 @@ paths:
             type: string
       responses:
         '303':
-          description: Redirect to the external application web page
+          description: Redirect to the client's callback URL
           headers:
             Location:
               schema:
@@ -19970,6 +20368,8 @@ paths:
       summary: Get Access Token
       operationId: Get Access Token
       description: |-
+        OAuth 2.0 Host.
+        
         This API uses an authorization code or a previously generated refresh token to grant new access to the Care Daily AI Platform.
         It returns a new access token, a token type, expiration time, and a refresh token.
 
@@ -20045,7 +20445,10 @@ paths:
     post:
       summary: Update OAuth Client
       operationId: Update OAuth Client
-      description: ''
+      description: |-
+        OAuth 2.0 Host.
+        
+        Update access to specfic devices for OAuth 2.0 client.
       tags:
         - Clouds Integration
       security:
@@ -20095,8 +20498,10 @@ paths:
       summary: Revoke OAuth Client
       operationId: Revoke OAuth Client
       description: |-
-        The user may revoke authorization for a third party to access the user's data on the Care Daily AI Platform.
-        This operation will delete all corresponding access and refresh tokens.
+        OAuth 2.0 Host.
+        
+        The user may revoke authorization for a third party clients to access the user's data on the Care Daily AI Platform.
+        This operation will invalidate all corresponding access and refresh tokens.
       tags:
         - Clouds Integration
       security:
@@ -21278,19 +21683,19 @@ components:
       type: apiKey
       in: query
       name: API_KEY
-      description: Temporary API key
-    surveyApiKey:
-      type: apiKey
-      in: query
-      name: API_KEY
-      description: Temporary Survey API key
+      description: Temporary user API key
+    surveyAnswerAuth:
+      type: http
+      scheme: Bearer
+      bearerFormat: JWT
+      description: Survey Answer Token
     basicDeviceAuth:
       type: http
-      scheme: basic
+      scheme: Basic
       description: Basic device authorization `Basic deviceId:authToken`
     basicOAuth:
       type: http
-      scheme: basic
+      scheme: Basic
       description: Basic OAuth 2.0 authorization `Basic clientId:secret`
 
   schemas: {}
@@ -22058,11 +22463,9 @@ tags:
 
   - name: Clouds Integration
     description: |-
-      ## OAuth 2.0 Client
-
-      OAuth 2.0 allows the Care Daily AI Platform to act as a client or a host for a third-party clouds.
-
-      As a client, the Care Daily AI Platform may obtain authorizations from third-party clouds and applications to access user data.
+      OAuth 2.0 allows the Care Daily AI Platform to act as a client to obtain authorizations from third-party clouds and applications to access user data.
+      
+      As a host the Care Daily AI Platform can provide data to OAuth 2.0 clients.
 
   - name: Energy Management
     description: |-

@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: 'IoT Software Suite: Bot API'
-  version: '57'
+  version: '58'
   description: |-
     The Bot Server is a real-time data analytics framework that allows software developers to create new bots,
     features, and services on top of any Internet-connected product.
@@ -1990,7 +1990,7 @@ paths:
                   taskId: 19efa208-4f61-49ba-8899-6edd8b4b3006
                   files:
                     - >-
-                      https://s3.us-east-1.amazonaws.com/sbox.logs/Bots/10585/19efa208-4f61-49ba-8899-6edd8b4b3006/Id%3D10585%3Bflow%3D0/000000.gz?response-content-disposition=inline&X-Amz-Security-Token={security_token}&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20231218T070632Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Credential={credential}&X-Amz-Signature={signature}
+                      https://s3.us-east-1.amazonaws.com/sbox.logs/Bots/10585/19efa208-4f61-49ba-8899-6edd8b4b3006/Id%3D10585%3Bflow%3D0/000000.gz?response-content-disposition=inline&X-Amz-Security-Token=IQoJb3JpZ2luX2VjED8aCmV1LW5vcnRoLTEiRjBEAiAWptTICOChPQ7R9PGoCvTgYOgNW96aBYQJ35TiSOtPhwIgRXspGB%2FZxNxmxPTNh2cDCsYjF7mmAlcwh7XMLQtxtNwqigMIuP%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgw4NDY1NjYwNzY1MzMiDDkS3kS1lvismsp5NireArwgQl1qGIcYbvZ2nbNMwWXdsf9NJjPRJzPh0K%2FvvZ9XO%2BudRL%2Fxo24IzSeaBppFW6OJlY5fLEv2n5T1RhyBmSoGucoEXHpJYN0NO7Md%2FC7uZoBl5O%2B4I4tvx%2FdlfBAcIB8hSmXoS0xVKJKZt5zKGz2gk6FgKu5oROAY%2FXT4HOqaj%2F7Br2ZAVEobs3NEO12Cmx6okfWt1hhWxc3eQUbpfvAcc4B4%2FayhYBUO7m4Ud4%2FgGQhx6RwhLGn%2Fq1%2BLy8yVvH9aq%2B%2FOCG9vQoKQGQ7ql8e2LjRQigm2vSVaY1s7XJCv1GPHKzpnjspwRIUZScTLgUKvHtOO6lqsCr8BeDbK41IuoWHshnvZF%2Bx2NnqFCI88OFFyqRwU4zAqwvYG2DT2ezvOGTnw3Brau69%2Bg1anCMLTOHpysyqaJAO4uy8DxO7IbH72lj7e4oNRITaIq%2FNkdC2vED53HApjc70Z3dZHMITW%2F6sGOrQC7v5aWyNm%2B2V9eWxydgJyjgaW7ffcMHiT1skYPZYNfQFaW%2Bf6S%2BFWmS8ZNs5Ywau25qNY0fGjEUx47Y96%2BEZCflt4TFKJEWGhd79iryC3Wg%2FE5Xv7tY8qo37%2FOwIKpwTgCXzynDwMu7dNLdX%2FBMJLh4m0uqudgckq7LTNP4awJYATJvErz5CF4ZjvY2N8sYPYtDOcuXUMPA7ZQldIQu1%2BDjppglKYwbd2yZRhsjQn8Acj5kVjZDW8KSJarcCydtPiBm1Fy%2B03ybdTtCTEc62GxFPN9%2FYaiZyLpTFLchqKbkEDgN9hiXnSa90aBybm%2FIkmJXuqNojxdC%2F9GGFALeTPPlHmtVF9GwmzGiiSlNv3zhyqtw%2Fk7asjUwMCD82UnswDBg8g%2BIiTdoNnjPnn3%2BguUtMoCGI%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20231218T070632Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Credential=ASIA4KG2FGB22KPIBJPR%2F20231218%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=057c7596284895f49ee4e87653b683543769e637728e2aa9470b9dae9e2a6044
 
 
   /cloud/appstore/organizations/{organizationId}:
@@ -2589,7 +2589,7 @@ paths:
                       objectType: 3
                       contentType: image/png
                       url: >-
-                        https://s3.amazonaws.com/sbox.application/eee0b586.275?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20231207T061920Z&X-Amz-SignedHeaders=host&X-Amz-Credential={credential}&X-Amz-Expires=3600&X-Amz-Signature={signature}
+                        https://s3.amazonaws.com/sbox.application/eee0b586.275?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20231207T061920Z&X-Amz-SignedHeaders=host&X-Amz-Credential=AKIAJPAZDO6JTXZ6FQSQ%2F20231207%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Expires=3600&X-Amz-Signature=889221930a7f1be4ec9265854c02ab0cb30b5c29ef30adb2428774868fe2254d
                   versions:
                     - appVersionId: 456
                       version: 1.0.10.8
@@ -3091,7 +3091,7 @@ paths:
                           objectType: 3
                           contentType: image/png
                           url: >-
-                            https://s3.amazonaws.com/sbox.application/eee0b586.275?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20231207T061920Z&X-Amz-SignedHeaders=host&X-Amz-Credential={credential}&X-Amz-Expires=3600&X-Amz-Signature={signature}
+                            https://s3.amazonaws.com/sbox.application/eee0b586.275?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20231207T061920Z&X-Amz-SignedHeaders=host&X-Amz-Credential=AKIAJPAZDO6JTXZ6FQSQ%2F20231207%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Expires=3600&X-Amz-Signature=889221930a7f1be4ec9265854c02ab0cb30b5c29ef30adb2428774868fe2254d
                     version:
                       appVersionId: 1234
                       version: 1.2.3
@@ -6911,6 +6911,8 @@ paths:
                               properties:
                                 locationId:
                                   type: integer
+                                name:
+                                  type: string
                                 subType:
                                   type: integer
                                 timezone:
@@ -6936,6 +6938,50 @@ paths:
                                   type: string
                                 prevEvent:
                                   type: string
+                                priorityCategory:
+                                  type: integer
+                                priorityRank:
+                                  type: integer
+                                priorityDateMs:
+                                  type: integer
+                                externalId:
+                                  type: string
+                                organizationId:
+                                  type: integer
+                                organization:
+                                  type: object
+                                  description: Location organization
+                                  properties:
+                                    organizationId:
+                                      type: integer
+                                    organizationName:
+                                      type: string
+                                    domainName:
+                                      type: string
+                                    brand:
+                                      type: string
+                                    parentId:
+                                      type: integer
+                                    features:
+                                      type: string
+                                    deviceTypes:
+                                      type: string
+                                    timezone:
+                                      type: object
+                                      properties:
+                                        id:
+                                          type: string
+                                        offset:
+                                          type: string
+                                        dst:
+                                          type: string
+                                        name:
+                                          type: string
+                                    properties:
+                                      type: object
+                                      additionalProperties:
+                                        type: string
+                                      description: Organization properties string map
                             device:
                               type: object
                               properties:
@@ -6949,6 +6995,8 @@ paths:
                                   type: string
                                 connected:
                                   type: boolean
+                                connectionStatus:
+                                  type: integer
                                 description:
                                   type: string
                                 goalId:
@@ -6987,6 +7035,7 @@ paths:
                             - device
                       organization:
                         type: object
+                        description: bot instance organization
                         properties:
                           organizationId:
                             type: integer
@@ -7002,13 +7051,22 @@ paths:
                             type: string
                           deviceTypes:
                             type: string
-                          development:
-                            type: boolean
-                          properties:
+                          timezone:
                             type: object
                             properties:
-                              key0:
+                              id:
                                 type: string
+                              offset:
+                                type: string
+                              dst:
+                                type: string
+                              name:
+                                type: string
+                          properties:
+                            type: object
+                            additionalProperties:
+                              type: string
+                            description: Organization properties string map
                       userId:
                         type: integer
                         description: User ID from triggering event
@@ -7120,20 +7178,26 @@ paths:
                               type: integer
                             locationAccess:
                               type: integer
-                            category:
-                              type: integer
-                            role:
-                              type: integer
-                            residency:
-                              type: integer
-                            hidden:
-                              type: boolean
                             prevLocationAccess:
+                              type: integer
+                            category:
                               type: integer
                             prevCategory:
                               type: integer
+                            role:
+                              type: integer
+                            prevRole:
+                              type: integer
+                            residency:
+                              type: integer
+                            prevResidency:
+                              type: integer
+                            hidden:
+                              type: boolean
                             locationAccessTime:
                               type: integer
+                            nickname:
+                              type: string
                       callCenter:
                         type: object
                         properties:
@@ -7225,6 +7289,34 @@ paths:
                             - maxDeliveryTime
                             - deliveryDayTime
                             - timeToLive
+                      survey:
+                        type: object
+                        properties:
+                          surveyKey:
+                            type: string
+                          answerId:
+                            type: integer
+                          startTime:
+                            type: integer
+                          endTime:
+                            type: integer
+                          questions:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                questionKey:
+                                  type: string
+                                question:
+                                  type: string
+                                answer:
+                                  type: string
+                                answerTime:
+                                  type: integer
+                                responseOption:
+                                  type: string
+                                sliderUnit:
+                                  type: string
                     required:
                       - time
                       - trigger

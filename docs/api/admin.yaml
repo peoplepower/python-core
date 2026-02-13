@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: 'IoT Software Suite: Admin API'
-  version: '57'
+  version: '58'
   description: |-
     Care Daily offers a full Command Center to engage your customers and manage IoT services, and access to social engagement layers.
 
@@ -3916,6 +3916,15 @@ paths:
           required: true
           schema:
             type: integer
+        - name: status
+          in: query
+          description: |-
+            Survey status:<br>
+            0 - inactive<br>
+            1 - active<br>
+            2 - closed
+          schema:
+            type: integer
       responses:
         '200':
           description: Surveys
@@ -3942,7 +3951,8 @@ paths:
                           description: |-
                             Survey status:<br>
                             0 - inactive (cannot be answered)<br>
-                            1 - active
+                            1 - active,<br>
+                            2 - closed
                         title:
                           type: string
                           description: Title
@@ -3958,6 +3968,9 @@ paths:
                         minAnswerFrequency:
                           type: integer
                           description: How often the same user can answer the survey in days
+                        notifyCompletion:
+                          type: boolean
+                          description: Send notification to a user after completing the survey
               example:
                 resultCode: 0
                 surveys:
@@ -3967,6 +3980,180 @@ paths:
                     title: Connections Survey
                     description: Successful Aging Connections Questionnaire
                     pagination: true
+
+    post:
+      summary: Create Organization Survey
+      operationId: Create Organization Survey
+      description: |-
+        Create a new survey for an organization.
+      tags:
+        - Surveys
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - surveyKey
+                - title
+                - sections
+              properties:
+                surveyKey:
+                  type: string
+                  description: Unique Survey Key
+                status:
+                  type: integer
+                  description: |-
+                    Survey status:<br>
+                    0 - inactive (cannot be answered, default)<br>
+                    1 - active
+                title:
+                  type: string
+                  description: Title
+                description:
+                  type: string
+                  description: Description
+                instructions:
+                  type: string
+                  description: Answer Instructions
+                pagination:
+                  type: boolean
+                  description: Pagination flag to display survey in UI by pages
+                minAnswerFrequency:
+                  type: integer
+                  description: How often the same user can answer the survey in days
+                notifyCompletion:
+                  type: boolean
+                  description: Send notification to a user after completing the survey
+                sections:
+                  type: array
+                  description: Survey sections
+                  items:
+                    type: object
+                    required:
+                      - sectionId
+                      - orderNum
+                      - questions
+                    properties:
+                      sectionId:
+                        type: integer
+                        description: Section ID
+                      orderNum:
+                        type: integer
+                        description: Display order number
+                      title:
+                        type: string
+                        description: Section title
+                      description:
+                        type: string
+                        description: Section description
+                      questions:
+                        type: array
+                        description: Section questions
+                        items:
+                          type: object
+                          required:
+                            - questionKey
+                            - orderNum
+                            - question
+                          properties:
+                            questionKey:
+                              type: string
+                              description: Unique question key within the survey
+                            orderNum:
+                              type: integer
+                              description: Display order number
+                            question:
+                              type: string
+                              description: Question text
+                            description:
+                              type: string
+                              description: Question description
+                            responseType:
+                              type: integer
+                              description: Response type
+                            optional:
+                              type: boolean
+                              description: Whether the question is optional
+                            displayType:
+                              type: integer
+                              description: Display type for UI rendering
+                            answerFormat:
+                              type: string
+                              description: Answer format (e.g., text)
+                            slider:
+                              type: object
+                              description: Slider configuration for range questions
+                              properties:
+                                min:
+                                  type: integer
+                                max:
+                                  type: integer
+                                increment:
+                                  type: integer
+                                minDesc:
+                                  type: string
+                                maxDesc:
+                                  type: string
+                                unitsDesc:
+                                  type: string
+                            responseOptions:
+                              type: array
+                              description: Multiple choice options
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: integer
+                                  text:
+                                    type: string
+            example:
+              surveyKey: sample-survey
+              status: 0
+              title: Sample Survey
+              description: This is a sample survey
+              instructions: Please answer all questions
+              pagination: false
+              minAnswerFrequency: 0
+              sections:
+                - sectionId: 1
+                  orderNum: 1
+                  title: General Questions
+                  questions:
+                    - questionKey: q1
+                      orderNum: 1
+                      question: How would you rate your experience?
+                      responseType: 1
+                      optional: false
+                      responseOptions:
+                        - id: 1
+                          text: Excellent
+                        - id: 2
+                          text: Good
+                        - id: 3
+                          text: Fair
+      responses:
+        '200':
+          description: Survey Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+              example:
+                resultCode: 0
 
 
   /admin/json/organizations/{organizationId}/surveys/{surveyKey}:
@@ -4015,8 +4202,9 @@ paths:
                         type: integer
                         description: |-
                           Survey status:<br>
-                          0 - inactive (cannot be answered)<br>
-                          1 - active
+                          0 - inactive,<br>
+                          1 - active,<br>
+                          2 - closed
                       title:
                         type: string
                         description: Title
@@ -4029,6 +4217,12 @@ paths:
                       pagination:
                         type: boolean
                         description: Pagination flag to display survey in UI by pages
+                      minAnswerFrequency:
+                        type: integer
+                        description: How often the same user can answer the survey in days
+                      notifyCompletion:
+                        type: boolean
+                        description: Send notification to a user after completing the survey
                       sections:
                         type: array
                         items:
@@ -4037,78 +4231,81 @@ paths:
                             sectionId:
                               type: integer
                               description: Section ID
-                            parentSectionId:
-                              type: integer
-                              description: Parent Section ID (optional)
                             orderNum:
                               type: integer
                               description: Ordering number within the survey or the parent section
                             title:
                               type: string
                               description: Optinal section title
-                      questions:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            questionKey:
+                            description:
                               type: string
-                              description: Question key uniqie within the survey
-                            sectionId:
-                              type: integer
-                              description: Section ID
-                            orderNum:
-                              type: integer
-                              description: Ordering number within the the section
-                            question:
-                              type: string
-                              description: Question text
-                            responseType:
-                              type: integer
-                              description: Answer type
-                            displayType:
-                              type: integer
-                              description: UI display type for each type of answer (for example, yes/no vs. on/off switch, or a slider that shows integers vs. a slider that shows minutes:seconds)
-                            answerFormat:
-                              type: string
-                              description: Regular expression to validate answer format in UI.
-                            slider:
-                              type: object
-                              description: Slider
-                              properties:
-                                min:
-                                  type: integer
-                                  description: Answer minimum value
-                                max:
-                                  type: integer
-                                  description: Answer maximum value
-                                inc:
-                                  type: integer
-                                  description: Slider increment
-                                minDesc:
-                                  type: string
-                                  description: Description of slider minimum value
-                                maxDesc:
-                                  type: string
-                                  description: Description of slider maximum value
-                                unitsDesc:
-                                  type: string
-                                  description: Unit description
-                            responseOptions:
+                              description: Section description
+                            questions:
                               type: array
-                              description:
                               items:
                                 type: object
                                 properties:
-                                  id:
-                                    type: integer
-                                    description: ID number for types of questions that feature a list of options
-                                  text:
+                                  questionKey:
                                     type: string
-                                    description: Description of the option
-                                required:
-                                  - id
-                                  - text
+                                    description: Question key uniqie within the survey
+                                  orderNum:
+                                    type: integer
+                                    description: Ordering number within the the section
+                                  question:
+                                    type: string
+                                    description: Question text
+                                  description:
+                                    type: string
+                                    description: Question description
+                                  responseType:
+                                    type: integer
+                                    description: Answer type
+                                  optional:
+                                    type: boolean
+                                    description: If the answer is optional to submit the survey
+                                  displayType:
+                                    type: integer
+                                    description: UI display type for each type of answer (for example, yes/no vs. on/off switch, or a slider that shows integers vs. a slider that shows minutes:seconds)
+                                  answerFormat:
+                                    type: string
+                                    description: Regular expression to validate answer format in UI.
+                                  slider:
+                                    type: object
+                                    description: Slider
+                                    properties:
+                                      min:
+                                        type: integer
+                                        description: Answer minimum value
+                                      max:
+                                        type: integer
+                                        description: Answer maximum value
+                                      inc:
+                                        type: integer
+                                        description: Slider increment
+                                      minDesc:
+                                        type: string
+                                        description: Description of slider minimum value
+                                      maxDesc:
+                                        type: string
+                                        description: Description of slider maximum value
+                                      unitsDesc:
+                                        type: string
+                                        description: Unit description
+                                  responseOptions:
+                                    type: array
+                                    description:
+                                    items:
+                                      type: object
+                                      properties:
+                                        id:
+                                          type: integer
+                                          description: ID number for types of questions that feature a list of options
+                                        text:
+                                          type: string
+                                          description: Description of the option
+                                      required:
+                                        - id
+                                        - text
               example:
                 resultCode: 0
                 survey:
@@ -4117,7 +4314,294 @@ paths:
                   status: 1
                   title: Connections Survey
                   description: Successful Aging Connections Questionnaire
+                  instructions: Please answer all questions honestly
                   pagination: true
+                  startDate: '2026-01-15T09:30:00-07:00'
+                  startDateMs: 1736952600000
+                  notificationDate: '2026-01-15T09:30:00-07:00'
+                  notificationDateMs: 1736952600000
+                  sections:
+                    - sectionId: 1
+                      orderNum: 1
+                      title: Personal Information
+                      questions:
+                        - questionKey: age_range
+                          orderNum: 1
+                          question: What is your age range?
+                          description: Select the range that includes your current age
+                          responseType: 4
+                          optional: false
+                          displayType: 1
+                          responseOptions:
+                            - id: 1
+                              text: 18-30
+                            - id: 2
+                              text: 31-50
+                            - id: 3
+                              text: 51-70
+                            - id: 4
+                              text: 71+
+                        - questionKey: living_alone
+                          orderNum: 2
+                          question: Do you live alone?
+                          responseType: 1
+                          optional: false
+                          displayType: 1
+                    - sectionId: 2
+                      orderNum: 2
+                      title: Health Assessment
+                      questions:
+                        - questionKey: pain_level
+                          orderNum: 1
+                          question: Rate your current pain level
+                          description: Use the slider to indicate your pain level
+                          responseType: 2
+                          optional: false
+                          displayType: 2
+                          slider:
+                            min: 0
+                            max: 10
+                            inc: 1
+                            minDesc: No pain
+                            maxDesc: Severe pain
+                            unitsDesc: points
+                        - questionKey: medication_notes
+                          orderNum: 2
+                          question: Any notes about your medications?
+                          responseType: 3
+                          optional: true
+                          displayType: 1
+                          answerFormat: '^.{0,500}$'
+
+    put:
+      summary: Update Organization Survey
+      operationId: Update Organization Survey
+      description: |-
+        Update an existing survey for an organization.
+
+        - All fields in the update request are optional, so just one survey attribute can be modified (e.g. status or title or specific questions) without providing the whole structure.
+        - Survey-level attributes (status, title, description, etc.) can be fully updated.
+        - Section attributes (title, orderNum, description) can be fully updated.
+        - New sections can be added and existing sections can be removed.
+        - All question attributes can be modified (except questionKey which identifies the question).
+        - To move a question to a different section, include the question's `questionKey` in the target section's questions array.
+        - New questions can be added.
+        - A question can be market as deleted by setting the deleted flag. If the survey has been answered before, the deleted question will be hidden from future answers, but will be returned in answers history.
+      tags:
+        - Surveys
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+        - name: surveyKey
+          in: path
+          description: Survey Key
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                  description: |-
+                    Survey status:<br>
+                    0 - inactive<br>
+                    1 - active<br>
+                    2 - closed
+                title:
+                  type: string
+                  description: Title
+                description:
+                  type: string
+                  description: Description
+                instructions:
+                  type: string
+                  description: Answer Instructions
+                pagination:
+                  type: boolean
+                  description: Pagination flag to display survey in UI by pages
+                minAnswerFrequency:
+                  type: integer
+                  description: How often the same user can answer the survey in days
+                notifyCompletion:
+                  type: boolean
+                  description: Send notification to a user after completing the survey
+                sections:
+                  type: array
+                  description: Survey sections. Questions in sections only need questionKey to identify which section they belong to.
+                  items:
+                    type: object
+                    required:
+                      - sectionId
+                      - orderNum
+                    properties:
+                      sectionId:
+                        type: integer
+                        description: Section ID
+                      orderNum:
+                        type: integer
+                        description: Display order number
+                      title:
+                        type: string
+                        description: Section title
+                      description:
+                        type: string
+                        description: Section description
+                      questions:
+                        type: array
+                        description: Questions assigned to this section. Only questionKey is required to identify the question; all other attributes can be updated.
+                        items:
+                          type: object
+                          required:
+                            - questionKey
+                          properties:
+                            questionKey:
+                              type: string
+                              description: Question key to identify the question (cannot be changed)
+                            deleted:
+                              type: boolean
+                              description: Set it to `true` to remove this question from future survey answers
+                            orderNum:
+                              type: integer
+                              description: Display order number within the section
+                            question:
+                              type: string
+                              description: Question text
+                            description:
+                              type: string
+                              description: Question description
+                            responseType:
+                              type: integer
+                              description: Answer type
+                            optional:
+                              type: boolean
+                              description: Whether the question is optional
+                            displayType:
+                              type: integer
+                              description: UI display type
+                            answerFormat:
+                              type: string
+                              description: Regular expression to validate answer format
+                            slider:
+                              type: object
+                              description: Slider configuration (for slider-type questions)
+                              properties:
+                                min:
+                                  type: integer
+                                max:
+                                  type: integer
+                                increment:
+                                  type: integer
+                                minDesc:
+                                  type: string
+                                maxDesc:
+                                  type: string
+                                unitsDesc:
+                                  type: string
+                            responseOptions:
+                              type: array
+                              description: Response options (for multiple choice questions)
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: integer
+                                  text:
+                                    type: string
+            example:
+              status: 1
+              title: Updated Survey Title
+              description: Updated survey description
+              instructions: Updated instructions
+              pagination: true
+              minAnswerFrequency: 14
+              notifyCompletion: true
+              sections:
+                - sectionId: 1
+                  orderNum: 1
+                  title: Updated Section Title
+                  questions:
+                    - questionKey: q1
+                      orderNum: 1
+                      question: Updated question text
+                      description: Updated description
+                      responseType: 1
+                      optional: false
+                      displayType: 1
+                      responseOptions:
+                        - id: 1
+                          text: Updated Option 1
+                        - id: 2
+                          text: Updated Option 2
+                    - questionKey: q2
+                      orderNum: 2
+                      optional: true
+                - sectionId: 2
+                  orderNum: 2
+                  title: New Section
+                  questions:
+                    - questionKey: q3
+                      orderNum: 1
+      responses:
+        '200':
+          description: Survey Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+              example:
+                resultCode: 0
+
+    delete:
+      summary: Delete Organization Survey
+      operationId: Delete Organization Survey
+      description: |-
+        Delete an organization survey.
+
+        If any user has answered this survey, the survey's status will be set as deleted.
+        Otherwise the survey will be removed.
+      tags:
+        - Surveys
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+        - name: surveyKey
+          in: path
+          description: Survey Key
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Survey Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+              example:
+                resultCode: 0
 
 
   /reports/groups/{organizationId}:
@@ -6095,7 +6579,7 @@ tags:
       | :----: | ----------- |
       | 0 | Inactive (initial, returned, but not for answering) |
       | 1 | Active (can be answered) |
-      | 2 | Closed for answeres, history available |
+      | 2 | Closed for answers, history available |
       | 3 | Deleted |
       
       ### Question Response Types

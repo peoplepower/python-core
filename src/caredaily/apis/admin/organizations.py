@@ -486,6 +486,7 @@ class Organizations(API):
     def get_organization_surveys(
         self,
         organization_id: int,
+        status: int = None,
     ) -> Result:
         """
         Get Organization Surveys.
@@ -494,6 +495,7 @@ class Organizations(API):
 
         Args:
             organization_id: Organization ID
+            status: Survey status filter (0 - inactive, 1 - active, 2 - closed)
 
         Returns:
             Result: API response with surveys data
@@ -501,9 +503,14 @@ class Organizations(API):
         Reference:
             https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Surveys/operation/Get%20Organization%20Surveys
         """
+        params = {
+            "status": status,
+        }
+        params = {k: v for k, v in params.items() if v is not None}
         headers = self.adapter._get_headers(key_type=APIKeyType.USER, api_key=self.adapter._headers.get('ADMIN_KEY'))
         result: Result = self.adapter.get(
             f"/espapi/admin/json/organizations/{organization_id}/surveys",
+            ep_params=params if params else None,
             ep_headers=headers,
         )
         return result
@@ -530,6 +537,123 @@ class Organizations(API):
         """
         headers = self.adapter._get_headers(key_type=APIKeyType.USER, api_key=self.adapter._headers.get('ADMIN_KEY'))
         result: Result = self.adapter.get(
+            f"/espapi/admin/json/organizations/{organization_id}/surveys/{survey_key}",
+            ep_headers=headers,
+        )
+        return result
+
+    def create_organization_survey(
+        self,
+        organization_id: int,
+        survey_data: Dict,
+    ) -> Result:
+        """
+        Create Organization Survey.
+
+        Create a new survey for an organization.
+
+        Args:
+            organization_id: Organization ID
+            survey_data: Survey data dictionary containing:
+                - surveyKey: Unique Survey Key (required)
+                - title: Title (required)
+                - sections: Survey sections (required)
+                - status: Survey status (0 - inactive, 1 - active)
+                - description: Description
+                - instructions: Answer Instructions
+                - pagination: Pagination flag to display survey in UI by pages
+                - minAnswerFrequency: How often the same user can answer the survey in days
+                - notifyCompletion: Send notification to a user after completing the survey
+
+        Returns:
+            Result: API response confirming survey creation
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Surveys/operation/Create%20Organization%20Survey
+        """
+        headers = self.adapter._get_headers(key_type=APIKeyType.USER, api_key=self.adapter._headers.get('ADMIN_KEY'))
+        result: Result = self.adapter.post(
+            f"/espapi/admin/json/organizations/{organization_id}/surveys",
+            ep_json=survey_data,
+            ep_headers=headers,
+        )
+        return result
+
+    def update_organization_survey(
+        self,
+        organization_id: int,
+        survey_key: str,
+        survey_data: Dict,
+    ) -> Result:
+        """
+        Update Organization Survey.
+
+        Update an existing survey for an organization.
+
+        All fields in the update request are optional, so just one survey attribute can be
+        modified (e.g. status or title or specific questions) without providing the whole structure.
+
+        - Survey-level attributes (status, title, description, etc.) can be fully updated.
+        - Section attributes (title, orderNum, description) can be fully updated.
+        - New sections can be added and existing sections can be removed.
+        - All question attributes can be modified (except questionKey which identifies the question).
+        - To move a question to a different section, include the question's questionKey in the target section's questions array.
+        - New questions can be added.
+        - A question can be marked as deleted by setting the deleted flag. If the survey has been answered before,
+          the deleted question will be hidden from future answers, but will be returned in answers history.
+
+        Args:
+            organization_id: Organization ID
+            survey_key: Survey Key
+            survey_data: Survey data dictionary with optional fields:
+                - status: Survey status (0 - inactive, 1 - active, 2 - closed)
+                - title: Title
+                - description: Description
+                - instructions: Answer Instructions
+                - pagination: Pagination flag
+                - minAnswerFrequency: How often the same user can answer the survey in days
+                - notifyCompletion: Send notification to a user after completing the survey
+                - sections: Survey sections array
+
+        Returns:
+            Result: API response confirming survey update
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Surveys/operation/Update%20Organization%20Survey
+        """
+        headers = self.adapter._get_headers(key_type=APIKeyType.USER, api_key=self.adapter._headers.get('ADMIN_KEY'))
+        result: Result = self.adapter.put(
+            f"/espapi/admin/json/organizations/{organization_id}/surveys/{survey_key}",
+            ep_json=survey_data,
+            ep_headers=headers,
+        )
+        return result
+
+    def delete_organization_survey(
+        self,
+        organization_id: int,
+        survey_key: str,
+    ) -> Result:
+        """
+        Delete Organization Survey.
+
+        Delete an organization survey.
+
+        If any user has answered this survey, the survey's status will be set as deleted.
+        Otherwise the survey will be removed.
+
+        Args:
+            organization_id: Organization ID
+            survey_key: Survey Key
+
+        Returns:
+            Result: API response confirming survey deletion
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Surveys/operation/Delete%20Organization%20Survey
+        """
+        headers = self.adapter._get_headers(key_type=APIKeyType.USER, api_key=self.adapter._headers.get('ADMIN_KEY'))
+        result: Result = self.adapter.delete(
             f"/espapi/admin/json/organizations/{organization_id}/surveys/{survey_key}",
             ep_headers=headers,
         )
