@@ -358,6 +358,8 @@ class Authentication(API):
         data = {
             "publicKey": public_key,
         }
+        print("key:", self.adapter._headers.get("ADMIN_KEY"))
+        print("Params:", params)
         result: Result = self.adapter.put(
             "/espapi/cloud/json/signatureKey", 
             ep_params=params,
@@ -367,6 +369,7 @@ class Authentication(API):
                 key_type=APIKeyType.USER
             )
         )
+        print("result:", result.data)
         return result
 
     def get_operation_token(

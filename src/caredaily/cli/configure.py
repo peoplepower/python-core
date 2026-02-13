@@ -10,6 +10,8 @@ from caredaily import (
     CloudConnectivity,
     APIKeyType,
     CareDailyException,
+    UserAccounts,
+    SignatureAlgorithm
 )
 
 
@@ -23,6 +25,7 @@ def configure(ctx):
 @click.option("--profile", help="The profile to use.")
 @click.option("--username", help="Username")
 @click.option("--password", help="Password", hide_input=True)
+#TODO: Add interactive step for getting admin key with rsa signature (no username/password/passcode)
 @click.pass_context
 def interactive(ctx, profile, username, password):
     """
@@ -510,8 +513,447 @@ def init(ctx):
         click.echo(traceback.format_exc())
         click.echo(f"Error during initialization: {e}")
 
+@click.command("signature", short_help="Manage RSA signature key pairs.")
+@click.option("--profile", help="The profile to use.")
+@click.option("--app-name", help="Application name for key generation.", default="caredaily")
+@click.option("--private-key", "private_key_path", help="Path to existing private key file (PEM format).")
+@click.option("--public-key", "public_key_path", help="Path to existing public key file (PEM format).")
+@click.option("--key-size", type=int, default=4096, help="Key size for new RSA key pair generation (4096 = 512-byte signature).")
+@click.option("--get-from-cloud", is_flag=True, help="Request private key from cloud.")
+@click.pass_context
+def signature(ctx, profile, app_name, private_key_path, public_key_path, key_size, get_from_cloud):
+    """
+    Manage RSA signature key pairs for 2-Step Authentication.
+
+    A client can request from the cloud a private RSA key or upload own public RSA key to the user's account.
+
+    Supported signature algorithms (PKCS #1):
+    - NONEwithRSA: RSA without digesting
+    - MD2withRSA, MD5withRSA: MD2/MD5 with RSA
+    - SHA1withRSA, SHA224withRSA, SHA256withRSA, SHA384withRSA, SHA512withRSA (recommended)
+
+    Examples:
+    - Generate new key pair: caredaily configure signature --upload-public-key
+    - Use existing keys: caredaily configure signature --private-key key.pem --public-key pub.pem --upload-public-key
+    - Get key from cloud: caredaily configure signature --get-from-cloud --app-name myapp
+    """
+    try:
+        from cryptography.hazmat.primitives import serialization
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        from cryptography.hazmat.backends import default_backend
+        from cryptography.hazmat.primitives import hashes
+        from cryptography.hazmat.primitives.asymmetric import padding
+    except ImportError:
+        click.echo("RSA signature support requires the cryptography package.")
+        click.echo("Install it with: pip install caredaily[rsa]")
+        return
+
+    profile = profile or ctx.obj.get("profile") or os.environ.get("CAREDAILY_PROFILE")
+    if not profile:
+        click.echo("Profile not specified. Use CAREDAILY_PROFILE environment variable or --profile option.")
+        return
+
+    click.echo(f"Managing signature keys for profile: {profile}")
+
+    config = ctx.obj["caredaily"].get_config()
+    admin_key = config.get("admin_key")
+    if not admin_key:
+        click.echo("Admin key required for signature key management. Please ensure the profile has an admin key.")
+        return
+    click.echo("Test")
+    # Determine the user profile directory based on the operating system
+    integration_path = os.environ.get("CAREDAILY_INTEGRATION_PATH")
+    if not integration_path:
+        if os.name == "nt":  # Windows
+            integration_path = os.environ["UserProfile"]
+        else:  # Unix-based systems
+            integration_path = os.environ["HOME"]
+
+    profile = profile or os.environ.get("CAREDAILY_PROFILE")
+    if not profile:
+        click.echo("Profile not specified. Use CAREDAILY_PROFILE environment variable or --profile option.")
+        return
+    output_dir = os.path.join(integration_path, ".caredaily", "keys")
+    private_key_file = os.path.join(output_dir, f"{profile}_{app_name}_private_key.pem")
+    private_key_pem = None
+    signature_algorithm = SignatureAlgorithm.SHA512withRSA
+
+
+    # Option 1: Get private key from cloud
+    click.echo(f"Requesting private key from cloud for app: {app_name}")
+    try:
+        if os.path.exists(private_key_file) and False:
+            with open(private_key_file, "rb") as f:
+                private_key_pem = f.read().decode('ascii')
+            click.echo(f"Loaded existing private key from: {private_key_file}")
+        else:
+            result = (
+                ctx.obj["caredaily"]
+                .app_api(Authentication)
+                .get_private_key(app_name=app_name)
+            )
+
+            # Load the private key
+            private_key_pem = f"-----BEGIN PRIVATE KEY-----\n{result.data['privateKey']}\n-----END PRIVATE KEY-----"
+
+            # Save the keys to files
+            os.makedirs(output_dir, exist_ok=True)
+
+            with open(private_key_file, "wb") as f:
+                f.write(private_key_pem.encode('ascii'))
+            # os.chmod(private_key_file, 0o600)  # Restrict permissions
+
+            click.echo(f"Private key saved to: {private_key_file}")
+
+        private_key = serialization.load_pem_private_key(
+            private_key_pem.encode('utf-8'),
+            password=None,
+            backend=default_backend()
+        )
+
+        result = ctx.obj["caredaily"].app_api(Authentication).login_by_key(
+            key=admin_key,
+            key_type=APIKeyType.USER
+        )
+        caredaily_user = CareDaily()
+        caredaily_user.update_config("api_key", result.data.get("key"))
+        caredaily_user.update_config("key_type", result.data.get("keyType"))
+        result = caredaily_user.app_api(UserAccounts).get_user_information()
+
+        username = result.data["user"]["userName"]
+        password = click.prompt(f"Enter your password for '{username}'", default="", hide_input=True, show_default=False)
+        result = ctx.obj["caredaily"].app_api(Authentication).login_by_username(
+            username=username,
+            password=password,
+            key_type=APIKeyType.ADMIN,
+            sign=True,
+            app_name=app_name
+        )
+        temp_key = result.data.get("key", "")
+
+        signature = private_key.sign(
+            temp_key.encode('utf-8'),
+            padding.PKCS1v15(),
+            hashes.SHA512()
+        )
+
+        import base64
+        signed_temp_key = base64.urlsafe_b64encode(signature).decode('ascii')
+
+        # TODO: Fails here, fix the implementation
+        result = ctx.obj["caredaily"].app_api(Authentication).login_by_username(
+            username=username,
+            password=signed_temp_key,
+            key_type=APIKeyType.ADMIN,
+            sign=True,
+            sign_algorithm=signature_algorithm,
+            app_name=app_name
+        )
+
+        click.echo("Cloud-generated key retrieved successfully.")
+
+    except Exception as e:
+        import traceback
+        click.echo(traceback.format_exc())
+        click.echo(f"Error applying signature: {e}")
+    return
+
+#     # Option 2: Load existing keys or generate new ones
+#     if private_key_path:
+#         # Use existing key pair
+#         click.echo("Loading existing key pair...")
+#         try:
+#             with open(private_key_path, "rb") as f:
+#                 private_key = serialization.load_pem_private_key(
+#                     f.read(),
+#                     password=None,
+#                     backend=default_backend()
+#                 )
+#             click.echo(f"Loaded private key from: {private_key_path}")
+            
+#             public_key = private_key.public_key()
+
+#             # Serialize keys
+#             private_key_pem = private_key.private_bytes(
+#                 encoding=serialization.Encoding.PEM,
+#                 format=serialization.PrivateFormat.PKCS8,
+#                 encryption_algorithm=serialization.NoEncryption()
+#             )
+#             public_key_pem = public_key.public_bytes(
+#                 encoding=serialization.Encoding.PEM,
+#                 format=serialization.PublicFormat.SubjectPublicKeyInfo
+#             )
+#         except Exception as e:
+#             click.echo(f"Error loading keys: {e}")
+#             return
+#     else:
+#         click.echo(f"Generating new {key_size}-bit RSA key pair...")
+#         try:
+# # =========== 
+#             # OPTION -1 - Create new key pair locally
+#             # # Generate RSA key pair
+#             # private_key = rsa.generate_private_key(
+#             #     public_exponent=65537,
+#             #     key_size=key_size,
+#             #     backend=default_backend()
+#             # )
+#             # public_key = private_key.public_key()
+
+#             # # Serialize keys
+#             # private_key_pem = private_key.private_bytes(
+#             #     encoding=serialization.Encoding.PEM,
+#             #     format=serialization.PrivateFormat.PKCS8,
+#             #     encryption_algorithm=serialization.NoEncryption()
+#             # )
+#             # public_key_pem = public_key.public_bytes(
+#             #     encoding=serialization.Encoding.PEM,
+#             #     format=serialization.PublicFormat.SubjectPublicKeyInfo
+#             # )
+
+# # ===========
+#             # OPTION 0 - Get temp key from cloud to sign with new key pair
+#             result = ctx.obj["caredaily"].app_api(Authentication).login_by_key(
+#                 key=admin_key,
+#                 key_type=APIKeyType.USER
+#             )
+#             caredaily_user = CareDaily()
+#             caredaily_user.update_config("api_key", result.data.get("key"))
+#             caredaily_user.update_config("key_type", result.data.get("keyType"))
+#             result = caredaily_user.app_api(UserAccounts).get_user_information()
+
+#             username = result.data["user"]["userName"]
+            # password = click.prompt(f"Enter your password for '{username}'", default="", hide_input=True, show_default=False)
+            # result = ctx.obj["caredaily"].app_api(Authentication).login_by_username(
+            #     username=username,
+            #     password=password,
+            #     key_type=APIKeyType.ADMIN,
+            #     sign=True,
+            #     app_name=app_name
+            # )
+            # temp_key = result.data.get("key", "")
+# # ===========
+#             # OPTION 1 - cryptography
+#             try:
+#                 from cryptography.hazmat.primitives import serialization
+#                 from cryptography.hazmat.primitives.asymmetric import rsa
+#                 from cryptography.hazmat.backends import default_backend
+#                 from cryptography.hazmat.primitives import hashes
+#                 from cryptography.hazmat.primitives.asymmetric import padding
+#             except ImportError:
+#                 click.echo("RSA signature support requires the cryptography package.")
+#                 click.echo("Install it with: pip install caredaily[rsa]")
+#                 return
+#             # Generate RSA key pair
+#             private_key = rsa.generate_private_key(
+#                 public_exponent=65537,
+#                 key_size=key_size,
+#                 backend=default_backend()
+#             )
+
+#             # Sign the temp_key with the private key to prove possession
+#             # Using SHA512withRSA as recommended (PKCS#1 v1.5 signature scheme)
+#             temp_key_bytes = temp_key.encode('utf-8')
+#             signature = private_key.sign(
+#                 temp_key_bytes,
+#                 padding.PKCS1v15(),
+#                 hashes.SHA512()
+#             )
+
+#             # Extract public key from private key and verify the signature
+#             public_key = private_key.public_key()
+#             public_key.verify(
+#                 signature,
+#                 temp_key_bytes,
+#                 padding.PKCS1v15(),
+#                 hashes.SHA512()
+#             )
+
+#             # Encode signature as base64 for transmission
+#             import base64
+#             signed_temp_key = base64.urlsafe_b64encode(signature).decode('ascii')
+#             signature_algorithm = SignatureAlgorithm.SHA512withRSA
+# # ===========
+#             # OpTION 2 - cryptography
+#             # try:
+#             #     from cryptography.hazmat.primitives import serialization
+#             #     from cryptography.hazmat.primitives.asymmetric import rsa
+#             #     from cryptography.hazmat.backends import default_backend
+#             #     from cryptography.hazmat.primitives import hashes
+#             #     from cryptography.hazmat.primitives.asymmetric import padding
+#             # except ImportError:
+#             #     click.echo("RSA signature support requires the cryptography package.")
+#             #     click.echo("Install it with: pip install caredaily[rsa]")
+#             #     return
+#             # import rsa
+#             # import base64
+
+#             # # Generate RSA key pair
+#             # (public_key, private_key) = rsa.newkeys(2048)
+
+#             # # Sign the temp_key
+#             # temp_key_bytes = temp_key.encode('utf-8')
+#             # signature = rsa.sign(temp_key_bytes, private_key, 'SHA-512')
+
+#             # # Verify signature (optional)
+#             # try:
+#             #     rsa.verify(temp_key_bytes, signature, public_key)
+#             #     print("Signature is valid")
+#             # except rsa.VerificationError:
+#             #     print("Signature is invalid")
+
+#             # # Encode signature
+#             # signed_temp_key = base64.b64encode(signature).decode('utf-8')
+# # ===========
+#             # OPTION 3 - pyjwt[crypto]
+#             # import jwt
+
+#             # import base64
+#             # from cryptography.hazmat.primitives import serialization
+#             # from cryptography.hazmat.primitives.asymmetric import rsa
+#             # from cryptography.hazmat.backends import default_backend
+
+#             # # Note: PyJWT still uses cryptography for key generation,
+#             # # but provides a higher-level signing interface
+
+#             # # Generate RSA key pair
+#             # private_key = rsa.generate_private_key(
+#             #     public_exponent=65537,
+#             #     key_size=2048,
+#             #     backend=default_backend()
+#             # )
+#             # public_key = private_key.public_key()
+
+#             # # Create a JWS (JSON Web Signature) with the temp_key as payload
+#             # payload = {"temp_key": temp_key}
+#             # signed_token = jwt.encode(payload, private_key, algorithm='RS512')
+
+#             # # Verify signature (optional)
+#             # try:
+#             #     decoded = jwt.decode(signed_token, public_key, algorithms=['RS512'])
+#             #     print(f"Signature is valid: {decoded}")
+#             # except jwt.InvalidSignatureError:
+#             #     print("Signature is invalid")
+
+#             # # The signed_token is already base64-encoded
+#             # signed_temp_key = signed_token
+#             # signature_algorithm = SignatureAlgorithm.SHA512withRSA
+# # ===========
+#             # Option 4 - pycryptodome
+#             # try:
+#             #     from Crypto.PublicKey import RSA
+#             #     from Crypto.Signature import pkcs1_15
+#             #     from Crypto.Hash import SHA512
+#             # except ImportError:
+#             #     click.echo("RSA signature support requires the pycryptodome package.")
+#             #     click.echo("Install it with: pip install caredaily[rsa]")
+#             #     return
+#             # # Generate RSA key pair
+#             # private_key = RSA.generate(
+#             #     key_size,
+#             # )
+
+#             # # Sign the temp_key with the private key to prove possession
+#             # # Using SHA512withRSA as recommended (PKCS#1 v1.5 signature scheme)
+#             # temp_key_bytes = temp_key.encode('utf-8')
+#             # h = SHA512.new(temp_key_bytes)
+#             # signature = pkcs1_15.new(private_key).sign(h)
+#             # # Extract public key from private key and verify the signature
+#             # public_key = private_key.publickey()
+#             # try:
+#             #     pkcs1_15.new(public_key).verify(h, signature)
+#             #     print("Signature is valid")
+#             # except (ValueError, TypeError):
+#             #     print("Signature is invalid")
+
+#             # # Encode signature as base64 for transmission
+#             # import base64
+#             # signed_temp_key = base64.b64encode(signature).decode('utf-8')
+#             # signature_algorithm = SignatureAlgorithm.SHA512withRSA
+# # ===========
+#             # End of Options
+#             print(f"temp_key: {temp_key}")
+#             print(f"signed_temp_key: {signed_temp_key}")
+
+#             # Authenticate with the signature to prove possession of private key
+#             try:
+#                 # TODO: Fails here, fix the implementation
+#                 result = ctx.obj["caredaily"].app_api(Authentication).login_by_username(
+#                     username=username,
+#                     password=signed_temp_key,
+#                     key_type=APIKeyType.ADMIN,
+#                     sign=True,
+#                     sign_algorithm=signature_algorithm,
+#                     app_name=app_name
+#                 )
+#             except Exception as e:
+#                 click.echo(f"Error during signature authentication: {e}")
+#                 pass
+#             click.echo("Authenticated successfully with RSA signature.")
+            
+#             # Serialize keys to PEM format
+#             private_key_pem = private_key.private_bytes(
+#                 encoding=serialization.Encoding.PEM,
+#                 format=serialization.PrivateFormat.PKCS8,
+#                 encryption_algorithm=serialization.NoEncryption()
+#             )
+
+#             public_key_pem = public_key.public_bytes(
+#                 encoding=serialization.Encoding.PEM,
+#                 format=serialization.PublicFormat.SubjectPublicKeyInfo
+#             )
+
+#             # Save keys to files
+#             os.makedirs(output_dir, exist_ok=True)
+#             private_key_file = os.path.join(output_dir, f"{profile}_{app_name}_private_key.pem")
+#             public_key_file = os.path.join(output_dir, f"{profile}_{app_name}_public_key.pem")
+
+#             with open(private_key_file, "wb") as f:
+#                 f.write(private_key_pem)
+#             os.chmod(private_key_file, 0o600)  # Restrict permissions
+#             click.echo(f"Private key saved to: {private_key_file}")
+
+#             with open(public_key_file, "wb") as f:
+#                 f.write(public_key_pem)
+#             click.echo(f"Public key saved to: {public_key_file}")
+
+#         except Exception as e:
+#             import traceback
+#             click.echo(f"Error generating keys: {e}")
+#             traceback.print_exc()
+#             return
+#     # Option 3: Upload public key to cloud
+#     click.echo(f"Uploading public key to CareDaily cloud for app: {app_name}")
+#     try:
+#         # Convert public key PEM to string for upload
+#         public_key_str = public_key_pem.decode('utf-8') if isinstance(public_key_pem, bytes) else public_key_pem
+
+#         # Call API to upload public key
+#         result = (
+#             ctx.obj["caredaily"]
+#             .app_api(Authentication)
+#             .put_public_key(
+#                 public_key=public_key_str, 
+#                 app_name=app_name
+#             )
+#         )
+
+#         click.echo("Public key uploaded successfully.")
+#         if result.data:
+#             click.echo(f"Response: {result.data}")
+
+#     except AttributeError:
+#         click.echo("Error: put_public_key method not found in Authentication API.")
+#     except CareDailyException as e:
+#         click.echo(f"Error uploading public key: {e.message}")
+#     except Exception as e:
+#         click.echo(f"Error uploading public key: {e}")
+
+#     click.echo("Signature key management completed.")
+    
+
 
 configure.add_command(interactive)
 configure.add_command(list)
 configure.add_command(list_profiles)
 configure.add_command(init)
+configure.add_command(signature)

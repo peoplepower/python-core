@@ -37,6 +37,11 @@ dev = [
 websockets = [
     "websockets>=12.0",
 ]
+rsa = [
+    "cryptography", # Wrong username Option 1/2
+#    "pyjwt[crypto]", # Cannot decode Option 3
+#    "pycryptodome", # Wrong username Option 4
+]
 
 [project.urls]
 homepage = "https://github.com/peoplepower/python-core"
