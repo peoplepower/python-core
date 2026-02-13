@@ -214,7 +214,12 @@ class Authentication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/totp", ep_params=params
+            "/espapi/cloud/json/totp", 
+            ep_params=params,
+            ep_headers=self.adapter._get_headers(
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
+            )
         )
         return result
 
@@ -242,7 +247,12 @@ class Authentication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/totp", ep_params=params
+            "/espapi/cloud/json/totp", 
+            ep_params=params,
+            ep_headers=self.adapter._get_headers(
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
+            )
         )
         return result
 
@@ -256,7 +266,13 @@ class Authentication(API):
         Reference:
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Authentication/operation/Get%20TOTP%20Factors
         """
-        result: Result = self.adapter.get("/espapi/cloud/json/totp")
+        result: Result = self.adapter.get(
+            "/espapi/cloud/json/totp",
+            ep_headers=self.adapter._get_headers(
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
+            )
+        )
         return result
 
     def delete_totp_factor(
@@ -279,7 +295,12 @@ class Authentication(API):
             "name": name,
         }
         result: Result = self.adapter.delete(
-            "/espapi/cloud/json/totp", ep_params=params
+            "/espapi/cloud/json/totp", 
+            ep_params=params,
+            ep_headers=self.adapter._get_headers(
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
+            )
         )
         return result
 
@@ -304,7 +325,12 @@ class Authentication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/signatureKey", ep_params=params
+            "/espapi/cloud/json/signatureKey", 
+            ep_params=params,
+            ep_headers=self.adapter._get_headers(
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
+            )
         )
         return result
 
@@ -328,10 +354,18 @@ class Authentication(API):
         """
         params = {
             "appName": app_name,
+        }
+        data = {
             "publicKey": public_key,
         }
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/signatureKey", ep_params=params
+            "/espapi/cloud/json/signatureKey", 
+            ep_params=params,
+            ep_data=json.dumps(data),
+            ep_headers=self.adapter._get_headers(
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
+            )
         )
         return result
 
