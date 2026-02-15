@@ -110,8 +110,6 @@
 | Support | POST | /espapi/cloud/json/support | support info | JSON result | support | To Review |
 | Get Questions | GET | /espapi/cloud/json/questions | locationId, answerStatus, editable, collectionName, questionId, appInstanceId, lang, limit | Questions | get_questions | To Review |
 | Answer Questions | PUT | /espapi/cloud/json/questions | locationId, answers, checkIfValid | JSON result | answer_questions | To Review |
-| Get Survey Questions | GET | /espapi/cloud/json/surveys | brand | Questions | get_survey_questions | To Review |
-| Answer Survey Question | PUT | /espapi/cloud/json/surveys | question | JSON result | answer_survey_question | To Review |
 | Get Message Topics | GET | /espapi/cloud/json/messageTopics | appId, language | Topics | get_message_topics | To Review |
 | Create Messages | POST | /espapi/cloud/json/messages | messages, locationId | JSON result | create_messages | To Review |
 | Get Messages | GET | /espapi/cloud/json/messages | locationId, startDateMs, endDateMs, instance, topicId, readStatus | Messages | get_messages | To Review |

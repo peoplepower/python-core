@@ -525,58 +525,6 @@ class UserCommunication(API):
         )
         return result
 
-    def get_survey_questions(
-        self,
-        brand: str = None,
-    ) -> Result:
-        """
-        Get Survey Questions.
-
-        The survey API allows to collect end user opinions.
-
-        Args:
-            brand: App brand
-
-        Returns:
-            Result: API response with survey questions
-
-        Reference:
-            https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/User-Communications/operation/Get%20Survey%20Questions
-        """
-        params = {
-            "brand": brand,
-        }
-        params = {k: v for k, v in params.items() if v is not None}
-        result: Result = self.adapter.get(
-            "/espapi/cloud/json/surveys",
-            ep_params=params,
-        )
-        return result
-
-    def answer_survey_question(
-        self,
-        survey_answer: Dict,
-    ) -> Result:
-        """
-        Answer Survey Question.
-
-        Submit an answer to a survey question.
-
-        Args:
-            survey_answer: Survey answer data including question object with id, slider, answerText (required)
-
-        Returns:
-            Result: API response confirming answer submission
-
-        Reference:
-            https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/User-Communications/operation/Answer%20Survey%20Question
-        """
-        result: Result = self.adapter.put(
-            "/espapi/cloud/json/surveys",
-            ep_json=survey_answer,
-        )
-        return result
-
     def get_message_topics(
         self,
         app_id: int = None,
@@ -862,7 +810,7 @@ class UserCommunication(API):
         )
         return result
 
-    def get_organization_survey_questions(
+    def get_survey_questions(
         self,
         location_id: int = None,
         answer_id: int = None,
@@ -895,7 +843,7 @@ class UserCommunication(API):
         )
         return result
 
-    def answer_organization_survey_questions(
+    def answer_survey_questions(
         self,
         questions: Dict,
         location_id: int = None,
