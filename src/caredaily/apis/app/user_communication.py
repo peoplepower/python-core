@@ -777,8 +777,8 @@ class UserCommunication(API):
             user_id: Answer a survey for this user (required)
             answer_id: An existing answer record ID to recreate previous API response and action
             pre_answer_id: Copy question answers from this answer record
-            send_to_user: Send the email directly to the location users
-            notification_category: Send the email to organization notification user with this category
+            send_to_user: Send the email directly to the user
+            notification_category: Send the email to organization notification users with this category
             questions: Optional answers to the survey questions (list of dicts with questionKey and answer)
             notification_model: Additional notification template parameters as a string map
 

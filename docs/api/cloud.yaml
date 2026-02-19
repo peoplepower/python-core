@@ -11033,12 +11033,12 @@ paths:
             type: integer
         - name: sendToUser
           in: query
-          description: Send the email directly to the location users
+          description: Send the email directly to the user
           schema:
             type: boolean
         - name: notificationCategory
           in: query
-          description: Send the email to organization notification user with this category
+          description: Send the email to organization notification users with this category
           schema:
             type: integer
       requestBody:
@@ -11077,7 +11077,7 @@ paths:
                   description: Additional notification template parameters as a string map
       responses:
         '200':
-          description: Answer the survey URL
+          description: Survey Answer
           content:
             application/json:
               schema:

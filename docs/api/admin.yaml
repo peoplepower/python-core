@@ -5261,6 +5261,291 @@ paths:
           description: Report execution not completed yet or not found
 
 
+  /reports/{organizationId}/collections:
+    get:
+      summary: Get Report Collections
+      operationId: Get Report Collections
+      description: |-
+        Returns report collections for an organization.
+
+        If `collectionId` is specified, returns only the matching collection.
+        If `reportId` is specified, returns only collections that contain the given report.
+        Otherwise, returns all collections for the organization.
+      tags:
+        - Reports
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+        - name: collectionId
+          in: query
+          description: Filter by collection ID
+          schema:
+            type: integer
+        - name: reportId
+          in: query
+          description: Filter by report ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Report Collections
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  collections:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReportCollection'
+              example:
+                resultCode: 0
+                collections:
+                  - collectionId: 1
+                    organizationId: 123
+                    name: Weekly Reports
+                    description: Weekly activity reports for all locations
+                    executionSchedule: 0 0 8 ? * MON
+                    notificationCategories: [1, 2]
+                    startDate: '2025-01-15T08:00:00Z'
+                    startDateMs: 1736928000000
+                    nextExecutionDate: '2025-01-20T08:00:00Z'
+                    nextExecutionDateMs: 1737360000000
+                    reports:
+                      - collectionReportId: 10
+                        reportId: 1
+                        parameters:
+                          roleId: '1'
+
+    post:
+      summary: Create Report Collection
+      operationId: Create Report Collection
+      description: |-
+        Create a new report collection for an organization.
+
+        The collection name and execution schedule are required.
+        The execution schedule is a cron expression.
+
+        Optionally, a list of reports can be included.
+        Each report must have a `reportId`.
+        The combination of `reportId` and `parameters` must be unique across the collection.
+      tags:
+        - Reports
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - executionSchedule
+              properties:
+                name:
+                  type: string
+                  description: Collection name
+                description:
+                  type: string
+                  description: Collection description
+                executionSchedule:
+                  type: string
+                  description: Cron expression for the execution schedule
+                notificationCategories:
+                  type: array
+                  items:
+                    type: integer
+                  description: Notification categories
+                startDate:
+                  type: string
+                  description: Start date in ISO-8601 format. Defaults to the current date and time.
+                reports:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - reportId
+                    properties:
+                      reportId:
+                        type: integer
+                        description: Report ID
+                      parameters:
+                        type: object
+                        additionalProperties:
+                          type: string
+                        description: Report parameters as key-value pairs
+            example:
+              name: Weekly Reports
+              description: Weekly activity reports for all locations
+              executionSchedule: 0 0 8 ? * MON
+              notificationCategories: [1, 2]
+              reports:
+                - reportId: 1
+                  parameters:
+                    roleId: '1'
+      responses:
+        '200':
+          description: Created Report Collection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  collection:
+                    $ref: '#/components/schemas/ReportCollection'
+
+  /reports/{organizationId}/collections/{collectionId}:
+    put:
+      summary: Update Report Collection
+      operationId: Update Report Collection
+      description: |-
+        Update an existing report collection.
+
+        All request body fields are optional. Fields that are not provided retain their existing values.
+
+        The `reports` array supports the following operations:
+        - **Keep existing report unchanged**: provide `collectionReportId` only (parameters are preserved).
+        - **Add a new report**: provide `reportId` without `collectionReportId`.
+        - **Modify an existing report's parameters**: provide `collectionReportId` with new `parameters`.
+        - **Delete a report**: provide `collectionReportId` with `deleted` set to `true`.
+
+        The combination of `reportId` and `parameters` must be unique across the collection.
+      tags:
+        - Reports
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+        - name: collectionId
+          in: path
+          description: Collection ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Collection name
+                description:
+                  type: string
+                  description: Collection description
+                executionSchedule:
+                  type: string
+                  description: Cron expression for the execution schedule
+                notificationCategories:
+                  type: array
+                  items:
+                    type: integer
+                  description: Notification categories
+                startDate:
+                  type: string
+                  description: Start date in ISO-8601 format
+                reports:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      collectionReportId:
+                        type: integer
+                        description: Existing collection report ID. Omit to add a new report.
+                      reportId:
+                        type: integer
+                        description: Report ID. Required when adding a new report.
+                      parameters:
+                        type: object
+                        additionalProperties:
+                          type: string
+                        description: Report parameters. If omitted for an existing report, the current parameters are preserved.
+                      deleted:
+                        type: boolean
+                        description: Set to `true` to remove the report from the collection.
+            example:
+              name: Updated Weekly Reports
+              description: Updated weekly activity reports
+              reports:
+                - collectionReportId: 10
+                - reportId: 2
+                  parameters:
+                    startDate: '2025-01-01'
+                - collectionReportId: 11
+                  deleted: true
+      responses:
+        '200':
+          description: Updated Report Collection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  collection:
+                    $ref: '#/components/schemas/ReportCollection'
+
+    delete:
+      summary: Delete Report Collection
+      operationId: Delete Report Collection
+      description: Delete a report collection.
+      tags:
+        - Reports
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+        - name: collectionId
+          in: path
+          description: Collection ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+              example:
+                resultCode: 0
+
+
   /admin/json/billingItems:
     get:
       summary: Get Billing Items
@@ -6513,7 +6798,65 @@ components:
       name: ANALYTIC_API_KEY
       description: Bot instance's API key
 
-  schemas: {}
+  schemas:
+    ReportCollection:
+      type: object
+      properties:
+        collectionId:
+          type: integer
+          description: Collection ID
+        organizationId:
+          type: integer
+          description: Organization ID
+        name:
+          type: string
+          description: Collection name
+        description:
+          type: string
+          description: Collection description
+        executionSchedule:
+          type: string
+          description: Cron expression for the execution schedule
+        notificationCategories:
+          type: array
+          items:
+            type: integer
+          description: Notification categories
+        startDate:
+          type: string
+          description: Start date in ISO-8601 format
+        startDateMs:
+          type: integer
+          description: Start date in milliseconds since the epoch
+        lastExecutionDate:
+          type: string
+          description: Last execution date in ISO-8601 format
+        lastExecutionDateMs:
+          type: integer
+          description: Last execution date in milliseconds since the epoch
+        nextExecutionDate:
+          type: string
+          description: Next execution date in ISO-8601 format
+        nextExecutionDateMs:
+          type: integer
+          description: Next execution date in milliseconds since the epoch
+        reports:
+          type: array
+          description: Reports in this collection
+          items:
+            type: object
+            properties:
+              collectionReportId:
+                type: integer
+                description: Collection report ID
+              reportId:
+                type: integer
+                description: Report ID
+              parameters:
+                type: object
+                additionalProperties:
+                  type: string
+                description: Report parameters as key-value pairs
 
 tags:
   - name: Organizations
