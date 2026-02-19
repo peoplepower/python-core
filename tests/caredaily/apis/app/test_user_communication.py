@@ -280,27 +280,21 @@ class TestUserCommunication(unittest.TestCase):
         self.assertEqual(kwargs['ep_params']['appName'], 'test_app')
 
     def test_get_survey_questions(self):
-        self.mock_adapter.get.return_value = {'questions': []}
+        self.mock_adapter.get.return_value = {'survey': {}}
         result = self.uc.get_survey_questions()
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/surveys')
-        self.assertEqual(result, {'questions': []})
+        self.assertEqual(args[0], '/espapi/cloud/json/surveyQuestions')
+        self.assertEqual(result, {'survey': {}})
 
-    def test_get_survey_questions_with_brand(self):
-        self.mock_adapter.get.return_value = {'questions': []}
-        result = self.uc.get_survey_questions(brand='test_brand')
-        args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(kwargs['ep_params']['brand'], 'test_brand')
-
-    def test_answer_survey_question(self):
+    def test_answer_survey_questions(self):
         survey_answer = {'question': {'id': 1, 'answerText': 'Answer'}}
-        self.mock_adapter.put.return_value = {'answered': True}
-        result = self.uc.answer_survey_question(survey_answer=survey_answer)
+        self.mock_adapter.put.return_value = {'result_code': 0}
+        result = self.uc.answer_survey_questions(location_id=0, answer_id=1, questions=survey_answer)
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
         self.assertEqual(kwargs['ep_json'], survey_answer)
-        self.assertEqual(result, {'answered': True})
+        self.assertEqual(result, {'result_code': 0})
 
     def test_get_message_topics(self):
         self.mock_adapter.get.return_value = {'topics': []}
