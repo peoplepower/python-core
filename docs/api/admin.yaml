@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: 'IoT Software Suite: Admin API'
-  version: '58'
+  version: '59'
   description: |-
     Care Daily offers a full Command Center to engage your customers and manage IoT services, and access to social engagement layers.
 
@@ -1073,69 +1073,6 @@ paths:
                     type: integer
               example:
                 resultCode: 0
-
-
-  /admin/json/organizations/{organizationId}/totals:
-    get:
-      summary: Get Organization Totals
-      operationId: Get Organization Totals
-      description: |-
-        Get total numbers of locations and devices in the organization.
-
-        | Name                | Description                           |
-        |---------------------|---------------------------------------|
-        | locationsCount      | Total number of locations             |
-        | organizationDevices | Number of active and inactive devices |
-      tags:
-        - Users and Locations
-      security:
-        - adminApiKey: []
-      parameters:
-        - name: organizationId
-          in: path
-          description: Organization ID
-          required: true
-          schema:
-            type: integer
-        - name: locations
-          in: query
-          description: Return total number of locations
-          schema:
-            type: boolean
-        - name: userDevices
-          in: query
-          description: Return number of devices
-          schema:
-            type: boolean
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-                  totals:
-                    type: object
-                    properties:
-                      locationsCount:
-                        type: integer
-                      organizationDevices:
-                        type: object
-                        properties:
-                          active:
-                            type: integer
-                          inactive:
-                            type: integer
-              example:
-                resultCode: 0
-                totals:
-                  locationsCount: 100
-                  organizationDevices:
-                    active: 20
-                    inactive: 40
 
 
   /admin/json/users:
@@ -2328,6 +2265,104 @@ paths:
                   - 1
                   - 2
                   - 3
+
+
+  /admin/json/timeStates:
+    get:
+      summary: Get Location Time-series States
+      operationId: Get Location Time-series States
+      tags:
+        - Users and Locations
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: query
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+        - name: locationId
+          in: query
+          description: Location IDs filter, multiple values supported
+          schema:
+            type: integer
+        - name: priorityCategory
+          in: query
+          description: Filter by location priority category, multiple values supported
+          schema:
+            type: integer
+        - name: startDate
+          in: query
+          description: Return states with dates greater than this value
+          required: true
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          description: Return states with dates less than or equal to this value.
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: State name(s), multiple values supported
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Time-series States
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  states:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        location:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                            priorityCategory:
+                              type: integer
+                            organizationId:
+                              type: integer
+                        name:
+                          type: string
+                          description: State's name
+                        stateDate:
+                          type: string
+                          description: State's date
+                        stateDateMs:
+                          type: integer
+                        value:
+                          type: object
+                          description: State's value
+                      required:
+                        - location
+                        - name
+                        - stateDate
+                        - stateDateMs
+              example:
+                resultCode: 0
+                states:
+                  - name: stateName
+                    location:
+                      id: 123
+                      name: Room A
+                    stateDate: '2018-10-01T03:05:07'
+                    stateDateMs: 1537692964000
+                    value:
+                      field0: 123
+                      field1: AAA
 
 
   /admin/json/devices:
@@ -4865,6 +4900,11 @@ paths:
                         id:
                           type: integer
                           description: Report ID
+                        type:
+                          type: integer
+                          enum: [0,1]
+                          description: |-
+                            Report Type: 0 - General Summary report, 1 = Analytical
                         analytic:
                           type: boolean
                           description: If the report is analytic
@@ -4892,6 +4932,7 @@ paths:
                               type:
                                 type: integer
                                 description: Parameter datatype, 1=string, 2=integer, 3=datetime, 4=double, 5=boolean
+                                enum: [1,2,3,4,5]
                               required:
                                 type: boolean
                                 description: If the parameter is required
@@ -4927,11 +4968,26 @@ paths:
                               type:
                                 type: integer
                                 description: Field datatype, 1=string, 2=integer, 3=datetime, 4=double, 5=boolean, 6=date
+                                enum: [1,2,3,4,5,6]
                             required:
                               - id
                               - name
                               - desc
                               - type
+                        metadata:
+                          type: array
+                          description: Report metadata definitions
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                description: Metadata name
+                              desc:
+                                type: string
+                                description: Metadata description
+                            required:
+                              - name
                         reportGroups:
                           type: array
                           description: Report groups the report belongs to
@@ -5016,6 +5072,9 @@ paths:
                         desc: Count of active users
                         type: 2
                         index: 2
+                    metadata:
+                      - name: totalCount
+                        desc: Total number of active users
                     reportGroups:
                       - id: 1
                         name: Analytic reports
@@ -5087,14 +5146,20 @@ paths:
       summary: Get Report Executions
       operationId: Get Report Executions
       description: |-
-        The API returns the report executions history. 
-        Reports are executed according to the schedules defined for the report groups to which they belong.
-  
+        The API returns the report executions history.
+
+        Two mutually exclusive modes are supported:
+
+        * **Collection mode** (`collectionId` is provided): returns executions for all reports in the given report collection.
+          `organizationId` is required in this mode.
+        * **Report mode** (`reportId` + `reportGroupId` are provided): returns executions for a specific report and report group.
+          `organizationId` is optional in this mode (required only for organizational report groups).
+
         The output format of the report data depends on whether the report is analytical or not.
 
         * For analytical reports the output is a single-row data and is returned by the API in the form of key-value pairs where key is the report field ID;
         * For non-analytical reports the output is a set of rows of comma-separated values stored as a zip archive in AWS S3. The API returns the pre-signed URL for downloading the stored objects.
-        
+
         In this example, the API response for both analytical and non-analytical reports is presented.
         Real responses will return either 'url' or 'data' and 'dictionary' element.
       tags:
@@ -5102,18 +5167,6 @@ paths:
       security:
         - adminApiKey: []
       parameters:
-        - name: reportId
-          in: query
-          description: Report ID
-          required: true
-          schema:
-            type: integer
-        - name: reportGroupId
-          in: query
-          description: Report group ID
-          required: true
-          schema:
-            type: integer
         - name: startDate
           in: query
           description: Start date
@@ -5126,9 +5179,24 @@ paths:
           required: true
           schema:
             type: string
+        - name: collectionId
+          in: query
+          description: Report collection ID. When provided, returns executions for all reports in the collection. Required if reportId and reportGroupId are not provided.
+          schema:
+            type: integer
+        - name: reportId
+          in: query
+          description: Report ID. Required together with reportGroupId if collectionId is not provided.
+          schema:
+            type: integer
+        - name: reportGroupId
+          in: query
+          description: Report group ID. Required together with reportId if collectionId is not provided.
+          schema:
+            type: integer
         - name: organizationId
           in: query
-          description: Organization ID, required for organizational report group
+          description: Organization ID. Required when collectionId is provided; optional for organizational report groups in report mode.
           schema:
             type: integer
       responses:
@@ -5147,45 +5215,139 @@ paths:
                     items:
                       type: object
                       properties:
-                        reportId:
+                        report:
+                          type: object
+                          description: Report object
+                          properties:
+                            id:
+                              type: integer
+                              description: Report ID
+                            type:
+                              type: integer
+                              enum: [0,1]
+                              description: |-
+                                Report Type: 0 - General Summary report, 1 = Analytical
+                            analytic:
+                              type: boolean
+                              description: If the report is analytic
+                            name:
+                              type: string
+                              description: name
+                            desc:
+                              type: string
+                              description: description
+                            displayInfo:
+                              type: object
+                              description: Display object
+                            fields:
+                              type: array
+                              description: Report fields
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                    description: Field index, starts from 1
+                                  name:
+                                    type: string
+                                    description: Field name
+                                  desc:
+                                    type: string
+                                    description: Field description
+                                  type:
+                                    type: integer
+                                    description: Field datatype, 1=string, 2=integer, 3=datetime, 4=double, 5=boolean, 6=date
+                                    enum: [1,2,3,4,5,6]
+                                required:
+                                  - id
+                                  - name
+                                  - desc
+                                  - type
+                        collectionId:
                           type: integer
-                          description: Report ID
+                          description: Report collection ID
+                        collectionReportId:
+                          type: integer
+                          description: Report entry ID within the collection
                         executionDate:
                           type: string
                           description: Report completion datetime
                         executionDateMs:
                           type: integer
                           description: Report completion datetime, in milliseconds since the epoch
+                        scheduleDate:
+                          type: string
+                          description: Scheduled report execution datetime
+                        scheduleDateMs:
+                          type: integer
+                          description: Scheduled report execution datetime, in milliseconds since the epoch
+                        executionTime:
+                          type: integer
+                          description: Report execution duration, in milliseconds
+                        organizationId:
+                          type: integer
+                          description: Organization ID
+                        rowCount:
+                          type: integer
+                          description: Number of rows in the report output
+                        metadata:
+                          type: array
+                          description: Report execution metadata
+                          items:
+                            type: object
+                            properties:
+                              name: string
+                              value: string
+                        errorMessage:
+                          type: string
+                          description: Error message if the report execution failed
                         url:
                           type: string
-                          description: Link to download the summary report output
+                          description: Link to download the detailed report output in ZIP format
+                        urlJson:
+                          type: string
+                          description: Link to get the report output in JSON format
                         data:
                           type: array
                           description: Analytical report output
                           items:
                             type: object
-
-                  dictionary:
-                    type: array
-                    description: Report names
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                          description: Report ID
-                        name:
-                          type: string
-                          description: Report name
-                        description:
-                          type: string
-                          description: Report description
+                        dictionary:
+                          type: array
+                          description: Report names
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                description: Report ID
+                              name:
+                                type: string
+                                description: Report name
+                              description:
+                                type: string
+                                description: Report description
               example:
                 resultCode: 0
                 executions:
-                  - reportId: 201
+                  - report:
+                      reportId: 201
+                      reportName: Daily Summary
+                      fields:
+                        - id: 1
+                          name: Location ID
+                          type: 2
+                    collectionId: 5
+                    collectionReportId: 12
                     executionDateMs: 1600778491000
                     executionDate: 2020-09-22T12:41:31Z
+                    scheduleDateMs: 1600732800000
+                    scheduleDate: 2020-09-22T00:00:00Z
+                    executionTime: 3200
+                    rowCount: 150
+                    metadata:
+                      totalSum: 250
+                    errorMessage: null
                     url: >-
                       https://app.peoplepowerco.com/reports/data/lskjdffsdfs.sldfjlksdjfsdfsdfsdf.jsldjflsdfkjdklfdsfsdfs
                     data:
@@ -5198,17 +5360,17 @@ paths:
                       - id: 19
                         value: 7
                       - id: 22
-                        value": 7
-                dictionary:
-                  - id: 3
-                    name: Pro Video
-                    description: Pro Video service and 5 GB disk space
-                  - id: 5
-                    name: Pro Energy
-                    description: Pro Energy services
-                  - id: 17
-                    name: Care
-                    description: Care
+                        value: 7
+                    dictionary:
+                      - id: 3
+                        name: Pro Video
+                        description: Pro Video service and 5 GB disk space
+                      - id: 5
+                        name: Pro Energy
+                        description: Pro Energy services
+                      - id: 17
+                        name: Care
+                        description: Care
 
 
   /reports/data/{token}:
@@ -5227,6 +5389,13 @@ paths:
           required: true
           schema:
             type: string
+        - name: responseFormat
+          in: query
+          description: |-
+            Report data response format: 0 - ZIP, 1 - JSON array
+          schema:
+            type: integer
+            enum: [0,1]
       responses:
         '200':
           description: Report Data
@@ -5315,13 +5484,14 @@ paths:
                     description: Weekly activity reports for all locations
                     executionSchedule: 0 0 8 ? * MON
                     notificationCategories: [1, 2]
-                    startDate: '2025-01-15T08:00:00Z'
-                    startDateMs: 1736928000000
                     nextExecutionDate: '2025-01-20T08:00:00Z'
                     nextExecutionDateMs: 1737360000000
                     reports:
                       - collectionReportId: 10
                         reportId: 1
+                        reportType: 1
+                        displayName: Weekly Activity Report
+                        description: Summary of weekly activity for all locations
                         parameters:
                           roleId: '1'
 
@@ -5372,9 +5542,6 @@ paths:
                   items:
                     type: integer
                   description: Notification categories
-                startDate:
-                  type: string
-                  description: Start date in ISO-8601 format. Defaults to the current date and time.
                 reports:
                   type: array
                   items:
@@ -5466,9 +5633,6 @@ paths:
                   items:
                     type: integer
                   description: Notification categories
-                startDate:
-                  type: string
-                  description: Start date in ISO-8601 format
                 reports:
                   type: array
                   items:
@@ -6822,12 +6986,6 @@ components:
           items:
             type: integer
           description: Notification categories
-        startDate:
-          type: string
-          description: Start date in ISO-8601 format
-        startDateMs:
-          type: integer
-          description: Start date in milliseconds since the epoch
         lastExecutionDate:
           type: string
           description: Last execution date in ISO-8601 format
@@ -6852,6 +7010,15 @@ components:
               reportId:
                 type: integer
                 description: Report ID
+              reportType:
+                type: integer
+                description: Report type
+              displayName:
+                type: string
+                description: Report display name
+              description:
+                type: string
+                description: Report description
               parameters:
                 type: object
                 additionalProperties:

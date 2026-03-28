@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: 'IoT Software Suite: Bot API'
-  version: '58'
+  version: '59'
   description: |-
     The Bot Server is a real-time data analytics framework that allows software developers to create new bots,
     features, and services on top of any Internet-connected product.
@@ -1575,6 +1575,8 @@ paths:
                           type: string
                         locationId:
                           type: integer
+                        organizationId:
+                          type: integer
                         server:
                           type: string
                         eventsCount:
@@ -1613,112 +1615,6 @@ paths:
 
                       Tracebacks: [Traceback (most recent call last):
                       ,   File "./lambda.py", line 30, in lambda
-
-
-  /cloud/developer/executionInfo:
-    get:
-      summary: Get Execution Info
-      operationId: Get Execution Info
-      description: Information about specific execution of particular bot instance, including the log data.
-      tags:
-        - Execution Statistics and Logs
-      security:
-        - userApiKey: []
-      parameters:
-        - name: appInstanceId
-          in: query
-          description: Bot instance ID.
-          required: true
-          schema:
-            type: string
-        - name: flow
-          in: query
-          description: Execution flow.
-          required: true
-          schema:
-            type: string
-        - name: requestDateMs
-          in: query
-          description: Execution datetime millis.
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Execution Info
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-                  appVersionId:
-                    type: integer
-                  execution:
-                    type: object
-                    properties:
-                      requestDate:
-                        type: string
-                      requestDateMs:
-                        type: integer
-                      resultCode:
-                        type: integer
-                      appInstanceId:
-                        type: integer
-                      flow:
-                        type: integer
-                      appVersionId:
-                        type: integer
-                      triggers:
-                        type: integer
-                      functionName:
-                        type: string
-                      functionStartDate:
-                        type: string
-                      locationId:
-                        type: integer
-                      server:
-                        type: string
-                      eventsCount:
-                        type: integer
-                      eventDate:
-                        type: string
-                      eventDateMs:
-                        type: integer
-                      executionTimeMs:
-                        type: integer
-                      logData:
-                        type: string
-              example:
-                resultCode: 0
-                appVersionId: 0
-                execution:
-                  requestDate: '2023-06-16T00:46:29.058Z'
-                  requestDateMs: 1686876389058
-                  resultCode: 1
-                  appInstanceId: 1167
-                  flow: 0
-                  appVersionId: 586
-                  triggers: 1
-                  functionName: bot__com-ppc-Lighting__277_586
-                  functionStartDate: '2017-11-17T21:05:03Z'
-                  locationId: 235495
-                  server: B2
-                  eventsCount: 0
-                  eventDate: '2023-06-16T00:46:29.052Z'
-                  eventDateMs: 1686876389052
-                  executionTimeMs: 20
-                  logData: |-
-                    Logs: []
-
-                    Tracebacks: [Traceback (most recent call last):
-                    File "./lambda.py", line 30, in lambda_handler,
-                    File "./botengine.py", line 6603, in _run,
-                    File "./bot.py", line 85, in run,
-                    File "./controller.py", line 701, in is_version_updated,
-                    AttributeError: 'Controller' object has no attribute 'version'
-                    ]
 
 
   /cloud/developer/cloudwatchlog:
@@ -3787,6 +3683,7 @@ paths:
         | 7 | Data streams history |
         | 8 | Energy usage |
         | 9 | Device alerts history |
+        | 10 | Location Time States |
       tags:
         - Bot Server APIs
       security:
@@ -3828,6 +3725,7 @@ paths:
                     properties:
                       type:
                         type: integer
+                        enum: [1,2,3,4,5,6,7,8,9,10]
                         description: Data type
                       key:
                         type: string
@@ -3837,10 +3735,10 @@ paths:
                         description: Device ID required for data types 1,2,8,9
                       startTime:
                         type: integer
-                        description: Period start time in milliseconds required for data types 1,2,5,7,8,9
+                        description: Period start time in milliseconds required for data types 1,2,5,7,8,9,10
                       endTime:
                         type: integer
-                        description: Period end time in milliseconds required for data types 1,2,5,7,8,9
+                        description: Period end time in milliseconds required for data types 1,2,5,7,8,9,10
                       paramNames:
                         type: array
                         description: Device parameter names optional for data type 1
@@ -3867,6 +3765,11 @@ paths:
                         description: Device search types optional for data types 3,6
                         items:
                           type: integer
+                      names:
+                        type: array
+                        description: Location state names required for the data type 10
+                        items:
+                          type: string
                       aggregation:
                         type: integer
                         description: Data aggregation by:<br>0 = None<br>1 = Hours<br>2 = Days<br>3 = Months<br>4 = 7-day weeks<br>5 = 5-day weeks<br>required for data type 8
@@ -7198,6 +7101,11 @@ paths:
                               type: integer
                             nickname:
                               type: string
+                            relationships:
+                              type: array
+                              description: Relationships to the care receiver stored in lower case
+                              items:
+                                type: string
                       callCenter:
                         type: object
                         properties:
@@ -7596,6 +7504,8 @@ paths:
                       prevLocationAccess: 10
                       prevCategory: 2
                       locationAccessTime: 1446537883000
+                      relationships:
+                        - son
                   callCenter:
                     status: 1
                     userId: 123
