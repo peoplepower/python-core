@@ -575,7 +575,6 @@ def signature(ctx, profile, app_name, private_key_path, public_key_path, key_siz
         return
     output_dir = os.path.join(integration_path, ".caredaily", "keys")
     private_key_file = os.path.join(output_dir, f"{profile}_{app_name}_private_key.pem")
-    private_key_pem = None
     signature_algorithm = SignatureAlgorithm.SHA512withRSA
 
 
@@ -584,7 +583,7 @@ def signature(ctx, profile, app_name, private_key_path, public_key_path, key_siz
     try:
         if os.path.exists(private_key_file) and False:
             with open(private_key_file, "rb") as f:
-                private_key_pem = f.read().decode('ascii')
+                private_key_der = f.read()
             click.echo(f"Loaded existing private key from: {private_key_file}")
         else:
             result = (
@@ -593,20 +592,25 @@ def signature(ctx, profile, app_name, private_key_path, public_key_path, key_siz
                 .get_private_key(app_name=app_name)
             )
 
-            # Load the private key
-            private_key_pem = f"-----BEGIN PRIVATE KEY-----\n{result.data['privateKey']}\n-----END PRIVATE KEY-----"
+            import base64
 
-            # Save the keys to files
+            # Server returns a base64-encoded DER (PKCS8) private key.
+            # Decode it to raw DER bytes (mirrors JS: atob(privateKey) → ArrayBuffer).
+            private_key_der = base64.b64decode(result.data['privateKey'])
+
+            # Save the raw DER bytes to file
             os.makedirs(output_dir, exist_ok=True)
-
             with open(private_key_file, "wb") as f:
-                f.write(private_key_pem.encode('ascii'))
-            # os.chmod(private_key_file, 0o600)  # Restrict permissions
+                f.write(private_key_der)
 
             click.echo(f"Private key saved to: {private_key_file}")
 
-        private_key = serialization.load_pem_private_key(
-            private_key_pem.encode('utf-8'),
+        if 'private_key_der' not in dir():
+            with open(private_key_file, "rb") as f:
+                private_key_der = f.read()
+
+        private_key = serialization.load_der_private_key(
+            private_key_der,
             password=None,
             backend=default_backend()
         )
@@ -631,14 +635,16 @@ def signature(ctx, profile, app_name, private_key_path, public_key_path, key_siz
         )
         temp_key = result.data.get("key", "")
 
-        signature = private_key.sign(
-            temp_key.encode('utf-8'),
+        # Encode tempKey as latin-1 char codes, matching JS hexStringToArrayBuffer(tempKey)
+        sig_bytes = private_key.sign(
+            temp_key.encode('latin-1'),
             padding.PKCS1v15(),
             hashes.SHA512()
         )
 
         import base64
-        signed_temp_key = base64.urlsafe_b64encode(signature).decode('ascii')
+        # Use standard base64 (btoa equivalent), not URL-safe
+        signed_temp_key = base64.b64encode(sig_bytes).decode('ascii')
 
         # TODO: Fails here, fix the implementation
         result = ctx.obj["caredaily"].app_api(Authentication).login_by_username(
