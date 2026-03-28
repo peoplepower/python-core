@@ -1139,56 +1139,6 @@ class Locations(API):
         )
         return result
 
-    def get_presence(
-        self,
-    ) -> Result:
-        """
-        Get Presence IDs.
-
-        These APIs determine if a person is physically present nearby one of location gateways,
-        where the user has read access. It return UUIDs provided by all gateways, where the user has read access.
-
-        Returns:
-            Result: API response with iBeacon UUIDs
-
-        Reference:
-            https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Locations/operation/Get%20Presence%20IDs
-        """
-        result: Result = self.adapter.get(
-            "/espapi/cloud/json/presence",
-        )
-        return result
-
-    def authorize_presence_access(
-        self,
-        params_map: Dict,
-    ) -> Result:
-        """
-        Authorize Access.
-
-        Authorize access to the location, where the gateway with provided parameters is located.
-
-        Args:
-            params_map: Dictionary containing:
-                - ibeaconUuid: iBeacon UUID (required)
-                - ibeaconMajor: iBeacon major number (optional)
-                - ibeaconMinor: iBeacon minor number (optional)
-
-        Returns:
-            Result: API response with location ID
-
-        Reference:
-            https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Locations/operation/Authorize%20Access
-        """
-        data = {
-            "paramsMap": params_map,
-        }
-        result: Result = self.adapter.post(
-            "/espapi/cloud/json/presence",
-            ep_json=data,
-        )
-        return result
-
     def add_location_presence(
         self,
         location_id: int,

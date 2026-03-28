@@ -525,58 +525,6 @@ class UserCommunication(API):
         )
         return result
 
-    def get_survey_questions(
-        self,
-        brand: str = None,
-    ) -> Result:
-        """
-        Get Survey Questions.
-
-        The survey API allows to collect end user opinions.
-
-        Args:
-            brand: App brand
-
-        Returns:
-            Result: API response with survey questions
-
-        Reference:
-            https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/User-Communications/operation/Get%20Survey%20Questions
-        """
-        params = {
-            "brand": brand,
-        }
-        params = {k: v for k, v in params.items() if v is not None}
-        result: Result = self.adapter.get(
-            "/espapi/cloud/json/surveys",
-            ep_params=params,
-        )
-        return result
-
-    def answer_survey_question(
-        self,
-        survey_answer: Dict,
-    ) -> Result:
-        """
-        Answer Survey Question.
-
-        Submit an answer to a survey question.
-
-        Args:
-            survey_answer: Survey answer data including question object with id, slider, answerText (required)
-
-        Returns:
-            Result: API response confirming answer submission
-
-        Reference:
-            https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/User-Communications/operation/Answer%20Survey%20Question
-        """
-        result: Result = self.adapter.put(
-            "/espapi/cloud/json/surveys",
-            ep_json=survey_answer,
-        )
-        return result
-
     def get_message_topics(
         self,
         app_id: int = None,
@@ -752,14 +700,131 @@ class UserCommunication(API):
         )
         return result
 
-    def get_organization_survey_questions(
+    def get_survey_answers(
         self,
+        location_id: int,
+        user_id: int = None,
+        survey_key: str = None,
+        status: int = None,
+        start_date: str = None,
+        end_date: str = None,
     ) -> Result:
         """
-        Get Organization Survey Questions.
+        Get Survey Answers.
+
+        Returns history of survey answers.
+
+        Args:
+            location_id: Location ID (required)
+            user_id: User ID filter
+            survey_key: Survey filter
+            status: Survey answer status filter (0 - Open, 1 - Closed)
+            start_date: Answers start date
+            end_date: Answers end date
+
+        Returns:
+            Result: API response with survey answers history
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Questions/operation/Get%20Survey%20Answers
+        """
+        params = {
+            "locationId": location_id,
+            "userId": user_id,
+            "surveyKey": survey_key,
+            "status": status,
+            "startDate": start_date,
+            "endDate": end_date,
+        }
+        params = {k: v for k, v in params.items() if v is not None}
+        result: Result = self.adapter.get(
+            "/espapi/cloud/json/surveyAnswers",
+            ep_params=params,
+        )
+        return result
+
+    def start_answering_survey(
+        self,
+        location_id: int,
+        survey_key: str,
+        user_id: int,
+        answer_id: int = None,
+        pre_answer_id: int = None,
+        send_to_user: bool = None,
+        notification_category: int = None,
+        questions: List[Dict] = None,
+        notification_model: Dict = None,
+    ) -> Result:
+        """
+        Start Answering Survey.
+
+        Initiates a survey answering. This API creates a new survey answer record for the
+        requested user or returns an existing answer record.
+
+        A user or a bot can submit answers to some survey questions in this request.
+        Also question answers can be copied from a previously submitted survey by ID.
+
+        The API can send an email to a user or to an organization notification users with
+        a link to answer the survey or to view the existing answers, if the sendToUser or
+        the notificationCategory parameters are provided.
+
+        The API returns the answer record with an authentication token and a URL to answer
+        the survey for the user or view the previous answers.
+
+        Args:
+            location_id: Answer a survey for this location (required)
+            survey_key: Key of the survey to answer (required)
+            user_id: Answer a survey for this user (required)
+            answer_id: An existing answer record ID to recreate previous API response and action
+            pre_answer_id: Copy question answers from this answer record
+            send_to_user: Send the email directly to the user
+            notification_category: Send the email to organization notification users with this category
+            questions: Optional answers to the survey questions (list of dicts with questionKey and answer)
+            notification_model: Additional notification template parameters as a string map
+
+        Returns:
+            Result: API response with answer record, token, and survey URL
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Questions/operation/Start%20Answering%20Survey
+        """
+        params = {
+            "locationId": location_id,
+            "surveyKey": survey_key,
+            "userId": user_id,
+            "answerId": answer_id,
+            "preAnswerId": pre_answer_id,
+            "sendToUser": send_to_user,
+            "notificationCategory": notification_category,
+        }
+        params = {k: v for k, v in params.items() if v is not None}
+        body = {}
+        if questions is not None:
+            body["questions"] = questions
+        if notification_model is not None:
+            body["notificationModel"] = notification_model
+        result: Result = self.adapter.post(
+            "/espapi/cloud/json/surveyAnswers",
+            ep_params=params,
+            ep_json=body if body else None,
+        )
+        return result
+
+    def get_survey_questions(
+        self,
+        location_id: int = None,
+        answer_id: int = None,
+    ) -> Result:
+        """
+        Get Survey Questions.
 
         Return open organization survey details, sections, questions, and previously submitted answers.
-        This endpoint uses the surveyApiKey for authentication.
+
+        The request can be authenticated either by a survey answer token (Bearer JWT) or by a user or bot API key.
+
+        Args:
+            location_id: Location ID when a user or a bot is authenticated
+            answer_id: Answer ID when a user or a bot is authenticated
 
         Returns:
             Result: API response with survey questions
@@ -767,63 +832,28 @@ class UserCommunication(API):
         Reference:
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Questions/operation/Get%20Survey%20Questions
         """
-        result: Result = self.adapter.get(
-            "/espapi/cloud/json/surveyQuestions",
-        )
-        return result
-
-    def post_survey_notification(
-        self,
-        location_id: int,
-        survey_key: str,
-        user_id: int = None,
-        role: int = None,
-        send_to_user: bool = None,
-        notification_category: int = None,
-    ) -> Result:
-        """
-        Post Survey Notification.
-
-        Send an email to a user or to an organization notification users to answer a survey.
-
-        Args:
-            location_id: Answer a survey for this location (required)
-            survey_key: Key of the survey to answer (required)
-            user_id: Answer a survey for specific user
-            role: Answer a survey for users with this role on the location
-            send_to_user: Send the email directly to the user
-            notification_category: Send the email to organization notification user with this category
-
-        Returns:
-            Result: API response confirming notification sent
-
-        Reference:
-            https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Questions/operation/Post%20Survey%20Notification
-        """
         params = {
             "locationId": location_id,
-            "surveyKey": survey_key,
-            "userId": user_id,
-            "role": role,
-            "sendToUser": send_to_user,
-            "notificationCategory": notification_category,
+            "answerId": answer_id,
         }
         params = {k: v for k, v in params.items() if v is not None}
-        result: Result = self.adapter.post(
-            "/espapi/cloud/json/surveyNotification",
+        result: Result = self.adapter.get(
+            "/espapi/cloud/json/surveyQuestions",
             ep_params=params,
         )
         return result
 
-    def answer_organization_survey_questions(
+    def answer_survey_questions(
         self,
         questions: Dict,
+        location_id: int = None,
+        answer_id: int = None,
         status: int = None,
     ) -> Result:
         """
-        Answer Organization Survey Questions.
+        Answer Survey Questions.
 
-        Put survey answers by a Survey API key to the latest open survey response.
+        Put survey answers to the latest open survey response.
         A user can submit a portion of answers in one API call. Some of answers can overwrite previous.
 
         The API checks, if the survey is not answered yet by the user (within configured date interval).
@@ -831,8 +861,12 @@ class UserCommunication(API):
         An optional parameter `status` is used to finalize the latest survey response.
         In this case the API checks that all questions answered and triggers bots.
 
+        The request can be authenticated either by a survey answer token (Bearer JWT) or by a user or bot API key.
+
         Args:
             questions: Questions data including questions array with questionKey and answer (required)
+            location_id: Location ID when a user or a bot is authenticated
+            answer_id: Answer ID when a user or a bot is authenticated
             status: Change survey response status: 1 - close
 
         Returns:
@@ -842,6 +876,8 @@ class UserCommunication(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Questions/operation/Answer%20Survey%20Questions
         """
         params = {
+            "locationId": location_id,
+            "answerId": answer_id,
             "status": status,
         }
         params = {k: v for k, v in params.items() if v is not None}

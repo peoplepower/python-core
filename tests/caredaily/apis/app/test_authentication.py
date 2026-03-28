@@ -1,3 +1,4 @@
+import json
 import unittest
 from unittest.mock import MagicMock
 from caredaily.apis.app import Authentication
@@ -138,7 +139,7 @@ class TestAuthentication(unittest.TestCase):
         args, kwargs = self.mock_adapter.put.call_args
         self.assertEqual(args[0], '/espapi/cloud/json/signatureKey')
         self.assertEqual(kwargs['ep_params']['appName'], 'test_app')
-        self.assertEqual(kwargs['ep_params']['publicKey'], '-----BEGIN PUBLIC KEY-----')
+        self.assertEqual(json.loads(kwargs['ep_data'])['publicKey'], '-----BEGIN PUBLIC KEY-----')
         self.assertEqual(result, 'public-key-result')
 
     def test_get_operation_token(self):

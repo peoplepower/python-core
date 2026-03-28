@@ -120,7 +120,7 @@ All source files are correctly included in `SOURCES.txt`.
 
 1. **Build the package**:
    ```bash
-   cd /Users/destry/Developer/PPC/Python/python-core
+   cd /Path/To/python-core
    python3 -m pip install build
    python3 -m build
    ```

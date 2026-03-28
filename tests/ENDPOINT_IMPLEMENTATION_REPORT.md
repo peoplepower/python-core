@@ -1,11 +1,11 @@
 # Endpoint Implementation Report
 
-Generated: 2026-01-13 14:30:11.845122
+Generated: 2026-03-27 18:27:52.555119
 
 **Total Endpoints:** 229
-**Total Operations:** 359
+**Total Operations:** 364
 **Source Files:** admin.yaml, bots.yaml, cloud.yaml
-**Implemented:** 359 (100.0%)
+**Implemented:** 364 (100.0%)
 **Missing:** 0 (0.0%)
 **Duplicate Endpoints:** 2
 
@@ -215,10 +215,16 @@ Generated: 2026-01-13 14:30:11.845122
 
 - ✅ **GET**: Implemented in:
   - `admin/organizations.py`
+- ✅ **POST**: Implemented in:
+  - `admin/organizations.py`
 
 #### /admin/json/organizations/{organizationId}/surveys/{surveyKey}
 
+- ✅ **DELETE**: Implemented in:
+  - `admin/organizations.py`
 - ✅ **GET**: Implemented in:
+  - `admin/organizations.py`
+- ✅ **PUT**: Implemented in:
   - `admin/organizations.py`
 
 #### /admin/json/organizations/{organizationId}/tags
@@ -230,17 +236,17 @@ Generated: 2026-01-13 14:30:11.845122
 - ✅ **PUT**: Implemented in:
   - `admin/tags.py`
 
-#### /admin/json/organizations/{organizationId}/totals
-
-- ✅ **GET**: Implemented in:
-  - `admin/organizations.py`
-
 #### /admin/json/roles
 
 - ✅ **GET**: Implemented in:
   - `admin/users.py`
 
 #### /admin/json/status
+
+- ✅ **GET**: Implemented in:
+  - `admin/system.py`
+
+#### /admin/json/timeStates
 
 - ✅ **GET**: Implemented in:
   - `admin/system.py`
@@ -287,6 +293,20 @@ Generated: 2026-01-13 14:30:11.845122
 #### /reports/reports
 
 - ✅ **GET**: Implemented in:
+  - `admin/reports.py`
+
+#### /reports/{organizationId}/collections
+
+- ✅ **GET**: Implemented in:
+  - `admin/reports.py`
+- ✅ **POST**: Implemented in:
+  - `admin/reports.py`
+
+#### /reports/{organizationId}/collections/{collectionId}
+
+- ✅ **DELETE**: Implemented in:
+  - `admin/reports.py`
+- ✅ **PUT**: Implemented in:
   - `admin/reports.py`
 
 ### bots.yaml
@@ -518,11 +538,6 @@ Generated: 2026-01-13 14:30:11.845122
 - ✅ **GET**: Implemented in:
   - `bot/bot_developer.py`
 
-#### /cloud/developer/executionInfo
-
-- ✅ **GET**: Implemented in:
-  - `bot/bot_developer.py`
-
 #### /cloud/developer/messageTopics
 
 - ✅ **PUT**: Implemented in:
@@ -639,6 +654,11 @@ Generated: 2026-01-13 14:30:11.845122
   - `app/clouds_integration.py`
 - ✅ **POST**: Implemented in:
   - `app/clouds_integration.py`
+
+#### /cloud/json/authToken
+
+- ✅ **GET**: Implemented in:
+  - `app/authentication.py`
 
 #### /cloud/json/authorizations/{authId}
 
@@ -1172,13 +1192,6 @@ Generated: 2026-01-13 14:30:11.845122
 - ✅ **GET**: Implemented in:
   - `app/devices.py`
 
-#### /cloud/json/presence
-
-- ✅ **GET**: Implemented in:
-  - `app/locations.py`
-- ✅ **POST**: Implemented in:
-  - `app/locations.py`
-
 #### /cloud/json/pronouns
 
 - ✅ **GET**: Implemented in:
@@ -1220,11 +1233,6 @@ Generated: 2026-01-13 14:30:11.845122
 #### /cloud/json/rules/{ruleId}/attrs
 
 - ✅ **PUT**: Implemented in:
-  - `app/rules.py`
-
-#### /cloud/json/rulesCreateDefault
-
-- ✅ **POST**: Implemented in:
   - `app/rules.py`
 
 #### /cloud/json/rulesStatus/{status}
@@ -1278,8 +1286,10 @@ Generated: 2026-01-13 14:30:11.845122
 - ✅ **POST**: Implemented in:
   - `app/user_communication.py`
 
-#### /cloud/json/surveyNotification
+#### /cloud/json/surveyAnswers
 
+- ✅ **GET**: Implemented in:
+  - `app/user_communication.py`
 - ✅ **POST**: Implemented in:
   - `app/user_communication.py`
 

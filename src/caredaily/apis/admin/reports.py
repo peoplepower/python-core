@@ -274,6 +274,192 @@ class Reports(API):
         )
         return result
 
+    def get_report_collections(
+        self,
+        organization_id: int,
+        collection_id: int = None,
+        report_id: int = None,
+    ) -> Result:
+        """
+        Get report collections for an organization.
+
+        If collection_id is specified, returns only the matching collection.
+        If report_id is specified, returns only collections that contain the given report.
+        Otherwise, returns all collections for the organization.
+
+        Args:
+            organization_id: Organization ID
+            collection_id: Filter by collection ID
+            report_id: Filter by report ID
+
+        Returns:
+            Result: API response with report collections data
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Reports/operation/Get%20Report%20Collections
+        """
+        params = {}
+        if collection_id is not None:
+            params["collectionId"] = collection_id
+        if report_id is not None:
+            params["reportId"] = report_id
+        result: Result = self.adapter.get(
+            f"/espapi/reports/{organization_id}/collections",
+            ep_params=params if params else None,
+            ep_headers=self.adapter._get_headers(
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
+            ),
+        )
+        return result
+
+    def create_report_collection(
+        self,
+        organization_id: int,
+        name: str,
+        execution_schedule: str,
+        description: str = None,
+        notification_categories: list[int] = None,
+        start_date: str = None,
+        reports: list[dict] = None,
+    ) -> Result:
+        """
+        Create a new report collection for an organization.
+
+        The collection name and execution schedule are required.
+        The execution schedule is a cron expression.
+
+        Optionally, a list of reports can be included.
+        Each report must have a reportId.
+        The combination of reportId and parameters must be unique across the collection.
+
+        Args:
+            organization_id: Organization ID
+            name: Collection name
+            execution_schedule: Cron expression for the execution schedule
+            description: Collection description
+            notification_categories: Notification categories
+            start_date: Start date in ISO-8601 format. Defaults to the current date and time.
+            reports: List of report dicts, each with reportId and optional parameters dict
+
+        Returns:
+            Result: API response with created collection data
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Reports/operation/Create%20Report%20Collection
+        """
+        body = {
+            "name": name,
+            "executionSchedule": execution_schedule,
+        }
+        if description is not None:
+            body["description"] = description
+        if notification_categories is not None:
+            body["notificationCategories"] = notification_categories
+        if start_date is not None:
+            body["startDate"] = start_date
+        if reports is not None:
+            body["reports"] = reports
+        result: Result = self.adapter.post(
+            f"/espapi/reports/{organization_id}/collections",
+            ep_json=body,
+            ep_headers=self.adapter._get_headers(
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
+            ),
+        )
+        return result
+
+    def update_report_collection(
+        self,
+        organization_id: int,
+        collection_id: int,
+        name: str = None,
+        description: str = None,
+        execution_schedule: str = None,
+        notification_categories: list[int] = None,
+        start_date: str = None,
+        reports: list[dict] = None,
+    ) -> Result:
+        """
+        Update an existing report collection.
+
+        All request body fields are optional. Fields that are not provided retain their existing values.
+
+        The reports array supports the following operations:
+        - Keep existing report unchanged: provide collectionReportId only.
+        - Add a new report: provide reportId without collectionReportId.
+        - Modify an existing report's parameters: provide collectionReportId with new parameters.
+        - Delete a report: provide collectionReportId with deleted set to true.
+
+        The combination of reportId and parameters must be unique across the collection.
+
+        Args:
+            organization_id: Organization ID
+            collection_id: Collection ID
+            name: Collection name
+            description: Collection description
+            execution_schedule: Cron expression for the execution schedule
+            notification_categories: Notification categories
+            start_date: Start date in ISO-8601 format
+            reports: List of report operation dicts
+
+        Returns:
+            Result: API response with updated collection data
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Reports/operation/Update%20Report%20Collection
+        """
+        body = {}
+        if name is not None:
+            body["name"] = name
+        if description is not None:
+            body["description"] = description
+        if execution_schedule is not None:
+            body["executionSchedule"] = execution_schedule
+        if notification_categories is not None:
+            body["notificationCategories"] = notification_categories
+        if start_date is not None:
+            body["startDate"] = start_date
+        if reports is not None:
+            body["reports"] = reports
+        result: Result = self.adapter.put(
+            f"/espapi/reports/{organization_id}/collections/{collection_id}",
+            ep_json=body,
+            ep_headers=self.adapter._get_headers(
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
+            ),
+        )
+        return result
+
+    def delete_report_collection(
+        self,
+        organization_id: int,
+        collection_id: int,
+    ) -> Result:
+        """
+        Delete a report collection.
+
+        Args:
+            organization_id: Organization ID
+            collection_id: Collection ID
+
+        Returns:
+            Result: API response confirming deletion
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Reports/operation/Delete%20Report%20Collection
+        """
+        result: Result = self.adapter.delete(
+            f"/espapi/reports/{organization_id}/collections/{collection_id}",
+            ep_headers=self.adapter._get_headers(
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
+            ),
+        )
+        return result
+
     def get_report_data(
         self,
         token: str,

@@ -82,7 +82,7 @@ version = { attr = "src.caredaily.__version__" }
 A verification script has been created at `verify_packaging.py`. To run it:
 
 ```bash
-cd /Users/destry/Developer/PPC/Python/python-core
+cd /Path/To/python-core
 python3 verify_packaging.py
 ```
 
@@ -101,7 +101,7 @@ If you prefer to verify manually:
 ### 1. Build the Package
 
 ```bash
-cd /Users/destry/Developer/PPC/Python/python-core
+cd /Path/To/python-core
 python3 -m pip install build
 python3 -m build
 ```

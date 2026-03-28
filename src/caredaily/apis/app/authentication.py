@@ -396,3 +396,37 @@ class Authentication(API):
             "/espapi/cloud/json/token", ep_params=params
         )
         return result
+
+    def get_auth_token(
+        self,
+        token_type: int,
+        expiry: int,
+        location_id: int = None,
+    ):
+        """
+        Generate authorization tokens for use in other services.
+
+        Token Types:
+            7: Location token for MCP Server (requires location_id parameter)
+
+        Args:
+            token_type: Requested token type (required)
+            expiry: Token expiry time from now in seconds (required)
+            location_id: Location ID (required for token type 7)
+
+        Returns:
+            Result: API response with authorization token
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Authentication/operation/Get%20Auth%20Token
+        """
+        params = {
+            "tokenType": token_type,
+            "expiry": expiry,
+            "locationId": location_id,
+        }
+        params = {k: v for k, v in params.items() if v is not None}
+        result: Result = self.adapter.get(
+            "/espapi/cloud/json/authToken", ep_params=params
+        )
+        return result

@@ -149,3 +149,107 @@ class TestReports(unittest.TestCase):
         result = self.reports.get_report_data(token='abc123')
         self.mock_adapter.get.assert_called_once()
         self.assertEqual(result, {'data': 'report content'})
+
+    # Report Collections
+
+    def test_get_report_collections_success(self):
+        self.mock_adapter.get.return_value = {'collections': []}
+        result = self.reports.get_report_collections(organization_id=123)
+        self.mock_adapter.get.assert_called_once()
+        args, kwargs = self.mock_adapter.get.call_args
+        self.assertEqual(args[0], "/espapi/reports/123/collections")
+        self.assertIsNone(kwargs.get('ep_params'))
+        self.assertEqual(result, {'collections': []})
+
+    def test_get_report_collections_with_collection_id(self):
+        self.mock_adapter.get.return_value = {'collections': []}
+        self.reports.get_report_collections(organization_id=123, collection_id=5)
+        args, kwargs = self.mock_adapter.get.call_args
+        self.assertEqual(kwargs['ep_params']['collectionId'], 5)
+
+    def test_get_report_collections_with_report_id(self):
+        self.mock_adapter.get.return_value = {'collections': []}
+        self.reports.get_report_collections(organization_id=123, report_id=10)
+        args, kwargs = self.mock_adapter.get.call_args
+        self.assertEqual(kwargs['ep_params']['reportId'], 10)
+
+    def test_get_report_collections_with_both_filters(self):
+        self.mock_adapter.get.return_value = {'collections': []}
+        self.reports.get_report_collections(
+            organization_id=123, collection_id=5, report_id=10
+        )
+        args, kwargs = self.mock_adapter.get.call_args
+        self.assertEqual(kwargs['ep_params']['collectionId'], 5)
+        self.assertEqual(kwargs['ep_params']['reportId'], 10)
+
+    def test_create_report_collection_success(self):
+        self.mock_adapter.post.return_value = {'resultCode': 0}
+        result = self.reports.create_report_collection(
+            organization_id=123,
+            name="Weekly Reports",
+            execution_schedule="0 0 8 ? * MON",
+        )
+        self.mock_adapter.post.assert_called_once()
+        args, kwargs = self.mock_adapter.post.call_args
+        self.assertEqual(args[0], "/espapi/reports/123/collections")
+        self.assertEqual(kwargs['ep_json']['name'], "Weekly Reports")
+        self.assertEqual(kwargs['ep_json']['executionSchedule'], "0 0 8 ? * MON")
+        self.assertNotIn('description', kwargs['ep_json'])
+        self.assertEqual(result, {'resultCode': 0})
+
+    def test_create_report_collection_with_all_params(self):
+        self.mock_adapter.post.return_value = {'resultCode': 0}
+        reports_list = [{"reportId": 1, "parameters": {"roleId": "1"}}]
+        self.reports.create_report_collection(
+            organization_id=123,
+            name="Weekly Reports",
+            execution_schedule="0 0 8 ? * MON",
+            description="Weekly activity reports",
+            notification_categories=[1, 2],
+            start_date="2025-01-15T08:00:00Z",
+            reports=reports_list,
+        )
+        args, kwargs = self.mock_adapter.post.call_args
+        self.assertEqual(kwargs['ep_json']['description'], "Weekly activity reports")
+        self.assertEqual(kwargs['ep_json']['notificationCategories'], [1, 2])
+        self.assertEqual(kwargs['ep_json']['startDate'], "2025-01-15T08:00:00Z")
+        self.assertEqual(kwargs['ep_json']['reports'], reports_list)
+
+    def test_update_report_collection_success(self):
+        self.mock_adapter.put.return_value = {'resultCode': 0}
+        result = self.reports.update_report_collection(
+            organization_id=123,
+            collection_id=1,
+            name="Updated Reports",
+        )
+        self.mock_adapter.put.assert_called_once()
+        args, kwargs = self.mock_adapter.put.call_args
+        self.assertEqual(args[0], "/espapi/reports/123/collections/1")
+        self.assertEqual(kwargs['ep_json']['name'], "Updated Reports")
+        self.assertEqual(result, {'resultCode': 0})
+
+    def test_update_report_collection_with_reports(self):
+        self.mock_adapter.put.return_value = {'resultCode': 0}
+        reports_list = [
+            {"collectionReportId": 10},
+            {"reportId": 2, "parameters": {"startDate": "2025-01-01"}},
+            {"collectionReportId": 11, "deleted": True},
+        ]
+        self.reports.update_report_collection(
+            organization_id=123,
+            collection_id=1,
+            reports=reports_list,
+        )
+        args, kwargs = self.mock_adapter.put.call_args
+        self.assertEqual(kwargs['ep_json']['reports'], reports_list)
+
+    def test_delete_report_collection_success(self):
+        self.mock_adapter.delete.return_value = {'resultCode': 0}
+        result = self.reports.delete_report_collection(
+            organization_id=123,
+            collection_id=1,
+        )
+        self.mock_adapter.delete.assert_called_once()
+        args, kwargs = self.mock_adapter.delete.call_args
+        self.assertEqual(args[0], "/espapi/reports/123/collections/1")
+        self.assertEqual(result, {'resultCode': 0})

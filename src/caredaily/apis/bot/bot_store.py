@@ -145,9 +145,14 @@ class BotStore(API):
             "limit": limit,
         }
         params = {k: v for k, v in params.items() if v is not None}
+        key = self.adapter._headers.get("ADMIN_KEY") or self.adapter._headers.get("API_KEY")
         return self.adapter.get(
             "/espapi/cloud/appstore/search",
             ep_params=params,
+            ep_headers=self.adapter._get_headers(
+                api_key=key,
+                key_type=APIKeyType.USER,
+            )
         )
 
     def get_bot_info(self, bundle: str, lang: str = None, last_n_version: int = None, object_name: str = None):
@@ -310,9 +315,14 @@ class BotStore(API):
             https://app.peoplepowerco.com/cloud/apidocs/bots.html#tag/End-User-Bot-Shop-APIs/operation/Delete%20a%20Bot%20Instance
         """
         params = {"appInstanceId": app_instance_id}
+        key = self.adapter._headers.get("ADMIN_KEY") or self.adapter._headers.get("API_KEY")
         return self.adapter.delete(
             "/espapi/cloud/appstore/appInstance",
             ep_params=params,
+            ep_headers=self.adapter._get_headers(
+                api_key=key,
+                key_type=APIKeyType.USER,
+            ),
         )
 
     def send_data_stream_message(self, scope: int, address: str, data: Dict, location_id: int = None, organization_id: int = None):
