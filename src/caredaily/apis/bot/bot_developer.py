@@ -223,8 +223,6 @@ class BotDeveloper(API):
         """
         params = {"bundle": bundle}
         params = {k: v for k, v in params.items() if v is not None}
-        headers = self.adapter._get_headers()
-        print("Headers:", headers)
         return self.adapter.get("/espapi/cloud/developer/apps", ep_params=params)
 
     def get_bot_versions(
