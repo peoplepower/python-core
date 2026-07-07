@@ -46,7 +46,7 @@ class TestSystemAndUserProperties(unittest.TestCase):
         result = self.sup.get_user_property(name='test_property')
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/userProperty/test_property')
+        self.assertEqual(args[0], '/cloud/json/userProperty/test_property')
         self.assertIsNone(kwargs.get('ep_params'))
         self.assertEqual(result, 'property-value')
 
@@ -71,7 +71,7 @@ class TestSystemAndUserProperties(unittest.TestCase):
         result = self.sup.post_user_properties(properties=properties)
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/userProperties')
+        self.assertEqual(args[0], '/cloud/json/userProperties')
         self.assertIn('property', kwargs['ep_json'])
         self.assertEqual(result, {'resultCode': 0})
 

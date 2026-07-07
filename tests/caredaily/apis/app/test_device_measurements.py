@@ -37,7 +37,7 @@ class TestDeviceMeasurements(unittest.TestCase):
         result = self.dm.get_multiple_device_parameters(location_id=123)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/parameters')
+        self.assertEqual(args[0], '/cloud/json/parameters')
         self.assertEqual(kwargs['ep_params']['locationId'], 123)
         self.assertEqual(result, {'parameters': []})
 
@@ -110,7 +110,7 @@ class TestDeviceMeasurements(unittest.TestCase):
         result = self.dm.get_device_alerts(location_id=123)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/deviceAlerts')
+        self.assertEqual(args[0], '/cloud/json/deviceAlerts')
         self.assertEqual(kwargs['ep_params']['locationId'], 123)
         self.assertEqual(result, {'alerts': []})
 
@@ -139,7 +139,7 @@ class TestDeviceMeasurements(unittest.TestCase):
         )
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/dataRequests')
+        self.assertEqual(args[0], '/cloud/json/dataRequests')
         self.assertEqual(kwargs['ep_params']['locationId'], 123)
         self.assertEqual(kwargs['ep_params']['deviceId'], 'dev1')
         self.assertEqual(kwargs['ep_params']['startDate'], 1000)
@@ -165,7 +165,7 @@ class TestDeviceMeasurements(unittest.TestCase):
         result = self.dm.get_data_requests(location_id=123)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/dataRequests')
+        self.assertEqual(args[0], '/cloud/json/dataRequests')
         self.assertEqual(kwargs['ep_params']['locationId'], 123)
         self.assertEqual(result, {'requests': []})
 
@@ -185,7 +185,7 @@ class TestDeviceMeasurements(unittest.TestCase):
         result = self.dm.get_units_of_measurement()
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/units')
+        self.assertEqual(args[0], '/cloud/json/units')
         self.assertEqual(result, {'units': []})
 
     def test_get_units_of_measurement_with_filters(self):

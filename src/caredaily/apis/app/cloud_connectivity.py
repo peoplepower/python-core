@@ -63,7 +63,7 @@ class CloudConnectivity(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/settings", ep_params=params
+            "/cloud/json/settings", ep_params=params
         )
         return result
 
@@ -87,7 +87,7 @@ class CloudConnectivity(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/settingsServer/{type}".format(type=server_type.value), ep_params=params
+            "/cloud/json/settingsServer/{type}".format(type=server_type.value), ep_params=params
         )
         return result
 
@@ -112,7 +112,7 @@ class CloudConnectivity(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/settingsServer", ep_params=params
+            "/cloud/json/settingsServer", ep_params=params
         )
         return result
     
@@ -125,6 +125,6 @@ class CloudConnectivity(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/settingsCloud", ep_params=params
+            "/cloud/json/settingsCloud", ep_params=params
         )
         return result

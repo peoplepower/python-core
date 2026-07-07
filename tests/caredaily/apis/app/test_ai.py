@@ -27,7 +27,7 @@ class TestAI(unittest.TestCase):
         )
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/openai')
+        self.assertEqual(args[0], '/cloud/json/openai')
         self.assertEqual(kwargs['ep_params']['locationId'], 123)
         self.assertEqual(kwargs['ep_params']['openAiPath'], 1)
         self.assertEqual(kwargs['ep_params']['openAiOrganization'], 'org-abc')
@@ -45,7 +45,7 @@ class TestAI(unittest.TestCase):
         result = self.ai.get_openai_token(location_id=123, expiry=3600)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/openaiToken')
+        self.assertEqual(args[0], '/cloud/json/openaiToken')
         self.assertEqual(kwargs['ep_params']['locationId'], 123)
         self.assertEqual(kwargs['ep_params']['expiry'], 3600)
         self.assertEqual(result, 'token-result')

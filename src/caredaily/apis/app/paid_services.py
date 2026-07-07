@@ -67,7 +67,7 @@ class PaidServices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/servicePlans",
+            "/cloud/json/servicePlans",
             ep_params=params,
         )
         return result
@@ -107,7 +107,7 @@ class PaidServices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/userServicePlans",
+            "/cloud/json/userServicePlans",
             ep_params=params,
         )
         return result
@@ -140,7 +140,7 @@ class PaidServices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/receipt/apple",
+            "/cloud/json/receipt/apple",
             ep_params=params,
             ep_json=receipt_data,
         )
@@ -158,7 +158,7 @@ class PaidServices(API):
         Reference:
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html
         """
-        result: Result = self.adapter.get("/espapi/cloud/json/paymentProfiles")
+        result: Result = self.adapter.get("/cloud/json/paymentProfiles")
         return result
 
     def post_purchase_info(
@@ -186,7 +186,7 @@ class PaidServices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/userServicePlans",
+            "/cloud/json/userServicePlans",
             ep_params=params,
             ep_json=purchase_data,
         )
@@ -219,7 +219,7 @@ class PaidServices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/userServicePlans/{purchase_id}",
+            f"/cloud/json/userServicePlans/{purchase_id}",
             ep_params=params,
             ep_json=purchase_data,
         )
@@ -253,7 +253,7 @@ class PaidServices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/userServicePlans/{purchase_id}/upgrade",
+            f"/cloud/json/userServicePlans/{purchase_id}/upgrade",
             ep_params=params,
         )
         return result
@@ -300,13 +300,13 @@ class PaidServices(API):
         # Use userServicePlanId if provided, otherwise use a general endpoint
         if user_service_plan_id:
             result: Result = self.adapter.get(
-                f"/espapi/cloud/json/userServicePlanTransactions/{user_service_plan_id}",
+                f"/cloud/json/userServicePlanTransactions/{user_service_plan_id}",
                 ep_params=params,
             )
         else:
             # If no userServicePlanId, use a general transactions endpoint
             result: Result = self.adapter.get(
-                "/espapi/cloud/json/userServicePlanTransactions",
+                "/cloud/json/userServicePlanTransactions",
                 ep_params=params,
             )
         return result
@@ -342,7 +342,7 @@ class PaidServices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/locationServicePlans/assign",
+            "/cloud/json/locationServicePlans/assign",
             ep_params=params,
             ep_json=assignment_data if assignment_data else None,
         )
@@ -384,7 +384,7 @@ class PaidServices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.post(
-            f"/espapi/cloud/json/userServicePlans/{service_plan_id}",
+            f"/cloud/json/userServicePlans/{service_plan_id}",
             ep_params=params,
             ep_json=assignment_data if assignment_data else None,
         )
@@ -418,7 +418,7 @@ class PaidServices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/userServicePlans/{service_plan_id}",
+            f"/cloud/json/userServicePlans/{service_plan_id}",
             ep_params=params,
         )
         return result
@@ -452,7 +452,7 @@ class PaidServices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/marketProducts",
+            "/cloud/json/marketProducts",
             ep_params=params,
         )
         return result
@@ -483,7 +483,7 @@ class PaidServices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/chargifyToken",
+            "/cloud/json/chargifyToken",
             ep_params=params,
         )
         return result

@@ -41,7 +41,7 @@ class SystemAndUserProperties(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/System-and-User-Properties/operation/Get%20User%20or%20System%20Property
         """
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/systemProperty/{name}",
+            f"/cloud/json/systemProperty/{name}",
         )
         return result
 
@@ -71,7 +71,7 @@ class SystemAndUserProperties(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/userProperties",
+            "/cloud/json/userProperties",
             ep_params=params,
         )
         return result
@@ -100,7 +100,7 @@ class SystemAndUserProperties(API):
         if user_id is not None:
             params["userId"] = user_id
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/userProperty/{name}",
+            f"/cloud/json/userProperty/{name}",
             ep_params=params if params else None,
         )
         return result
@@ -136,7 +136,7 @@ class SystemAndUserProperties(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/userProperty/{name}",
+            f"/cloud/json/userProperty/{name}",
             ep_params=params,
         )
         return result
@@ -175,7 +175,7 @@ class SystemAndUserProperties(API):
             data = properties
         # The API uses POST, but test expects PUT, so using PUT
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/userProperties",
+            "/cloud/json/userProperties",
             ep_params=params,
             ep_json=data,
         )
@@ -213,7 +213,7 @@ class SystemAndUserProperties(API):
         else:
             data = properties
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/userProperties",
+            "/cloud/json/userProperties",
             ep_params=params if params else None,
             ep_json=data,
         )

@@ -75,7 +75,7 @@ class DeviceFiles(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/files",
+            "/cloud/json/files",
             ep_params=params,
             ep_json=file_data if file_data else None,
         )
@@ -125,7 +125,7 @@ class DeviceFiles(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/files",
+            "/cloud/json/files",
             ep_params=params,
         )
         return result
@@ -154,7 +154,7 @@ class DeviceFiles(API):
             "locationId": location_id,
         }
         result: Result = self.adapter.delete(
-            "/espapi/cloud/json/files",
+            "/cloud/json/files",
             ep_params=params,
         )
         return result
@@ -196,7 +196,7 @@ class DeviceFiles(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.post(
-            f"/espapi/cloud/json/files/{file_id}",
+            f"/cloud/json/files/{file_id}",
             ep_params=params,
             ep_json=file_data if file_data else None,
         )
@@ -242,7 +242,7 @@ class DeviceFiles(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/filesByCount/{count}",
+            f"/cloud/json/filesByCount/{count}",
             ep_params=params,
         )
         return result
@@ -282,7 +282,7 @@ class DeviceFiles(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/files/{file_id}/url",
+            f"/cloud/json/files/{file_id}/url",
             ep_params=params,
         )
         return result
@@ -326,7 +326,7 @@ class DeviceFiles(API):
         if range_header:
             headers = {"Range": range_header}
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/files/{file_id}",
+            f"/cloud/json/files/{file_id}",
             ep_params=params,
             ep_headers=headers,
         )
@@ -374,7 +374,7 @@ class DeviceFiles(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/files/{file_id}",
+            f"/cloud/json/files/{file_id}",
             ep_params=params,
             ep_json=file_data if file_data else None,
         )
@@ -402,7 +402,7 @@ class DeviceFiles(API):
             "locationId": location_id,
         }
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/files/{file_id}",
+            f"/cloud/json/files/{file_id}",
             ep_params=params,
         )
         return result
@@ -450,7 +450,7 @@ class DeviceFiles(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/filesSummary/{aggregation}",
+            f"/cloud/json/filesSummary/{aggregation}",
             ep_params=params,
         )
         return result
@@ -479,7 +479,7 @@ class DeviceFiles(API):
             "locationId": location_id,
         }
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/filesInfo/{file_id}",
+            f"/cloud/json/filesInfo/{file_id}",
             ep_params=params,
         )
         return result
@@ -506,7 +506,7 @@ class DeviceFiles(API):
             "locationId": location_id,
         }
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/fileDevices",
+            "/cloud/json/fileDevices",
             ep_params=params,
         )
         return result
@@ -530,7 +530,7 @@ class DeviceFiles(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Device-Files
         """
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/files/{file_id}/tags",
+            f"/cloud/json/files/{file_id}/tags",
             ep_json=tags if tags else None,
         )
         return result
@@ -554,7 +554,7 @@ class DeviceFiles(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Device-Files
         """
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/files/{file_id}/tags",
+            f"/cloud/json/files/{file_id}/tags",
             ep_json=tags if tags else None,
         )
         return result
@@ -582,6 +582,6 @@ class DeviceFiles(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Device-Files/operation/Report%20Device%20File%20Abuse
         """
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/files/{file_id}/report/{report_type}",
+            f"/cloud/json/files/{file_id}/report/{report_type}",
         )
         return result

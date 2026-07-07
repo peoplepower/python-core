@@ -6,15 +6,10 @@
 # ///
 
 import json
-from typing import Dict, List
 
 from ...models import (
     APIKeyType,
-    Cloud,
-    MQTT,
     Result,
-    Server,
-    ServerType,
     SignatureAlgorithm,
 )
 from ..api import API
@@ -90,7 +85,7 @@ class Authentication(API):
         }
         headers = {k: v for k, v in headers.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/login", ep_params=params, ep_headers=headers
+            "/cloud/json/login", ep_params=params, ep_headers=headers
         )
         return result
 
@@ -127,7 +122,7 @@ class Authentication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/passcode", ep_params=params
+            "/cloud/json/passcode", ep_params=params
         )
         return result
 
@@ -173,7 +168,7 @@ class Authentication(API):
         }
         headers = {k: v for k, v in headers.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/loginByKey", ep_params=params, ep_headers=headers
+            "/cloud/json/loginByKey", ep_params=params, ep_headers=headers
         )
         return result
 
@@ -187,8 +182,28 @@ class Authentication(API):
         Reference:
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Authentication/operation/Logout
         """
-        result: Result = self.adapter.get("/espapi/cloud/json/logout")
+        result: Result = self.adapter.get("/cloud/json/logout")
         return result
+
+    def _user_key_headers(self):
+        """
+        Headers for endpoints authenticated with the user API key.
+
+        If the adapter is configured with an admin key, map it into the
+        API_KEY header expected by app endpoints; otherwise keep the
+        adapter's default headers.
+        """
+        admin_key = self.adapter._headers.get("ADMIN_KEY")
+        if admin_key:
+            headers = self.adapter._get_headers(
+                api_key=admin_key,
+                key_type=APIKeyType.USER,
+            )
+            # Suppress the adapter's base ADMIN_KEY header so the request
+            # carries a single auth header (requests drops None values).
+            headers["ADMIN_KEY"] = None
+            return headers
+        return None
 
     def create_totp_factor(
         self,
@@ -214,12 +229,9 @@ class Authentication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/totp", 
+            "/cloud/json/totp", 
             ep_params=params,
-            ep_headers=self.adapter._get_headers(
-                api_key=self.adapter._headers.get("ADMIN_KEY"),
-                key_type=APIKeyType.USER
-            )
+            ep_headers=self._user_key_headers()
         )
         return result
 
@@ -247,12 +259,9 @@ class Authentication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/totp", 
+            "/cloud/json/totp", 
             ep_params=params,
-            ep_headers=self.adapter._get_headers(
-                api_key=self.adapter._headers.get("ADMIN_KEY"),
-                key_type=APIKeyType.USER
-            )
+            ep_headers=self._user_key_headers()
         )
         return result
 
@@ -267,11 +276,8 @@ class Authentication(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Authentication/operation/Get%20TOTP%20Factors
         """
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/totp",
-            ep_headers=self.adapter._get_headers(
-                api_key=self.adapter._headers.get("ADMIN_KEY"),
-                key_type=APIKeyType.USER
-            )
+            "/cloud/json/totp",
+            ep_headers=self._user_key_headers()
         )
         return result
 
@@ -295,12 +301,9 @@ class Authentication(API):
             "name": name,
         }
         result: Result = self.adapter.delete(
-            "/espapi/cloud/json/totp", 
+            "/cloud/json/totp", 
             ep_params=params,
-            ep_headers=self.adapter._get_headers(
-                api_key=self.adapter._headers.get("ADMIN_KEY"),
-                key_type=APIKeyType.USER
-            )
+            ep_headers=self._user_key_headers()
         )
         return result
 
@@ -330,8 +333,9 @@ class Authentication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/signatureKey",
+            "/cloud/json/signatureKey",
             ep_params=params,
+            ep_headers=self._user_key_headers(),
         )
         return result
 
@@ -366,9 +370,10 @@ class Authentication(API):
             "publicKey": public_key,
         }
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/signatureKey",
+            "/cloud/json/signatureKey",
             ep_params=params,
             ep_data=json.dumps(data),
+            ep_headers=self._user_key_headers(),
         )
         return result
 
@@ -393,7 +398,7 @@ class Authentication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/token", ep_params=params
+            "/cloud/json/token", ep_params=params
         )
         return result
 
@@ -427,6 +432,6 @@ class Authentication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/authToken", ep_params=params
+            "/cloud/json/authToken", ep_params=params
         )
         return result

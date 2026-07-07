@@ -62,7 +62,7 @@ class TestProfessionalMonitoring(unittest.TestCase):
         result = self.pm.delete_call_center(location_id=123)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/callCenter')
+        self.assertEqual(args[0], '/cloud/json/callCenter')
         self.assertEqual(kwargs['ep_params']['locationId'], 123)
         self.assertEqual(result, {'resultCode': 0})
 

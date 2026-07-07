@@ -33,7 +33,7 @@ class CloudsIntegration(API):
         Reference:
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Clouds-Integration/operation/Get%20Third-Party%20Clouds
         """
-        result: Result = self.adapter.get("/espapi/cloud/json/authorize")
+        result: Result = self.adapter.get("/cloud/json/authorize")
         return result
 
     def access_3rd_party_cloud(
@@ -180,7 +180,7 @@ class CloudsIntegration(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/authorizations/{cloud_id}",
+            f"/cloud/json/authorizations/{cloud_id}",
             ep_params=params,
         )
         return result
@@ -462,7 +462,7 @@ class CloudsIntegration(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/authClient",
+            "/cloud/json/authClient",
             ep_params=params,
             ep_json=client_data if client_data else None,
         )
@@ -492,7 +492,7 @@ class CloudsIntegration(API):
         if location_id is not None:
             params["locationId"] = location_id
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/authClient",
+            "/cloud/json/authClient",
             ep_params=params if params else None,
             ep_json=client_data,
         )
@@ -528,7 +528,7 @@ class CloudsIntegration(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.delete(
-            "/espapi/cloud/json/authClient",
+            "/cloud/json/authClient",
             ep_params=params,
         )
         return result
@@ -556,7 +556,7 @@ class CloudsIntegration(API):
             "applicationId": application_id,
         }
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/commissioningConfig",
+            "/cloud/json/commissioningConfig",
             ep_params=params,
         )
         return result
@@ -591,7 +591,7 @@ class CloudsIntegration(API):
         params = {k: v for k, v in params.items() if v is not None}
         data = {"params": params_data} if params_data else None
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/commissioning",
+            "/cloud/json/commissioning",
             ep_params=params,
             ep_json=data,
         )
@@ -621,7 +621,7 @@ class CloudsIntegration(API):
             "locationId": location_id,
         }
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/authorizations/{auth_id}/discover",
+            f"/cloud/json/authorizations/{auth_id}/discover",
             ep_params=params,
         )
         return result

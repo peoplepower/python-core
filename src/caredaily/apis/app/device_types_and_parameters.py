@@ -60,7 +60,7 @@ class DeviceTypesAndParameters(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/deviceTypes",
+            "/cloud/json/deviceTypes",
             ep_params=params,
         )
         return result
@@ -89,7 +89,7 @@ class DeviceTypesAndParameters(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/deviceTypeAttrs",
+            "/cloud/json/deviceTypeAttrs",
             ep_params=params,
         )
         return result
@@ -124,13 +124,13 @@ class DeviceTypesAndParameters(API):
         if device_type_id:
             # Update existing device type
             result: Result = self.adapter.put(
-                f"/espapi/cloud/json/deviceType/{device_type_id}",
+                f"/cloud/json/deviceType/{device_type_id}",
                 ep_json=device_type_data,
             )
         else:
             # Create new device type
             result: Result = self.adapter.post(
-                "/espapi/cloud/json/deviceTypes",
+                "/cloud/json/deviceTypes",
                 ep_json=device_type_data,
             )
         return result
@@ -156,7 +156,7 @@ class DeviceTypesAndParameters(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Products-Management/operation/Create%20Device%20Type
         """
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/deviceType",
+            "/cloud/json/deviceType",
             ep_json=device_type_data,
         )
         return result
@@ -187,7 +187,7 @@ class DeviceTypesAndParameters(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/deviceParameters",
+            "/cloud/json/deviceParameters",
             ep_params=params,
         )
         return result
@@ -212,7 +212,7 @@ class DeviceTypesAndParameters(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Products-Management/operation/Create%20and%20Update%20a%20Parameter
         """
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/deviceParameters",
+            "/cloud/json/deviceParameters",
             ep_json=parameter_data if parameter_data else None,
         )
         return result
@@ -237,7 +237,7 @@ class DeviceTypesAndParameters(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Products-Management/operation/Delete%20a%20Parameter
         """
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/deviceParameters/{parameter_name}",
+            f"/cloud/json/deviceParameters/{parameter_name}",
         )
         return result
 
@@ -263,7 +263,7 @@ class DeviceTypesAndParameters(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Products-Management
         """
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/deviceParameters/{parameter_name}",
+            f"/cloud/json/deviceParameters/{parameter_name}",
             ep_json=parameter_data if parameter_data else None,
         )
         return result
@@ -295,7 +295,7 @@ class DeviceTypesAndParameters(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/deviceType/{device_type}/rules",
+            f"/cloud/json/deviceType/{device_type}/rules",
             ep_params=params,
         )
         return result
@@ -332,7 +332,7 @@ class DeviceTypesAndParameters(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.post(
-            f"/espapi/cloud/json/deviceType/{device_type}/rules/{rule_id}",
+            f"/cloud/json/deviceType/{device_type}/rules/{rule_id}",
             ep_params=params,
         )
         return result
@@ -359,7 +359,7 @@ class DeviceTypesAndParameters(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Products-Management/operation/Delete%20Default%20Rule
         """
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/deviceType/{device_type}/rules/{rule_id}",
+            f"/cloud/json/deviceType/{device_type}/rules/{rule_id}",
         )
         return result
 
@@ -395,12 +395,12 @@ class DeviceTypesAndParameters(API):
         params = {k: v for k, v in params.items() if v is not None}
         if device_type:
             result: Result = self.adapter.get(
-                f"/espapi/cloud/json/deviceType/{device_type}/goals",
+                f"/cloud/json/deviceType/{device_type}/goals",
                 ep_params=params,
             )
         else:
             result: Result = self.adapter.get(
-                "/espapi/cloud/json/deviceGoals",
+                "/cloud/json/deviceGoals",
                 ep_params=params,
             )
         return result
@@ -424,7 +424,7 @@ class DeviceTypesAndParameters(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Products-Management/operation/Get%20Installation%20Instructions
         """
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/goals/{goal_id}/installation",
+            f"/cloud/json/goals/{goal_id}/installation",
         )
         return result
 
@@ -447,7 +447,7 @@ class DeviceTypesAndParameters(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Products-Management
         """
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/deviceMedia",
+            "/cloud/json/deviceMedia",
             ep_json=media_data if media_data else None,
         )
         return result
@@ -478,7 +478,7 @@ class DeviceTypesAndParameters(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/deviceMedia",
+            "/cloud/json/deviceMedia",
             ep_params=params,
         )
         return result
@@ -511,7 +511,7 @@ class DeviceTypesAndParameters(API):
         if media_id is not None:
             params["mediaId"] = media_id
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/media",
+            "/cloud/json/media",
             ep_params=params if params else None,
         )
         return result
@@ -535,7 +535,7 @@ class DeviceTypesAndParameters(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Products-Management/operation/Put%20Media
         """
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/media",
+            "/cloud/json/media",
             ep_json=media_data if media_data else None,
         )
         return result
@@ -562,7 +562,7 @@ class DeviceTypesAndParameters(API):
         if media_ids is not None:
             params["mediaId"] = media_ids
         result: Result = self.adapter.delete(
-            "/espapi/cloud/json/media",
+            "/cloud/json/media",
             ep_params=params if params else None,
         )
         return result
@@ -586,7 +586,7 @@ class DeviceTypesAndParameters(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Products-Management
         """
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/deviceMedia/{media_id}",
+            f"/cloud/json/deviceMedia/{media_id}",
         )
         return result
 
@@ -609,7 +609,7 @@ class DeviceTypesAndParameters(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Products-Management
         """
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/deviceModels",
+            "/cloud/json/deviceModels",
             ep_json=models_data if models_data else None,
         )
         return result
@@ -640,7 +640,7 @@ class DeviceTypesAndParameters(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/deviceModels",
+            "/cloud/json/deviceModels",
             ep_params=params,
         )
         return result
@@ -664,7 +664,7 @@ class DeviceTypesAndParameters(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Products-Management
         """
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/deviceModels/{model_id}",
+            f"/cloud/json/deviceModels/{model_id}",
         )
         return result
 
@@ -690,7 +690,7 @@ class DeviceTypesAndParameters(API):
             "modelId": model_id,
         }
         result: Result = self.adapter.delete(
-            "/espapi/cloud/json/devicemodels",
+            "/cloud/json/devicemodels",
             ep_params=params,
         )
         return result
@@ -721,7 +721,7 @@ class DeviceTypesAndParameters(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/deviceStories",
+            "/cloud/json/deviceStories",
             ep_params=params,
         )
         return result
@@ -752,7 +752,7 @@ class DeviceTypesAndParameters(API):
         if lang is not None:
             params["lang"] = lang
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/stories",
+            "/cloud/json/stories",
             ep_params=params if params else None,
         )
         return result
@@ -776,7 +776,7 @@ class DeviceTypesAndParameters(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Products-Management/operation/Put%20Stories
         """
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/stories",
+            "/cloud/json/stories",
             ep_json=stories_data if stories_data else None,
         )
         return result
@@ -803,7 +803,7 @@ class DeviceTypesAndParameters(API):
         if story_ids is not None:
             params["storyId"] = story_ids
         result: Result = self.adapter.delete(
-            "/espapi/cloud/json/stories",
+            "/cloud/json/stories",
             ep_params=params if params else None,
         )
         return result
@@ -827,7 +827,7 @@ class DeviceTypesAndParameters(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Products-Management
         """
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/deviceStories",
+            "/cloud/json/deviceStories",
             ep_json=stories_data if stories_data else None,
         )
         return result
@@ -851,6 +851,6 @@ class DeviceTypesAndParameters(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Products-Management
         """
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/deviceStories/{story_id}",
+            f"/cloud/json/deviceStories/{story_id}",
         )
         return result

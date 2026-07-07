@@ -72,7 +72,7 @@ class UserAccounts(API):
             headers["PASSWORD"] = password
         headers = {k: v for k, v in headers.items() if v is not None}
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/user",
+            "/cloud/json/user",
             ep_params=params,
             ep_headers=headers if headers else None,
         )
@@ -103,7 +103,7 @@ class UserAccounts(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/user", ep_params=params
+            "/cloud/json/user", ep_params=params
         )
         return result
 
@@ -152,7 +152,7 @@ class UserAccounts(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/user", ep_params=params
+            "/cloud/json/user", ep_params=params
         )
         return result
 
@@ -182,7 +182,7 @@ class UserAccounts(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.delete(
-            "/espapi/cloud/json/user", ep_params=params
+            "/cloud/json/user", ep_params=params
         )
         return result
 
@@ -196,7 +196,7 @@ class UserAccounts(API):
         Reference:
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#get-pronouns
         """
-        result: Result = self.adapter.get("/espapi/cloud/json/pronouns")
+        result: Result = self.adapter.get("/cloud/json/pronouns")
         return result
 
     def send_verification_message(
@@ -223,7 +223,7 @@ class UserAccounts(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/emailVerificationMessage", ep_params=params
+            "/cloud/json/emailVerificationMessage", ep_params=params
         )
         return result
 
@@ -251,7 +251,7 @@ class UserAccounts(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/emailVerificationMessage", ep_params=params
+            "/cloud/json/emailVerificationMessage", ep_params=params
         )
         return result
 
@@ -286,7 +286,7 @@ class UserAccounts(API):
         if brand is not None:
             params["brand"] = brand
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/newPassword",
+            "/cloud/json/newPassword",
             ep_params=params,
         )
         return result
@@ -346,7 +346,7 @@ class UserAccounts(API):
         if new_password:
             data["newPassword"] = new_password
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/newPassword",
+            "/cloud/json/newPassword",
             ep_params=params if params else None,
             ep_headers=headers if headers else None,
             ep_json=data if data else None,
@@ -385,7 +385,7 @@ class UserAccounts(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/recoverPassword", ep_params=params
+            "/cloud/json/recoverPassword", ep_params=params
         )
         return result
 
@@ -410,7 +410,7 @@ class UserAccounts(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/userBadges", ep_params=params
+            "/cloud/json/userBadges", ep_params=params
         )
         return result
 
@@ -443,7 +443,7 @@ class UserAccounts(API):
         if badge_type is not None:
             params["type"] = badge_type
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/badges",
+            "/cloud/json/badges",
             ep_params=params if params else None,
         )
         return result
@@ -469,7 +469,7 @@ class UserAccounts(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/termsOfServices", ep_params=params
+            "/cloud/json/termsOfServices", ep_params=params
         )
         return result
 
@@ -490,7 +490,7 @@ class UserAccounts(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#put-terms-of-service
         """
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/termsOfServices/{signature_id}"
+            f"/cloud/json/termsOfServices/{signature_id}"
         )
         return result
 
@@ -510,7 +510,7 @@ class UserAccounts(API):
         Reference:
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#put-user-tag
         """
-        result: Result = self.adapter.put(f"/espapi/cloud/json/usertags/{tag}")
+        result: Result = self.adapter.put(f"/cloud/json/usertags/{tag}")
         return result
 
     def delete_user_tag(
@@ -529,7 +529,7 @@ class UserAccounts(API):
         Reference:
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#delete-user-tag
         """
-        result: Result = self.adapter.delete(f"/espapi/cloud/json/usertags/{tag}")
+        result: Result = self.adapter.delete(f"/cloud/json/usertags/{tag}")
         return result
 
     def put_user_code(
@@ -573,7 +573,7 @@ class UserAccounts(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/userCodes", ep_params=params
+            "/cloud/json/userCodes", ep_params=params
         )
         return result
 
@@ -587,7 +587,7 @@ class UserAccounts(API):
         Reference:
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#get-user-codes
         """
-        result: Result = self.adapter.get("/espapi/cloud/json/userCodes")
+        result: Result = self.adapter.get("/cloud/json/userCodes")
         return result
 
     def delete_user_code(
@@ -614,7 +614,7 @@ class UserAccounts(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.delete(
-            "/espapi/cloud/json/userCodes", ep_params=params
+            "/cloud/json/userCodes", ep_params=params
         )
         return result
 

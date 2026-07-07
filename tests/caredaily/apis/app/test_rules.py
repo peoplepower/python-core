@@ -48,7 +48,7 @@ class TestRules(unittest.TestCase):
         result = self.rules.create_update_rule(rule_data=rule_data, location_id=1)
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/rules')
+        self.assertEqual(args[0], '/cloud/json/rules')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(result, {'ruleId': 1})
 
@@ -62,7 +62,7 @@ class TestRules(unittest.TestCase):
         )
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/rules/10')
+        self.assertEqual(args[0], '/cloud/json/rules/10')
         self.assertEqual(result, {'updated': True})
 
     def test_create_update_rule_update_by_rule_data_id(self):
@@ -71,7 +71,7 @@ class TestRules(unittest.TestCase):
         result = self.rules.create_update_rule(rule_data=rule_data, location_id=1)
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/rules/10')
+        self.assertEqual(args[0], '/cloud/json/rules/10')
 
     def test_get_rules_with_all_filters(self):
         self.mock_adapter.get.return_value = {'rules': []}
@@ -115,7 +115,7 @@ class TestRules(unittest.TestCase):
         )
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/rules/10/attrs')
+        self.assertEqual(args[0], '/cloud/json/rules/10/attrs')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(kwargs['ep_json'], attrs)
         self.assertEqual(result, {'updated': True})
@@ -125,7 +125,7 @@ class TestRules(unittest.TestCase):
         result = self.rules.delete_rule(rule_id=10, location_id=1)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/rules/10')
+        self.assertEqual(args[0], '/cloud/json/rules/10')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(result, {'deleted': True})
 
@@ -137,7 +137,7 @@ class TestRules(unittest.TestCase):
         )
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/rulesStatus/1')
+        self.assertEqual(args[0], '/cloud/json/rulesStatus/1')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(result, {'updated': [1, 2, 3]})
 
@@ -164,7 +164,7 @@ class TestRules(unittest.TestCase):
         result = self.rules.create_default_rules(location_id=1)
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/rulesCreateDefault')
+        self.assertEqual(args[0], '/cloud/json/rulesCreateDefault')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(result, {'created': True})
 

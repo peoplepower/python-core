@@ -18,7 +18,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.create_location(data=location_data)
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/location')
+        self.assertEqual(args[0], '/cloud/json/location')
         self.assertEqual(kwargs['ep_json'], json.dumps(location_data))
         self.assertEqual(result, 'create-result')
 
@@ -34,7 +34,7 @@ class TestLocations(unittest.TestCase):
         self.mock_adapter.put.return_value = 'update-result'
         result = self.loc.update_location(location_id=1, data=location_data, analytic_key='analytic_key')
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/location/1')
+        self.assertEqual(args[0], '/cloud/json/location/1')
         self.assertEqual(kwargs['ep_json'], json.dumps(location_data))
         self.mock_adapter._get_headers.assert_called_once_with('analytic_key', APIKeyType.ANALYTIC)
         self.assertEqual(result, 'update-result')
@@ -44,7 +44,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.delete_location(location_id=1)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/location/1')
+        self.assertEqual(args[0], '/cloud/json/location/1')
         self.assertEqual(result, 'delete-result')
 
     def test_put_location_to_organization(self):
@@ -52,7 +52,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.put_location_to_organization(location_id=1, organization_id=2)
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/location/1/organization')
+        self.assertEqual(args[0], '/cloud/json/location/1/organization')
         self.assertEqual(kwargs['ep_params']['organizationId'], 2)
         self.assertEqual(result, 'put-org-result')
 
@@ -62,7 +62,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.post_location_event(location_id=1, event=event_data)
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/location/1/events')
+        self.assertEqual(args[0], '/cloud/json/location/1/events')
         self.assertEqual(kwargs['ep_json'], json.dumps(event_data))
         self.assertEqual(result, 'event-result')
 
@@ -85,7 +85,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.get_location_priorities_history(location_id=1, start_date_ms=1000, end_date_ms=2000)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/location/1/priorities')
+        self.assertEqual(args[0], '/cloud/json/location/1/priorities')
         self.assertEqual(kwargs['ep_params']['startDate'], 1000)
         self.assertEqual(kwargs['ep_params']['endDate'], 2000)
         self.assertEqual(result, 'priorities-result')
@@ -95,7 +95,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.get_countries(state_id=1)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/countries')
+        self.assertEqual(args[0], '/cloud/json/countries')
         self.assertEqual(kwargs['ep_params']['stateId'], 1)
         self.assertEqual(result, 'countries-result')
 
@@ -111,7 +111,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.get_location_users(location_id=1)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/location/1/users')
+        self.assertEqual(args[0], '/cloud/json/location/1/users')
         self.assertEqual(result, 'users-result')
 
     def test_add_location_users(self):
@@ -120,7 +120,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.add_location_users(location_id=1, users=users_data)
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/location/1/users')
+        self.assertEqual(args[0], '/cloud/json/location/1/users')
         self.assertEqual(kwargs['ep_json'], json.dumps({'users': users_data}))
         self.assertEqual(result, 'add-users-result')
 
@@ -129,7 +129,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.update_location_user(location_id=1, user_id=2, location_access=3, temporary=True)
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/location/1/users/2')
+        self.assertEqual(args[0], '/cloud/json/location/1/users/2')
         self.assertEqual(kwargs['ep_params']['locationAccess'], 3)
         self.assertEqual(kwargs['ep_params']['temporary'], True)
         self.assertEqual(result, 'update-user-result')
@@ -146,7 +146,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.delete_location_user(location_id=1, user_id=2)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/location/1/users/2')
+        self.assertEqual(args[0], '/cloud/json/location/1/users/2')
         self.assertEqual(result, 'delete-user-result')
 
     def test_add_sub_location(self):
@@ -154,7 +154,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.add_sub_location(location_id=1, sub_location_id=2)
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/location/1/subLocations')
+        self.assertEqual(args[0], '/cloud/json/location/1/subLocations')
         self.assertEqual(kwargs['ep_params']['subLocationId'], 2)
         self.assertEqual(result, 'add-sub-result')
 
@@ -163,7 +163,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.delete_sub_location(location_id=1, sub_location_id=2)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/location/1/subLocations')
+        self.assertEqual(args[0], '/cloud/json/location/1/subLocations')
         self.assertEqual(kwargs['ep_params']['subLocationId'], 2)
         self.assertEqual(result, 'delete-sub-result')
 
@@ -172,7 +172,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.get_location_spaces(location_id=1)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/location/1/spaces')
+        self.assertEqual(args[0], '/cloud/json/location/1/spaces')
         self.assertEqual(result, 'spaces-result')
 
     def test_delete_location_space(self):
@@ -180,7 +180,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.delete_location_space(location_id=1, space_id=2)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/location/1/spaces')
+        self.assertEqual(args[0], '/cloud/json/location/1/spaces')
         self.assertEqual(kwargs['ep_params']['spaceId'], 2)
         self.assertEqual(result, 'delete-space-result')
 
@@ -189,7 +189,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.get_narratives(location_id=1, row_count=10, narrative_type=1, scope=2)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/locations/1/narratives')
+        self.assertEqual(args[0], '/cloud/json/locations/1/narratives')
         self.assertEqual(kwargs['ep_params']['rowCount'], 10)
         self.assertEqual(kwargs['ep_params']['narrativeType'], 1)
         self.assertEqual(kwargs['ep_params']['scope'], 2)
@@ -209,7 +209,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.put_narrative(location_id=1, scope=2, narrative=narrative_data, publish=True)
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/locations/1/narratives')
+        self.assertEqual(args[0], '/cloud/json/locations/1/narratives')
         self.assertEqual(kwargs['ep_json'], json.dumps(narrative_data))
         self.assertEqual(kwargs['ep_params']['scope'], 2)
         self.assertEqual(kwargs['ep_params']['publish'], True)
@@ -228,7 +228,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.delete_a_narrative(location_id=1, scope=2, narrative_id=3, narrative_time_ms=1000)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/locations/1/narratives')
+        self.assertEqual(args[0], '/cloud/json/locations/1/narratives')
         self.assertEqual(kwargs['ep_params']['scope'], 2)
         self.assertEqual(kwargs['ep_params']['narrativeId'], 3)
         self.assertEqual(kwargs['ep_params']['narrativeTime'], 1000)
@@ -289,7 +289,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.put_state(location_id=1, name='state_name', state=state_data, overwrite=True)
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/locations/1/state')
+        self.assertEqual(args[0], '/cloud/json/locations/1/state')
         self.assertEqual(kwargs['ep_json'], json.dumps(state_data))
         self.assertEqual(kwargs['ep_params']['name'], 'state_name')
         self.assertEqual(kwargs['ep_params']['overwrite'], True)
@@ -300,7 +300,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.get_state(location_id=1, name='state_name')
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/locations/1/state')
+        self.assertEqual(args[0], '/cloud/json/locations/1/state')
         self.assertEqual(kwargs['ep_params']['name'], 'state_name')
         self.assertEqual(result, 'get-state-result')
 
@@ -316,7 +316,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.delete_all_location_states(location_id=1)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/locations/1/state')
+        self.assertEqual(args[0], '/cloud/json/locations/1/state')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(result, 'delete-states-result')
 
@@ -326,7 +326,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.put_time_state(location_id=1, name='state_name', timestamp_ms=1000, state=state_data)
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/locations/1/timeStates')
+        self.assertEqual(args[0], '/cloud/json/locations/1/timeStates')
         self.assertEqual(kwargs['ep_json'], json.dumps(state_data))
         self.assertEqual(kwargs['ep_params']['name'], 'state_name')
         self.assertEqual(kwargs['ep_params']['timestampMs'], 1000)
@@ -337,7 +337,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.get_time_state(location_id=1, start_date_ms=1000, end_date_ms=2000, name='state_name')
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/locations/1/timeStates')
+        self.assertEqual(args[0], '/cloud/json/locations/1/timeStates')
         self.assertEqual(kwargs['ep_params']['startDate'], 1000)
         self.assertEqual(kwargs['ep_params']['endDate'], 2000)
         self.assertEqual(kwargs['ep_params']['name'], 'state_name')
@@ -348,7 +348,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.get_location_totals(organization_id=1)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/locationTotals')
+        self.assertEqual(args[0], '/cloud/json/locationTotals')
         self.assertEqual(kwargs['ep_params']['organizationId'], 1)
         self.assertEqual(result, 'totals-result')
 
@@ -364,7 +364,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.get_presence_ids(location_id=1)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/location/1/presence')
+        self.assertEqual(args[0], '/cloud/json/location/1/presence')
         self.assertEqual(result, 'presence-ids-result')
 
     def test_add_location_presence(self):
@@ -373,7 +373,7 @@ class TestLocations(unittest.TestCase):
         result = self.loc.add_location_presence(location_id=1, presence_data=presence_data)
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/location/1/presence')
+        self.assertEqual(args[0], '/cloud/json/location/1/presence')
         self.assertEqual(kwargs['ep_json'], json.dumps(presence_data))
         self.assertEqual(result, 'add-presence-result')
 

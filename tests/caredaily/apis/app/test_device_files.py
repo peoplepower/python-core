@@ -92,7 +92,7 @@ class TestDeviceFiles(unittest.TestCase):
         )
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/files/123')
+        self.assertEqual(args[0], '/cloud/json/files/123')
         self.assertEqual(kwargs['ep_params']['proxyId'], 'proxy1')
         self.assertEqual(kwargs['ep_json'], {'data': 'chunk'})
         self.assertEqual(result, {'uploaded': True})
@@ -117,7 +117,7 @@ class TestDeviceFiles(unittest.TestCase):
         result = self.df.get_last_n_files(count=10, location_id=123)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/filesByCount/10')
+        self.assertEqual(args[0], '/cloud/json/filesByCount/10')
         self.assertEqual(kwargs['ep_params']['locationId'], 123)
         self.assertEqual(result, {'files': []})
 
@@ -142,7 +142,7 @@ class TestDeviceFiles(unittest.TestCase):
         result = self.df.get_file_download_urls(file_id=123, location_id=1)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/files/123/url')
+        self.assertEqual(args[0], '/cloud/json/files/123/url')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(result, {'urls': {}})
 
@@ -165,7 +165,7 @@ class TestDeviceFiles(unittest.TestCase):
         result = self.df.download_file(file_id=123, location_id=1)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/files/123')
+        self.assertEqual(args[0], '/cloud/json/files/123')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(result, b'file content')
 
@@ -194,7 +194,7 @@ class TestDeviceFiles(unittest.TestCase):
         )
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/files/123')
+        self.assertEqual(args[0], '/cloud/json/files/123')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(kwargs['ep_json'], file_data)
         self.assertEqual(result, {'updated': True})
@@ -222,7 +222,7 @@ class TestDeviceFiles(unittest.TestCase):
         result = self.df.delete_single_file(file_id=123, location_id=1)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/files/123')
+        self.assertEqual(args[0], '/cloud/json/files/123')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(result, {'deleted': True})
 
@@ -231,7 +231,7 @@ class TestDeviceFiles(unittest.TestCase):
         result = self.df.get_files_summary(aggregation=2, location_id=123)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/filesSummary/2')
+        self.assertEqual(args[0], '/cloud/json/filesSummary/2')
         self.assertEqual(kwargs['ep_params']['locationId'], 123)
         self.assertEqual(result, {'summary': {}})
 
@@ -255,7 +255,7 @@ class TestDeviceFiles(unittest.TestCase):
         result = self.df.get_file_info(file_id=123, location_id=1)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/filesInfo/123')
+        self.assertEqual(args[0], '/cloud/json/filesInfo/123')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(result, {'file': {}})
 
@@ -264,7 +264,7 @@ class TestDeviceFiles(unittest.TestCase):
         result = self.df.get_file_devices(location_id=123)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/fileDevices')
+        self.assertEqual(args[0], '/cloud/json/fileDevices')
         self.assertEqual(kwargs['ep_params']['locationId'], 123)
         self.assertEqual(result, {'devices': []})
 
@@ -274,7 +274,7 @@ class TestDeviceFiles(unittest.TestCase):
         result = self.df.apply_file_tags(file_id=123, tags=tags)
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/files/123/tags')
+        self.assertEqual(args[0], '/cloud/json/files/123/tags')
         self.assertEqual(kwargs['ep_json'], tags)
         self.assertEqual(result, {'applied': True})
 
@@ -284,7 +284,7 @@ class TestDeviceFiles(unittest.TestCase):
         result = self.df.delete_file_tags(file_id=123, tags=tags)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/files/123/tags')
+        self.assertEqual(args[0], '/cloud/json/files/123/tags')
         self.assertEqual(kwargs['ep_json'], tags)
         self.assertEqual(result, {'deleted': True})
 
@@ -299,11 +299,11 @@ class TestDeviceFiles(unittest.TestCase):
         result = self.df.report_file(file_id=123)
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/files/123/report/abuse')
+        self.assertEqual(args[0], '/cloud/json/files/123/report/abuse')
         self.assertEqual(result, {'reported': True})
 
     def test_report_file_with_type(self):
         self.mock_adapter.put.return_value = {'reported': True}
         result = self.df.report_file(file_id=123, report_type='spam')
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/files/123/report/spam')
+        self.assertEqual(args[0], '/cloud/json/files/123/report/spam')

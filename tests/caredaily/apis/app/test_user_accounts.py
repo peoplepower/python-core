@@ -19,7 +19,7 @@ class TestUserAccounts(unittest.TestCase):
         )
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/user')
+        self.assertEqual(args[0], '/cloud/json/user')
         self.assertEqual(kwargs['ep_params']['username'], 'testuser')
         self.assertEqual(kwargs['ep_params']['email'], 'test@example.com')
         self.assertEqual(kwargs['ep_headers']['PASSWORD'], 'password')
@@ -37,7 +37,7 @@ class TestUserAccounts(unittest.TestCase):
         result = self.ua.get_user_information(user_id=1, organization_id=2)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/user')
+        self.assertEqual(args[0], '/cloud/json/user')
         self.assertEqual(kwargs['ep_params']['userId'], 1)
         self.assertEqual(kwargs['ep_params']['organizationId'], 2)
         self.assertEqual(result, 'user-info-result')
@@ -59,7 +59,7 @@ class TestUserAccounts(unittest.TestCase):
         )
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/user')
+        self.assertEqual(args[0], '/cloud/json/user')
         self.assertEqual(kwargs['ep_params']['email'], 'new@example.com')
         self.assertEqual(kwargs['ep_params']['username'], 'newuser')
         self.assertEqual(kwargs['ep_params']['firstName'], 'John')
@@ -71,7 +71,7 @@ class TestUserAccounts(unittest.TestCase):
         result = self.ua.delete_user(user_id=1, send_email=True)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/user')
+        self.assertEqual(args[0], '/cloud/json/user')
         self.assertEqual(kwargs['ep_params']['userId'], 1)
         self.assertEqual(kwargs['ep_params']['sendEmail'], True)
         self.assertEqual(result, 'delete-result')
@@ -88,7 +88,7 @@ class TestUserAccounts(unittest.TestCase):
         result = self.ua.get_pronouns()
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/pronouns')
+        self.assertEqual(args[0], '/cloud/json/pronouns')
         self.assertEqual(result, 'pronouns-result')
 
     def test_send_verification_message(self):
@@ -96,7 +96,7 @@ class TestUserAccounts(unittest.TestCase):
         result = self.ua.send_verification_message(type=1, brand='test_brand')
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/emailVerificationMessage')
+        self.assertEqual(args[0], '/cloud/json/emailVerificationMessage')
         self.assertEqual(kwargs['ep_params']['type'], 1)
         self.assertEqual(kwargs['ep_params']['brand'], 'test_brand')
         self.assertEqual(result, 'verification-result')
@@ -106,7 +106,7 @@ class TestUserAccounts(unittest.TestCase):
         result = self.ua.provide_verification_code(code='123456', type=1)
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/emailVerificationMessage')
+        self.assertEqual(args[0], '/cloud/json/emailVerificationMessage')
         self.assertEqual(kwargs['ep_params']['code'], '123456')
         self.assertEqual(kwargs['ep_params']['type'], 1)
         self.assertEqual(result, 'verify-result')
@@ -120,7 +120,7 @@ class TestUserAccounts(unittest.TestCase):
         )
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/newPassword')
+        self.assertEqual(args[0], '/cloud/json/newPassword')
         self.assertEqual(kwargs['ep_headers']['NEW_PASSWORD'], 'newpass')
         self.assertEqual(kwargs['ep_headers']['PASSWORD'], 'oldpass')
         self.assertEqual(kwargs['ep_headers']['passcode'], '123456')
@@ -146,7 +146,7 @@ class TestUserAccounts(unittest.TestCase):
         )
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/recoverPassword')
+        self.assertEqual(args[0], '/cloud/json/recoverPassword')
         self.assertEqual(kwargs['ep_params']['username'], 'testuser')
         self.assertEqual(kwargs['ep_params']['email'], 'test@example.com')
         self.assertEqual(kwargs['ep_params']['brand'], 'test_brand')
@@ -157,7 +157,7 @@ class TestUserAccounts(unittest.TestCase):
         result = self.ua.reset_user_badges(user_id=1)
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/userBadges')
+        self.assertEqual(args[0], '/cloud/json/userBadges')
         self.assertEqual(kwargs['ep_params']['userId'], 1)
         self.assertEqual(result, 'reset-badges-result')
 
@@ -173,7 +173,7 @@ class TestUserAccounts(unittest.TestCase):
         result = self.ua.get_terms_of_service(signature_id=1)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/termsOfServices')
+        self.assertEqual(args[0], '/cloud/json/termsOfServices')
         self.assertEqual(kwargs['ep_params']['signatureId'], 1)
         self.assertEqual(result, 'terms-result')
 
@@ -189,7 +189,7 @@ class TestUserAccounts(unittest.TestCase):
         result = self.ua.put_terms_of_service(signature_id=1)
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/termsOfServices/1')
+        self.assertEqual(args[0], '/cloud/json/termsOfServices/1')
         self.assertEqual(result, 'sign-terms-result')
 
     def test_put_user_tag(self):
@@ -197,7 +197,7 @@ class TestUserAccounts(unittest.TestCase):
         result = self.ua.put_user_tag(tag='test_tag')
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/usertags/test_tag')
+        self.assertEqual(args[0], '/cloud/json/usertags/test_tag')
         self.assertEqual(result, 'tag-result')
 
     def test_delete_user_tag(self):
@@ -205,7 +205,7 @@ class TestUserAccounts(unittest.TestCase):
         result = self.ua.delete_user_tag(tag='test_tag')
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/usertags/test_tag')
+        self.assertEqual(args[0], '/cloud/json/usertags/test_tag')
         self.assertEqual(result, 'delete-tag-result')
 
     def test_put_user_code(self):
@@ -218,7 +218,7 @@ class TestUserAccounts(unittest.TestCase):
         )
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/userCodes')
+        self.assertEqual(args[0], '/cloud/json/userCodes')
         self.assertEqual(kwargs['ep_params']['name'], 'test_code')
         self.assertEqual(kwargs['ep_params']['code'], '1234')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
@@ -230,7 +230,7 @@ class TestUserAccounts(unittest.TestCase):
         result = self.ua.get_user_codes()
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/userCodes')
+        self.assertEqual(args[0], '/cloud/json/userCodes')
         self.assertEqual(result, 'codes-result')
 
     def test_delete_user_code(self):
@@ -238,7 +238,7 @@ class TestUserAccounts(unittest.TestCase):
         result = self.ua.delete_user_code(name='test_code', location_id=1)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/userCodes')
+        self.assertEqual(args[0], '/cloud/json/userCodes')
         self.assertEqual(kwargs['ep_params']['name'], 'test_code')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(result, 'delete-code-result')
@@ -260,7 +260,7 @@ class TestUserAccounts(unittest.TestCase):
         result = self.ua.get_new_password(username='test@example.com')
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/newPassword')
+        self.assertEqual(args[0], '/cloud/json/newPassword')
         self.assertEqual(kwargs['ep_params']['username'], 'test@example.com')
         self.assertEqual(result, {'resultCode': 0})
 
@@ -291,7 +291,7 @@ class TestUserAccounts(unittest.TestCase):
         )
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/newPassword')
+        self.assertEqual(args[0], '/cloud/json/newPassword')
         self.assertEqual(kwargs['ep_params']['brand'], 'test_brand')
         self.assertEqual(kwargs['ep_params']['strongPassword'], True)
         self.assertEqual(kwargs['ep_params']['keepKeyVersion'], False)

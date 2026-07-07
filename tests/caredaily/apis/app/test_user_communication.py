@@ -54,7 +54,7 @@ class TestUserCommunication(unittest.TestCase):
         result = self.uc.get_notification_subscriptions()
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/notificationSubscriptions')
+        self.assertEqual(args[0], '/cloud/json/notificationSubscriptions')
         self.assertEqual(result, {'subscriptions': []})
 
     def test_get_notification_subscriptions_with_user_id(self):
@@ -73,7 +73,7 @@ class TestUserCommunication(unittest.TestCase):
         )
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/notificationSubscriptions/1')
+        self.assertEqual(args[0], '/cloud/json/notificationSubscriptions/1')
         self.assertEqual(kwargs['ep_params']['email'], True)
         self.assertEqual(kwargs['ep_params']['push'], False)
         self.assertEqual(kwargs['ep_params']['sms'], True)
@@ -104,7 +104,7 @@ class TestUserCommunication(unittest.TestCase):
         )
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/notificationToken/test_app/test_token')
+        self.assertEqual(args[0], '/cloud/json/notificationToken/test_app/test_token')
         self.assertEqual(result, {'registered': True})
 
     def test_post_push_notification_token_with_options(self):
@@ -124,7 +124,7 @@ class TestUserCommunication(unittest.TestCase):
         result = self.uc.delete_push_notification_token(token='test_token')
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/notificationToken/test_token')
+        self.assertEqual(args[0], '/cloud/json/notificationToken/test_token')
         self.assertEqual(result, {'deleted': True})
 
     def test_send_notification(self):
@@ -226,7 +226,7 @@ class TestUserCommunication(unittest.TestCase):
         )
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/feedback/test_app/1')
+        self.assertEqual(args[0], '/cloud/json/feedback/test_app/1')
         self.assertEqual(kwargs['ep_params']['length'], 10)
         self.assertEqual(result, {'feedbacks': []})
 
@@ -252,7 +252,7 @@ class TestUserCommunication(unittest.TestCase):
         result = self.uc.get_specific_feedback(feedback_id=123)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/feedback/123')
+        self.assertEqual(args[0], '/cloud/json/feedback/123')
         self.assertEqual(result, {'feedback': {}})
 
     def test_vote_for_feedback(self):
@@ -260,7 +260,7 @@ class TestUserCommunication(unittest.TestCase):
         result = self.uc.vote_for_feedback(feedback_id=123, rank=1)
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/feedback/123/1')
+        self.assertEqual(args[0], '/cloud/json/feedback/123/1')
         self.assertEqual(result, {'voted': True})
 
     def test_support(self):
@@ -293,7 +293,7 @@ class TestUserCommunication(unittest.TestCase):
         result = self.uc.get_survey_questions()
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/surveyQuestions')
+        self.assertEqual(args[0], '/cloud/json/surveyQuestions')
         self.assertEqual(result, {'survey': {}})
 
     def test_answer_survey_questions(self):
@@ -310,7 +310,7 @@ class TestUserCommunication(unittest.TestCase):
         result = self.uc.get_message_topics()
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/messageTopics')
+        self.assertEqual(args[0], '/cloud/json/messageTopics')
         self.assertEqual(result, {'topics': []})
 
     def test_get_message_topics_with_params(self):

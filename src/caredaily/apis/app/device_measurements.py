@@ -56,7 +56,7 @@ class DeviceMeasurements(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         return self.adapter.get(
-            f"/espapi/cloud/json/devices/{device_id}/parameters",
+            f"/cloud/json/devices/{device_id}/parameters",
             ep_params=params,
         )
 
@@ -85,7 +85,7 @@ class DeviceMeasurements(API):
         params = {"locationId": location_id, "skipProspects": skip_prospects}
         params = {k: v for k, v in params.items() if v is not None}
         return self.adapter.put(
-            f"/espapi/cloud/json/devices/{device_id}/parameters",
+            f"/cloud/json/devices/{device_id}/parameters",
             ep_json=json.dumps(command),
             ep_params=params,
         )
@@ -117,7 +117,7 @@ class DeviceMeasurements(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         return self.adapter.get(
-            "/espapi/cloud/json/parameters",
+            "/cloud/json/parameters",
             ep_params=params,
         )
 
@@ -154,7 +154,7 @@ class DeviceMeasurements(API):
             "devices": devices,
         }
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/parameters",
+            "/cloud/json/parameters",
             ep_json=data,
         )
         return result
@@ -208,7 +208,7 @@ class DeviceMeasurements(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         return self.adapter.get(
-            f"/espapi/cloud/json/devices/{device_id}/parametersByDate/{start_date_ms}",
+            f"/cloud/json/devices/{device_id}/parametersByDate/{start_date_ms}",
             ep_params=params,
         )
 
@@ -252,7 +252,7 @@ class DeviceMeasurements(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         return self.adapter.get(
-            f"/espapi/cloud/json/devices/{device_id}/parametersByCount/{row_count}",
+            f"/cloud/json/devices/{device_id}/parametersByCount/{row_count}",
             ep_params=params,
         )
 
@@ -289,7 +289,7 @@ class DeviceMeasurements(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         return self.adapter.get(
-            "/espapi/cloud/json/deviceAlerts",
+            "/cloud/json/deviceAlerts",
             ep_params=params,
         )
 
@@ -330,7 +330,7 @@ class DeviceMeasurements(API):
         if end_date is not None:
             params["endDate"] = end_date
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/alerts",
+            "/cloud/json/alerts",
             ep_params=params,
         )
         return result
@@ -371,7 +371,7 @@ class DeviceMeasurements(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         return self.adapter.post(
-            "/espapi/cloud/json/dataRequests",
+            "/cloud/json/dataRequests",
             ep_params=params,
         )
 
@@ -402,7 +402,7 @@ class DeviceMeasurements(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         return self.adapter.get(
-            "/espapi/cloud/json/dataRequests",
+            "/cloud/json/dataRequests",
             ep_params=params,
         )
 
@@ -430,7 +430,7 @@ class DeviceMeasurements(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         return self.adapter.get(
-            "/espapi/cloud/json/units",
+            "/cloud/json/units",
             ep_params=params,
         )
 

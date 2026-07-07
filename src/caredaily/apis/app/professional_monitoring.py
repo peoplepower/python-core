@@ -44,7 +44,7 @@ class ProfessionalMonitoring(API):
             "locationId": location_id,
         }
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/callCenter",
+            "/cloud/json/callCenter",
             ep_params=params,
         )
         return result
@@ -73,7 +73,7 @@ class ProfessionalMonitoring(API):
             "locationId": location_id,
         }
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/callCenter",
+            "/cloud/json/callCenter",
             ep_params=params,
             ep_json=settings_data,
         )
@@ -101,7 +101,7 @@ class ProfessionalMonitoring(API):
         if location_id is not None:
             params["locationId"] = location_id
         result: Result = self.adapter.delete(
-            "/espapi/cloud/json/callCenter",
+            "/cloud/json/callCenter",
             ep_params=params if params else None,
         )
         return result
@@ -140,7 +140,7 @@ class ProfessionalMonitoring(API):
         }
         test_data = {k: v for k, v in test_data.items() if v is not None}
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/callCenterTest",
+            "/cloud/json/callCenterTest",
             ep_params=params,
             ep_json=test_data if test_data else None,
         )
@@ -172,7 +172,7 @@ class ProfessionalMonitoring(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.delete(
-            "/espapi/cloud/json/callCenterTest",
+            "/cloud/json/callCenterTest",
             ep_params=params,
         )
         return result
@@ -211,7 +211,7 @@ class ProfessionalMonitoring(API):
             params["endDate"] = end_date
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/callCenterAlerts",
+            "/cloud/json/callCenterAlerts",
             ep_params=params,
         )
         return result

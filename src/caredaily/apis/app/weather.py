@@ -49,7 +49,7 @@ class Weather(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/weather/forecast/location/{location_id}",
+            f"/cloud/json/weather/forecast/location/{location_id}",
             ep_params=params,
         )
         return result
@@ -78,7 +78,7 @@ class Weather(API):
         if units is not None:
             params["units"] = units
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/weather/current/location/{location_id}",
+            f"/cloud/json/weather/current/location/{location_id}",
             ep_params=params if params else None,
         )
         return result
@@ -109,7 +109,7 @@ class Weather(API):
         if units is not None:
             params["units"] = units
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/weather/current/geocode/{latitude}/{longitude}",
+            f"/cloud/json/weather/current/geocode/{latitude}/{longitude}",
             ep_params=params if params else None,
         )
         return result
@@ -148,7 +148,7 @@ class Weather(API):
         if organization_id is not None:
             params["organizationId"] = organization_id
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/weather/forecast/geocode/{latitude}/{longitude}",
+            f"/cloud/json/weather/forecast/geocode/{latitude}/{longitude}",
             ep_params=params if params else None,
         )
         return result

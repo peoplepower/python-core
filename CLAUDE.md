@@ -48,7 +48,7 @@ python -m build
 
 Every API call follows the same path:
 
-1. An API class method (e.g. `Authentication.login_by_username`) accepts typed parameters, filters out `None` values, and builds the endpoint path (typically `/espapi/cloud/json/...` for app APIs, `/admin/json/...` for admin, `/botengine/json/...` for bots).
+1. An API class method (e.g. `Authentication.login_by_username`) accepts typed parameters, filters out `None` values, and builds the endpoint path (typically `/cloud/json/...` for app APIs, `/admin/json/...` for admin, `/botengine/json/...` for bots).
 2. It calls `self.adapter.get/post/put/delete()` on the `RestAdapter` (`src/caredaily/http.py`).
 3. `RestAdapter` attaches the auth header based on `APIKeyType` — `API_KEY` (USER=1), `ADMIN_KEY` (ADMIN=2), or `ANALYTIC_API_KEY` (ANALYTIC=3) — sends the request, and parses the response into a `Result` (Pydantic model with `result_code`, `result_code_message`, and data).
 4. Non-SUCCESS result codes raise `CareDailyException` (message + optional context dict). `ResultCode` in `models.py` enumerates all API error codes.
@@ -108,7 +108,7 @@ self.auth.adapter = MagicMock()
 self.auth.adapter.get.return_value = "login-result"
 result = self.auth.login_by_username("user", password="pw")
 args, kwargs = self.auth.adapter.get.call_args
-self.assertEqual(args[0], "/espapi/cloud/json/login")
+self.assertEqual(args[0], "/cloud/json/login")
 ```
 
 Assert the endpoint path, `ep_params`, and `ep_headers` passed to the adapter, and that the adapter's return value is passed through.

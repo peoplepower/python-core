@@ -18,7 +18,7 @@ class TestAppFiles(unittest.TestCase):
             file_type=1
         )
         self.mock_adapter.post.assert_called_once_with(
-            "/espapi/cloud/json/appfiles",
+            "/cloud/json/appfiles",
             ep_params={'type': 1},
             ep_data=file_content,
             ep_headers={'Content-Type': 'image/jpeg'}
@@ -33,7 +33,7 @@ class TestAppFiles(unittest.TestCase):
             file_type=1
         )
         self.mock_adapter.post.assert_called_once_with(
-            "/espapi/cloud/json/appfiles",
+            "/cloud/json/appfiles",
             ep_params={'type': 1},
             ep_data=file_content,
             ep_headers={'Content-Type': 'application/octet-stream'}

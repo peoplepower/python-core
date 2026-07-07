@@ -16,7 +16,7 @@ class TestDevices(unittest.TestCase):
         )
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(kwargs['ep_params']['deviceType'], 2)
         self.assertEqual(kwargs['ep_params']['desc'], 'Test device')
@@ -27,7 +27,7 @@ class TestDevices(unittest.TestCase):
         result = self.dev.get_devices(location_id=1)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices')
+        self.assertEqual(args[0], '/cloud/json/devices')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(result, 'devices-result')
 
@@ -51,7 +51,7 @@ class TestDevices(unittest.TestCase):
         )
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices')
+        self.assertEqual(args[0], '/cloud/json/devices')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(kwargs['ep_params']['deviceId'], ['dev1', 'dev2'])
         self.assertEqual(kwargs['ep_params']['clearMeasurements'], True)
@@ -62,7 +62,7 @@ class TestDevices(unittest.TestCase):
         result = self.dev.get_device(device_id='dev1', location_id=1)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(result, 'single-device-result')
 
@@ -78,7 +78,7 @@ class TestDevices(unittest.TestCase):
         result = self.dev.get_device_services(device_id='dev1', location_id=1)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1/services')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1/services')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(result, 'services-result')
 
@@ -89,7 +89,7 @@ class TestDevices(unittest.TestCase):
         )
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(kwargs['ep_params']['desc'], 'Updated description')
         self.assertEqual(result, 'update-result')
@@ -109,7 +109,7 @@ class TestDevices(unittest.TestCase):
         result = self.dev.delete_device(device_id='dev1', location_id=1, clear_measurements=True)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(kwargs['ep_params']['clearMeasurements'], True)
         self.assertEqual(result, 'delete-result')
@@ -119,7 +119,7 @@ class TestDevices(unittest.TestCase):
         result = self.dev.get_device_sim_card(device_id='dev1', location_id=1)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1/simCard')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1/simCard')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(result, 'sim-card-result')
 
@@ -130,7 +130,7 @@ class TestDevices(unittest.TestCase):
         )
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1/simulator')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1/simulator')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(kwargs['ep_params']['newDeviceId'], 'dev2')
         self.assertEqual(result, 'copy-simulator-result')
@@ -140,7 +140,7 @@ class TestDevices(unittest.TestCase):
         result = self.dev.get_device_activation_info(device_id='dev1', location_id=1)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1/activation')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1/activation')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(result, 'activation-info-result')
 
@@ -149,7 +149,7 @@ class TestDevices(unittest.TestCase):
         result = self.dev.get_device_properties(device_id='dev1', location_id=1)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1/properties')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1/properties')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(result, 'device-properties-result')
 
@@ -171,7 +171,7 @@ class TestDevices(unittest.TestCase):
         )
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1/properties')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1/properties')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(kwargs['ep_json'], json.dumps({'properties': properties_data}))
         self.assertEqual(result, 'set-properties-result')
@@ -183,7 +183,7 @@ class TestDevices(unittest.TestCase):
         )
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1/properties')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1/properties')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(kwargs['ep_params']['name'], 'prop_name')
         self.assertEqual(kwargs['ep_params']['index'], '0')
@@ -201,7 +201,7 @@ class TestDevices(unittest.TestCase):
         result = self.dev.link_device_to_space(device_id='dev1', location_id=1, space_id=2)
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1/spaces')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1/spaces')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(kwargs['ep_params']['spaceId'], 2)
         self.assertEqual(result, 'link-space-result')
@@ -211,7 +211,7 @@ class TestDevices(unittest.TestCase):
         result = self.dev.unlink_device_from_space(device_id='dev1', location_id=1, space_id=2)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1/spaces')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1/spaces')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(kwargs['ep_params']['spaceId'], 2)
         self.assertEqual(result, 'unlink-space-result')
@@ -221,7 +221,7 @@ class TestDevices(unittest.TestCase):
         result = self.dev.get_firmware_update_jobs(device_id='dev1', location_id=1)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1/firmware')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1/firmware')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(result, 'firmware-jobs-result')
 
@@ -232,7 +232,7 @@ class TestDevices(unittest.TestCase):
         )
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1/firmware')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1/firmware')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(kwargs['ep_params']['status'], 1)
         self.assertEqual(kwargs['ep_params']['jobId'], 123)
@@ -252,7 +252,7 @@ class TestDevices(unittest.TestCase):
         )
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1/logs')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1/logs')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(kwargs['ep_params']['startDate'], 1000)
         self.assertEqual(kwargs['ep_params']['endDate'], 2000)
@@ -263,7 +263,7 @@ class TestDevices(unittest.TestCase):
         result = self.dev.get_device_log_content(device_id='dev1', location_id=1, log_id=123)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1/logContent')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1/logContent')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(kwargs['ep_params']['logId'], 123)
         self.assertEqual(result, 'log-content-result')
@@ -275,7 +275,7 @@ class TestDevices(unittest.TestCase):
         )
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1/sensitivityMap')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1/sensitivityMap')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(kwargs['ep_json'], json.dumps({'sensitivityMap': 'map_data'}))
         self.assertEqual(result, 'upload-map-result')
@@ -285,7 +285,7 @@ class TestDevices(unittest.TestCase):
         result = self.dev.delete_sensitivity_map(device_id='dev1', location_id=1)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1/sensitivityMap')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1/sensitivityMap')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(result, 'delete-map-result')
 
@@ -301,7 +301,7 @@ class TestDevices(unittest.TestCase):
         )
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1/voip')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1/voip')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         body_dict = json.loads(kwargs['ep_json'])
         self.assertEqual(body_dict['account'], 'account@example.com')
@@ -328,7 +328,7 @@ class TestDevices(unittest.TestCase):
         result = self.dev.remove_device_voip_registration(device_id='dev1', location_id=1)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1/voip')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1/voip')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(result, 'voip-remove-result')
 
@@ -339,7 +339,7 @@ class TestDevices(unittest.TestCase):
         )
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1/voipCall')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1/voipCall')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         body_dict = json.loads(kwargs['ep_json'])
         self.assertEqual(body_dict['callee'], '+1234567890')
@@ -360,7 +360,7 @@ class TestDevices(unittest.TestCase):
         result = self.dev.hangup_device_voip_call(device_id='dev1', location_id=1)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/devices/dev1/voipCall')
+        self.assertEqual(args[0], '/cloud/json/devices/dev1/voipCall')
         self.assertEqual(kwargs['ep_params']['locationId'], 1)
         self.assertEqual(result, 'voip-hangup-result')
 
@@ -378,7 +378,7 @@ class TestDevices(unittest.TestCase):
         )
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/deviceLogs')
+        self.assertEqual(args[0], '/cloud/json/deviceLogs')
         self.assertEqual(kwargs['ep_params']['locationId'], 123)
         self.assertEqual(kwargs['ep_params']['deviceId'], 'dev1')
         self.assertEqual(kwargs['ep_params']['startDate'], '2024-01-01')
@@ -410,7 +410,7 @@ class TestDevices(unittest.TestCase):
         )
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/deviceLogContent')
+        self.assertEqual(args[0], '/cloud/json/deviceLogContent')
         self.assertEqual(kwargs['ep_params']['locationId'], 123)
         self.assertEqual(kwargs['ep_params']['deviceId'], 'dev1')
         self.assertEqual(kwargs['ep_params']['logDate'], '2024-01-15')
@@ -425,5 +425,5 @@ class TestDevices(unittest.TestCase):
         result = self.dev.get_preregistered_device(device_id='dev1')
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/preregistered/dev1')
+        self.assertEqual(args[0], '/cloud/json/preregistered/dev1')
         self.assertEqual(result, {'device': {'id': 'dev1', 'type': 1}})

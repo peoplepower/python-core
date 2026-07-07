@@ -41,7 +41,7 @@ class RAG(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/RAG
         """
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/rag/documents",
+            "/cloud/json/rag/documents",
             ep_json=document_data if document_data else None,
         )
         return result
@@ -75,7 +75,7 @@ class RAG(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/rag/documents",
+            "/cloud/json/rag/documents",
             ep_params=params,
         )
         return result
@@ -101,7 +101,7 @@ class RAG(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/RAG
         """
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/rag/documents/{doc_id}",
+            f"/cloud/json/rag/documents/{doc_id}",
             ep_json=document_data if document_data else None,
         )
         return result
@@ -125,7 +125,7 @@ class RAG(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/RAG
         """
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/rag/documents/{doc_id}",
+            f"/cloud/json/rag/documents/{doc_id}",
         )
         return result
 
@@ -148,7 +148,7 @@ class RAG(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/RAG
         """
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/rag/questions",
+            "/cloud/json/rag/questions",
             ep_json=questions_data if questions_data else None,
         )
         return result
@@ -182,7 +182,7 @@ class RAG(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/rag/questions",
+            "/cloud/json/rag/questions",
             ep_params=params,
         )
         return result
@@ -206,7 +206,7 @@ class RAG(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/RAG
         """
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/rag/questions",
+            "/cloud/json/rag/questions",
             ep_json=questions_data if questions_data else None,
         )
         return result

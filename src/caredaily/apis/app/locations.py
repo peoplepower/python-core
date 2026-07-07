@@ -52,7 +52,7 @@ class Locations(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#create-location
         """
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/location",
+            "/cloud/json/location",
             ep_json=json.dumps(data),
         )
         return result
@@ -81,7 +81,7 @@ class Locations(API):
         if analytic_key:
             headers = self.adapter._get_headers(analytic_key, APIKeyType.ANALYTIC)
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/location/{location_id}",
+            f"/cloud/json/location/{location_id}",
             ep_json=json.dumps(data),
             ep_headers=headers,
         )
@@ -106,7 +106,7 @@ class Locations(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#delete-location
         """
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/location/{location_id}"
+            f"/cloud/json/location/{location_id}"
         )
         return result
 
@@ -132,7 +132,7 @@ class Locations(API):
             "organizationId": organization_id,
         }
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/location/{location_id}/organization", ep_params=params
+            f"/cloud/json/location/{location_id}/organization", ep_params=params
         )
         return result
 
@@ -157,7 +157,7 @@ class Locations(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Locations/operation/Update%20Location%20Organization
         """
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/location/{location_id}/organization/{domain_name}",
+            f"/cloud/json/location/{location_id}/organization/{domain_name}",
         )
         return result
 
@@ -183,7 +183,7 @@ class Locations(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#post-location-event
         """
         result: Result = self.adapter.post(
-            f"/espapi/cloud/json/location/{location_id}/events",
+            f"/cloud/json/location/{location_id}/events",
             ep_json=json.dumps(event),
         )
         return result
@@ -212,7 +212,7 @@ class Locations(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Locations/operation/Change%20the%20Scene%20at%20a%20Location
         """
         result: Result = self.adapter.post(
-            f"/espapi/cloud/json/location/{location_id}/event/{event_name}",
+            f"/cloud/json/location/{location_id}/event/{event_name}",
             ep_json=event_data,
         )
         return result
@@ -243,7 +243,7 @@ class Locations(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/location/{location_id}/events",
+            f"/cloud/json/location/{location_id}/events",
             ep_params=params,
         )
         return result
@@ -274,7 +274,7 @@ class Locations(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/location/{location_id}/priorities",
+            f"/cloud/json/location/{location_id}/priorities",
             ep_params=params,
         )
         return result
@@ -300,7 +300,7 @@ class Locations(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/countries", ep_params=params
+            "/cloud/json/countries", ep_params=params
         )
         return result
 
@@ -321,7 +321,7 @@ class Locations(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#get-location-users
         """
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/location/{location_id}/users"
+            f"/cloud/json/location/{location_id}/users"
         )
         return result
 
@@ -348,7 +348,7 @@ class Locations(API):
         """
         data = {"users": users}
         result: Result = self.adapter.post(
-            f"/espapi/cloud/json/location/{location_id}/users",
+            f"/cloud/json/location/{location_id}/users",
             ep_json=json.dumps(data),
         )
         return result
@@ -381,7 +381,7 @@ class Locations(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/location/{location_id}/users/{user_id}",
+            f"/cloud/json/location/{location_id}/users/{user_id}",
             ep_params=params,
         )
         return result
@@ -405,7 +405,7 @@ class Locations(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#delete-location-user
         """
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/location/{location_id}/users/{user_id}"
+            f"/cloud/json/location/{location_id}/users/{user_id}"
         )
         return result
 
@@ -431,7 +431,7 @@ class Locations(API):
             "subLocationId": sub_location_id,
         }
         result: Result = self.adapter.post(
-            f"/espapi/cloud/json/location/{location_id}/subLocations",
+            f"/cloud/json/location/{location_id}/subLocations",
             ep_params=params,
         )
         return result
@@ -458,7 +458,7 @@ class Locations(API):
             "subLocationId": sub_location_id,
         }
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/location/{location_id}/subLocations",
+            f"/cloud/json/location/{location_id}/subLocations",
             ep_params=params,
         )
         return result
@@ -492,7 +492,7 @@ class Locations(API):
         if start_date is not None:
             params["startDate"] = start_date
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/location/{location_id}/subs",
+            f"/cloud/json/location/{location_id}/subs",
             ep_params=params,
         )
         return result
@@ -521,7 +521,7 @@ class Locations(API):
             "subLocationId": sub_location_id,
         }
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/location/{location_id}/subs",
+            f"/cloud/json/location/{location_id}/subs",
             ep_params=params,
         )
         return result
@@ -547,7 +547,7 @@ class Locations(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Locations/operation/Update%20Location%20Users
         """
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/location/{location_id}/users",
+            f"/cloud/json/location/{location_id}/users",
             ep_json=users_data,
         )
         return result
@@ -576,7 +576,7 @@ class Locations(API):
             "userId": user_id,
         }
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/location/{location_id}/users",
+            f"/cloud/json/location/{location_id}/users",
             ep_params=params,
         )
         return result
@@ -598,7 +598,7 @@ class Locations(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#get-location-spaces
         """
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/location/{location_id}/spaces"
+            f"/cloud/json/location/{location_id}/spaces"
         )
         return result
 
@@ -623,7 +623,7 @@ class Locations(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Locations/operation/Create%20Location%20Space
         """
         result: Result = self.adapter.post(
-            f"/espapi/cloud/json/location/{location_id}/spaces",
+            f"/cloud/json/location/{location_id}/spaces",
             ep_json=space,
         )
         return result
@@ -650,7 +650,7 @@ class Locations(API):
             "spaceId": space_id,
         }
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/location/{location_id}/spaces",
+            f"/cloud/json/location/{location_id}/spaces",
             ep_params=params,
         )
         return result
@@ -719,7 +719,7 @@ class Locations(API):
         if analytic_key:
             headers = self.adapter._get_headers(analytic_key, APIKeyType.ANALYTIC)
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/locations/{location_id}/narratives",
+            f"/cloud/json/locations/{location_id}/narratives",
             ep_params=params,
             ep_headers=headers,
         )
@@ -764,7 +764,7 @@ class Locations(API):
         if analytic_key:
             headers = self.adapter._get_headers(analytic_key, APIKeyType.ANALYTIC)
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/locations/{location_id}/narratives",
+            f"/cloud/json/locations/{location_id}/narratives",
             ep_json=json.dumps(narrative),
             ep_params=params,
             ep_headers=headers,
@@ -811,7 +811,7 @@ class Locations(API):
         if analytic_key:
             headers = self.adapter._get_headers(analytic_key, APIKeyType.ANALYTIC)
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/locations/{location_id}/narratives",
+            f"/cloud/json/locations/{location_id}/narratives",
             ep_params=params,
             ep_headers=headers,
         )
@@ -945,7 +945,7 @@ class Locations(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/locations/{location_id}/state",
+            f"/cloud/json/locations/{location_id}/state",
             ep_json=json.dumps(state),
             ep_params=params,
         )
@@ -974,7 +974,7 @@ class Locations(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/locations/{location_id}/state",
+            f"/cloud/json/locations/{location_id}/state",
             ep_params=params,
         )
         return result
@@ -999,7 +999,7 @@ class Locations(API):
             "locationId": location_id,
         }
         result: Result = self.adapter.delete(
-            "/espapi/cloud/json/locations/{locationId}/state".format(locationId=location_id),
+            "/cloud/json/locations/{locationId}/state".format(locationId=location_id),
             ep_params=params,
         )
         return result
@@ -1044,7 +1044,7 @@ class Locations(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/locations/{location_id}/timeStates",
+            f"/cloud/json/locations/{location_id}/timeStates",
             ep_json=json.dumps(state),
             ep_params=params,
         )
@@ -1088,7 +1088,7 @@ class Locations(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/locations/{location_id}/timeStates",
+            f"/cloud/json/locations/{location_id}/timeStates",
             ep_params=params,
         )
         return result
@@ -1114,7 +1114,7 @@ class Locations(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/locationTotals", ep_params=params
+            "/cloud/json/locationTotals", ep_params=params
         )
         return result
 
@@ -1135,7 +1135,7 @@ class Locations(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#get-presence-ids
         """
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/location/{location_id}/presence"
+            f"/cloud/json/location/{location_id}/presence"
         )
         return result
 
@@ -1158,7 +1158,7 @@ class Locations(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#add-location-presence
         """
         result: Result = self.adapter.post(
-            f"/espapi/cloud/json/location/{location_id}/presence",
+            f"/cloud/json/location/{location_id}/presence",
             ep_json=json.dumps(presence_data),
         )
         return result

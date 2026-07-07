@@ -55,7 +55,7 @@ class TestDeviceTypesAndParameters(unittest.TestCase):
         result = self.dtp.create_update_device_type(device_type_data=device_type_data)
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/deviceType/1')
+        self.assertEqual(args[0], '/cloud/json/deviceType/1')
         self.assertEqual(result, 'updated-result')
 
     def test_get_device_parameters(self):
@@ -90,7 +90,7 @@ class TestDeviceTypesAndParameters(unittest.TestCase):
         result = self.dtp.delete_device_parameter(parameter_name='test.param')
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/deviceParameters/test.param')
+        self.assertEqual(args[0], '/cloud/json/deviceParameters/test.param')
         self.assertEqual(result, {'deleted': True})
 
     def test_put_device_parameter(self):
@@ -102,7 +102,7 @@ class TestDeviceTypesAndParameters(unittest.TestCase):
         )
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/deviceParameters/test.param')
+        self.assertEqual(args[0], '/cloud/json/deviceParameters/test.param')
         self.assertEqual(kwargs['ep_json'], parameter_data)
         self.assertEqual(result, {'updated': True})
 
@@ -120,7 +120,7 @@ class TestDeviceTypesAndParameters(unittest.TestCase):
         result = self.dtp.get_default_rules(device_type=1)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/deviceType/1/rules')
+        self.assertEqual(args[0], '/cloud/json/deviceType/1/rules')
         self.assertEqual(result, {'rules': []})
 
     def test_get_default_rules_with_details(self):
@@ -134,7 +134,7 @@ class TestDeviceTypesAndParameters(unittest.TestCase):
         result = self.dtp.add_default_rule(device_type=1, rule_id=10)
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/deviceType/1/rules/10')
+        self.assertEqual(args[0], '/cloud/json/deviceType/1/rules/10')
         self.assertEqual(result, {'added': True})
 
     def test_add_default_rule_with_hidden(self):
@@ -148,7 +148,7 @@ class TestDeviceTypesAndParameters(unittest.TestCase):
         result = self.dtp.delete_default_rule(device_type=1, rule_id=10)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/deviceType/1/rules/10')
+        self.assertEqual(args[0], '/cloud/json/deviceType/1/rules/10')
         self.assertEqual(result, {'deleted': True})
 
     def test_get_device_goals_by_types_with_device_type(self):
@@ -156,14 +156,14 @@ class TestDeviceTypesAndParameters(unittest.TestCase):
         result = self.dtp.get_device_goals_by_types(device_type=1)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/deviceType/1/goals')
+        self.assertEqual(args[0], '/cloud/json/deviceType/1/goals')
         self.assertEqual(result, {'goals': []})
 
     def test_get_device_goals_by_types_without_device_type(self):
         self.mock_adapter.get.return_value = {'goals': []}
         result = self.dtp.get_device_goals_by_types()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/deviceGoals')
+        self.assertEqual(args[0], '/cloud/json/deviceGoals')
 
     def test_get_device_goals_by_types_with_type_ids(self):
         self.mock_adapter.get.return_value = {'goals': []}
@@ -177,7 +177,7 @@ class TestDeviceTypesAndParameters(unittest.TestCase):
         result = self.dtp.get_device_goal_installation_instruction(goal_id=1)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/goals/1/installation')
+        self.assertEqual(args[0], '/cloud/json/goals/1/installation')
         self.assertEqual(result, {'instructions': {}})
 
     def test_put_device_media(self):
@@ -186,7 +186,7 @@ class TestDeviceTypesAndParameters(unittest.TestCase):
         result = self.dtp.put_device_media(media_data=media_data)
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/deviceMedia')
+        self.assertEqual(args[0], '/cloud/json/deviceMedia')
         self.assertEqual(kwargs['ep_json'], media_data)
         self.assertEqual(result, {'updated': True})
 
@@ -194,7 +194,7 @@ class TestDeviceTypesAndParameters(unittest.TestCase):
         self.mock_adapter.put.return_value = {'updated': True}
         result = self.dtp.put_device_media(media_data=None)
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/deviceMedia')
+        self.assertEqual(args[0], '/cloud/json/deviceMedia')
         self.assertIsNone(kwargs['ep_json'])
 
     def test_get_media(self):
@@ -215,7 +215,7 @@ class TestDeviceTypesAndParameters(unittest.TestCase):
         result = self.dtp.delete_media(media_id=123)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/deviceMedia/123')
+        self.assertEqual(args[0], '/cloud/json/deviceMedia/123')
         self.assertEqual(result, {'deleted': True})
 
     def test_put_device_models(self):
@@ -251,7 +251,7 @@ class TestDeviceTypesAndParameters(unittest.TestCase):
         result = self.dtp.delete_device_model_data(model_id='model1')
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/deviceModels/model1')
+        self.assertEqual(args[0], '/cloud/json/deviceModels/model1')
         self.assertEqual(result, {'deleted': True})
 
     def test_get_stories(self):
@@ -287,7 +287,7 @@ class TestDeviceTypesAndParameters(unittest.TestCase):
         result = self.dtp.delete_story(story_id=123)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/deviceStories/123')
+        self.assertEqual(args[0], '/cloud/json/deviceStories/123')
         self.assertEqual(result, {'deleted': True})
 
     def test_get_stories_collection(self):
@@ -299,7 +299,7 @@ class TestDeviceTypesAndParameters(unittest.TestCase):
         result = self.dtp.get_stories_collection(story_type=1, lang='en')
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/stories')
+        self.assertEqual(args[0], '/cloud/json/stories')
         self.assertEqual(kwargs['ep_params']['storyType'], 1)
         self.assertEqual(kwargs['ep_params']['lang'], 'en')
         self.assertEqual(result, {'stories': []})
@@ -325,7 +325,7 @@ class TestDeviceTypesAndParameters(unittest.TestCase):
         result = self.dtp.put_stories_collection(stories_data=stories_data)
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/stories')
+        self.assertEqual(args[0], '/cloud/json/stories')
         self.assertEqual(kwargs['ep_json'], stories_data)
         self.assertEqual(result, {'resultCode': 0})
 
@@ -339,7 +339,7 @@ class TestDeviceTypesAndParameters(unittest.TestCase):
         result = self.dtp.delete_stories_collection(story_ids=story_ids)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/stories')
+        self.assertEqual(args[0], '/cloud/json/stories')
         self.assertEqual(kwargs['ep_params']['storyId'], story_ids)
         self.assertEqual(result, {'resultCode': 0})
 
@@ -364,7 +364,7 @@ class TestDeviceTypesAndParameters(unittest.TestCase):
         result = self.dtp.put_media(media_data=media_data)
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/media')
+        self.assertEqual(args[0], '/cloud/json/media')
         self.assertEqual(kwargs['ep_json'], media_data)
         self.assertEqual(result, {'resultCode': 0})
 
@@ -378,7 +378,7 @@ class TestDeviceTypesAndParameters(unittest.TestCase):
         result = self.dtp.delete_media_collection(media_ids=media_ids)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/media')
+        self.assertEqual(args[0], '/cloud/json/media')
         self.assertEqual(kwargs['ep_params']['mediaId'], media_ids)
         self.assertEqual(result, {'resultCode': 0})
 

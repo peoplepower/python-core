@@ -38,7 +38,7 @@ class Rules(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/ruleConditions",
+            "/cloud/json/ruleConditions",
             ep_params=params,
         )
         return result
@@ -79,7 +79,7 @@ class Rules(API):
             }
             params = {k: v for k, v in params.items() if v is not None}
             result: Result = self.adapter.put(
-                f"/espapi/cloud/json/rules/{rule_id}",
+                f"/cloud/json/rules/{rule_id}",
                 ep_params=params,
                 ep_json=rule_data,
             )
@@ -90,7 +90,7 @@ class Rules(API):
             }
             params = {k: v for k, v in params.items() if v is not None}
             result: Result = self.adapter.post(
-                "/espapi/cloud/json/rules",
+                "/cloud/json/rules",
                 ep_params=params,
                 ep_json=rule_data,
             )
@@ -128,7 +128,7 @@ class Rules(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/rules",
+            "/cloud/json/rules",
             ep_params=params,
         )
         return result
@@ -179,7 +179,7 @@ class Rules(API):
             params["ruleId"] = rule_ids
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.delete(
-            "/espapi/cloud/json/rules",
+            "/cloud/json/rules",
             ep_params=params,
         )
         return result
@@ -210,7 +210,7 @@ class Rules(API):
             "locationId": location_id,
         }
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/rules/{rule_id}/attrs",
+            f"/cloud/json/rules/{rule_id}/attrs",
             ep_params=params,
             ep_json=attrs,
         )
@@ -240,7 +240,7 @@ class Rules(API):
             "locationId": location_id,
         }
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/rules/{rule_id}",
+            f"/cloud/json/rules/{rule_id}",
             ep_params=params,
         )
         return result
@@ -288,7 +288,7 @@ class Rules(API):
             params["ruleId"] = rule_ids
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/rulesStatus/{status}",
+            f"/cloud/json/rulesStatus/{status}",
             ep_params=params,
         )
         return result
@@ -320,7 +320,7 @@ class Rules(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/rulesCreateDefault",
+            "/cloud/json/rulesCreateDefault",
             ep_params=params,
         )
         return result

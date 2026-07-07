@@ -54,7 +54,7 @@ class AI(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/openai",
+            "/cloud/json/openai",
             ep_params=params,
             ep_json=request_data,
         )
@@ -83,7 +83,7 @@ class AI(API):
             "expiry": expiry,
         }
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/openaiToken",
+            "/cloud/json/openaiToken",
             ep_params=params,
         )
         return result

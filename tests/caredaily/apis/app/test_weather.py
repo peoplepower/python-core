@@ -14,7 +14,7 @@ class TestWeather(unittest.TestCase):
         self.mock_adapter.get.return_value = 'weather-result'
         result = self.weather.get_weather(location_id=location_id)
         self.mock_adapter.get.assert_called_once_with(
-            f'/espapi/cloud/json/weather/forecast/location/{location_id}',
+            f'/cloud/json/weather/forecast/location/{location_id}',
             ep_params={}
         )
         self.assertEqual(result, 'weather-result')
@@ -26,7 +26,7 @@ class TestWeather(unittest.TestCase):
         self.mock_adapter.get.return_value = 'weather-result'
         result = self.weather.get_weather(location_id=location_id, units=units)
         self.mock_adapter.get.assert_called_once_with(
-            f'/espapi/cloud/json/weather/forecast/location/{location_id}',
+            f'/cloud/json/weather/forecast/location/{location_id}',
             ep_params={'units': units}
         )
         self.assertEqual(result, 'weather-result')
@@ -38,7 +38,7 @@ class TestWeather(unittest.TestCase):
         self.mock_adapter.get.return_value = 'weather-result'
         result = self.weather.get_weather(location_id=location_id, hours=hours)
         self.mock_adapter.get.assert_called_once_with(
-            f'/espapi/cloud/json/weather/forecast/location/{location_id}',
+            f'/cloud/json/weather/forecast/location/{location_id}',
             ep_params={'hours': hours}
         )
         self.assertEqual(result, 'weather-result')
@@ -51,7 +51,7 @@ class TestWeather(unittest.TestCase):
         self.mock_adapter.get.return_value = 'weather-result'
         result = self.weather.get_weather(location_id=location_id, units=units, hours=hours)
         self.mock_adapter.get.assert_called_once_with(
-            f'/espapi/cloud/json/weather/forecast/location/{location_id}',
+            f'/cloud/json/weather/forecast/location/{location_id}',
             ep_params={'units': units, 'hours': hours}
         )
         self.assertEqual(result, 'weather-result')
@@ -62,7 +62,7 @@ class TestWeather(unittest.TestCase):
         self.mock_adapter.get.return_value = 'current-weather-result'
         result = self.weather.get_weather_current_by_location(location_id=location_id)
         self.mock_adapter.get.assert_called_once_with(
-            f'/espapi/cloud/json/weather/current/location/{location_id}',
+            f'/cloud/json/weather/current/location/{location_id}',
             ep_params=None
         )
         self.assertEqual(result, 'current-weather-result')
@@ -74,7 +74,7 @@ class TestWeather(unittest.TestCase):
         self.mock_adapter.get.return_value = 'current-weather-result'
         result = self.weather.get_weather_current_by_location(location_id=location_id, units=units)
         self.mock_adapter.get.assert_called_once_with(
-            f'/espapi/cloud/json/weather/current/location/{location_id}',
+            f'/cloud/json/weather/current/location/{location_id}',
             ep_params={'units': units}
         )
         self.assertEqual(result, 'current-weather-result')
@@ -86,7 +86,7 @@ class TestWeather(unittest.TestCase):
         self.mock_adapter.get.return_value = 'geocode-weather-result'
         result = self.weather.get_weather_current_by_geocode(latitude=latitude, longitude=longitude)
         self.mock_adapter.get.assert_called_once_with(
-            f'/espapi/cloud/json/weather/current/geocode/{latitude}/{longitude}',
+            f'/cloud/json/weather/current/geocode/{latitude}/{longitude}',
             ep_params=None
         )
         self.assertEqual(result, 'geocode-weather-result')
@@ -103,7 +103,7 @@ class TestWeather(unittest.TestCase):
             units=units
         )
         self.mock_adapter.get.assert_called_once_with(
-            f'/espapi/cloud/json/weather/current/geocode/{latitude}/{longitude}',
+            f'/cloud/json/weather/current/geocode/{latitude}/{longitude}',
             ep_params={'units': units}
         )
         self.assertEqual(result, 'geocode-weather-result')
@@ -118,7 +118,7 @@ class TestWeather(unittest.TestCase):
             longitude=longitude
         )
         self.mock_adapter.get.assert_called_once_with(
-            f'/espapi/cloud/json/weather/forecast/geocode/{latitude}/{longitude}',
+            f'/cloud/json/weather/forecast/geocode/{latitude}/{longitude}',
             ep_params=None
         )
         self.assertEqual(result, 'forecast-result')
@@ -135,7 +135,7 @@ class TestWeather(unittest.TestCase):
             units=units
         )
         self.mock_adapter.get.assert_called_once_with(
-            f'/espapi/cloud/json/weather/forecast/geocode/{latitude}/{longitude}',
+            f'/cloud/json/weather/forecast/geocode/{latitude}/{longitude}',
             ep_params={'units': units}
         )
         self.assertEqual(result, 'forecast-result')
@@ -152,7 +152,7 @@ class TestWeather(unittest.TestCase):
             hours=hours
         )
         self.mock_adapter.get.assert_called_once_with(
-            f'/espapi/cloud/json/weather/forecast/geocode/{latitude}/{longitude}',
+            f'/cloud/json/weather/forecast/geocode/{latitude}/{longitude}',
             ep_params={'hours': hours}
         )
         self.assertEqual(result, 'forecast-result')
@@ -169,7 +169,7 @@ class TestWeather(unittest.TestCase):
             organization_id=organization_id
         )
         self.mock_adapter.get.assert_called_once_with(
-            f'/espapi/cloud/json/weather/forecast/geocode/{latitude}/{longitude}',
+            f'/cloud/json/weather/forecast/geocode/{latitude}/{longitude}',
             ep_params={'organizationId': organization_id}
         )
         self.assertEqual(result, 'forecast-result')
@@ -190,7 +190,7 @@ class TestWeather(unittest.TestCase):
             organization_id=organization_id
         )
         self.mock_adapter.get.assert_called_once_with(
-            f'/espapi/cloud/json/weather/forecast/geocode/{latitude}/{longitude}',
+            f'/cloud/json/weather/forecast/geocode/{latitude}/{longitude}',
             ep_params={
                 'units': units,
                 'hours': hours,

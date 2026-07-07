@@ -37,7 +37,7 @@ class UserCommunication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/notificationSubscriptions",
+            "/cloud/json/notificationSubscriptions",
             ep_params=params,
         )
         return result
@@ -85,7 +85,7 @@ class UserCommunication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/notificationSubscriptions/{notification_type}",
+            f"/cloud/json/notificationSubscriptions/{notification_type}",
             ep_params=params,
         )
         return result
@@ -120,7 +120,7 @@ class UserCommunication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/notificationToken/{app_name}/{token}",
+            f"/cloud/json/notificationToken/{app_name}/{token}",
             ep_params=params,
         )
         return result
@@ -144,7 +144,7 @@ class UserCommunication(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/User-Communications/operation/Unregister%20App%20for%20Push%20Notifications
         """
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/notificationToken/{token}",
+            f"/cloud/json/notificationToken/{token}",
         )
         return result
 
@@ -182,7 +182,7 @@ class UserCommunication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/notifications",
+            "/cloud/json/notifications",
             ep_json=notification_data,
             ep_params=params,
         )
@@ -229,7 +229,7 @@ class UserCommunication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/notifications",
+            "/cloud/json/notifications",
             ep_params=params,
         )
         return result
@@ -263,7 +263,7 @@ class UserCommunication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/ticket",
+            "/cloud/json/ticket",
             ep_json=ticket_data,
             ep_params=params,
         )
@@ -300,7 +300,7 @@ class UserCommunication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/feedback",
+            "/cloud/json/feedback",
             ep_json=feedback_data,
             ep_params=params,
         )
@@ -345,7 +345,7 @@ class UserCommunication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/feedback/{app_name}/{feedback_type}",
+            f"/cloud/json/feedback/{app_name}/{feedback_type}",
             ep_params=params,
         )
         return result
@@ -369,7 +369,7 @@ class UserCommunication(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/User-Communications/operation/Get%20Specific%20Crowd%20Feedback
         """
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/feedback/{feedback_id}",
+            f"/cloud/json/feedback/{feedback_id}",
         )
         return result
 
@@ -394,7 +394,7 @@ class UserCommunication(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/User-Communications/operation/Vote%20for%20Feedback
         """
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/feedback/{feedback_id}/{rank}",
+            f"/cloud/json/feedback/{feedback_id}/{rank}",
         )
         return result
 
@@ -428,7 +428,7 @@ class UserCommunication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/support",
+            "/cloud/json/support",
             ep_json=support_data,
             ep_params=params,
         )
@@ -484,7 +484,7 @@ class UserCommunication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/questions",
+            "/cloud/json/questions",
             ep_params=params,
         )
         return result
@@ -521,7 +521,7 @@ class UserCommunication(API):
         if check_if_valid:
             headers = {"Content-Type": "application/json"}
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/questions",
+            "/cloud/json/questions",
             ep_json=answers,
             ep_params=params,
             ep_headers=headers,
@@ -559,7 +559,7 @@ class UserCommunication(API):
         if analytic_key:
             headers = self.adapter._get_headers(analytic_key, APIKeyType.ANALYTIC)
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/messageTopics",
+            "/cloud/json/messageTopics",
             ep_params=params,
             ep_headers=headers,
         )
@@ -596,7 +596,7 @@ class UserCommunication(API):
         if analytic_key:
             headers = self.adapter._get_headers(analytic_key, APIKeyType.ANALYTIC)
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/messages",
+            "/cloud/json/messages",
             ep_json=messages,
             ep_params=params,
             ep_headers=headers,
@@ -618,7 +618,7 @@ class UserCommunication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/messages",
+            "/cloud/json/messages",
             ep_json=messages,
             ep_params=params,
         )
@@ -665,7 +665,7 @@ class UserCommunication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/messages",
+            "/cloud/json/messages",
             ep_params=params,
         )
         return result
@@ -698,7 +698,7 @@ class UserCommunication(API):
             "readStatus": read_status,
         }
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/messageRead",
+            "/cloud/json/messageRead",
             ep_params=params,
         )
         return result
@@ -741,7 +741,7 @@ class UserCommunication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/surveyAnswers",
+            "/cloud/json/surveyAnswers",
             ep_params=params,
         )
         return result
@@ -807,7 +807,7 @@ class UserCommunication(API):
         if notification_model is not None:
             body["notificationModel"] = notification_model
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/surveyAnswers",
+            "/cloud/json/surveyAnswers",
             ep_params=params,
             ep_json=body if body else None,
         )
@@ -841,7 +841,7 @@ class UserCommunication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/surveyQuestions",
+            "/cloud/json/surveyQuestions",
             ep_params=params,
         )
         return result
@@ -885,7 +885,7 @@ class UserCommunication(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/surveyQuestions",
+            "/cloud/json/surveyQuestions",
             ep_json=questions,
             ep_params=params if params else None,
         )

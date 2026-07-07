@@ -75,7 +75,7 @@ class Devices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.post(
-            f"/espapi/cloud/json/devices/{device_id}",
+            f"/cloud/json/devices/{device_id}",
             ep_params=params,
         )
         return result
@@ -116,7 +116,7 @@ class Devices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/devices",
+            "/cloud/json/devices",
             ep_params=params,
         )
         return result
@@ -148,7 +148,7 @@ class Devices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.delete(
-            "/espapi/cloud/json/devices",
+            "/cloud/json/devices",
             ep_params=params,
         )
         return result
@@ -180,7 +180,7 @@ class Devices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/devices/{device_id}",
+            f"/cloud/json/devices/{device_id}",
             ep_params=params,
         )
         return result
@@ -207,7 +207,7 @@ class Devices(API):
             "locationId": location_id,
         }
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/devices/{device_id}/services",
+            f"/cloud/json/devices/{device_id}/services",
             ep_params=params,
         )
         return result
@@ -246,7 +246,7 @@ class Devices(API):
         if spaces is not None:
             body = {"spaces": spaces}
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/devices/{device_id}",
+            f"/cloud/json/devices/{device_id}",
             ep_params=params,
             ep_json=json.dumps(body) if body else None,
         )
@@ -278,7 +278,7 @@ class Devices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/devices/{device_id}",
+            f"/cloud/json/devices/{device_id}",
             ep_params=params,
         )
         return result
@@ -305,7 +305,7 @@ class Devices(API):
             "locationId": location_id,
         }
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/devices/{device_id}/simCard",
+            f"/cloud/json/devices/{device_id}/simCard",
             ep_params=params,
         )
         return result
@@ -335,7 +335,7 @@ class Devices(API):
             "newDeviceId": new_device_id,
         }
         result: Result = self.adapter.post(
-            f"/espapi/cloud/json/devices/{device_id}/simulator",
+            f"/cloud/json/devices/{device_id}/simulator",
             ep_params=params,
         )
         return result
@@ -363,7 +363,7 @@ class Devices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/devices/{device_id}/activation",
+            f"/cloud/json/devices/{device_id}/activation",
             ep_params=params,
         )
         return result
@@ -397,7 +397,7 @@ class Devices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/devices/{device_id}/properties",
+            f"/cloud/json/devices/{device_id}/properties",
             ep_params=params,
         )
         return result
@@ -427,7 +427,7 @@ class Devices(API):
         }
         body = {"properties": properties}
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/devices/{device_id}/properties",
+            f"/cloud/json/devices/{device_id}/properties",
             ep_params=params,
             ep_json=json.dumps(body),
         )
@@ -462,7 +462,7 @@ class Devices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/devices/{device_id}/properties",
+            f"/cloud/json/devices/{device_id}/properties",
             ep_params=params,
         )
         return result
@@ -492,7 +492,7 @@ class Devices(API):
             "spaceId": space_id,
         }
         result: Result = self.adapter.post(
-            f"/espapi/cloud/json/devices/{device_id}/spaces",
+            f"/cloud/json/devices/{device_id}/spaces",
             ep_params=params,
         )
         return result
@@ -522,7 +522,7 @@ class Devices(API):
             "spaceId": space_id,
         }
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/devices/{device_id}/spaces",
+            f"/cloud/json/devices/{device_id}/spaces",
             ep_params=params,
         )
         return result
@@ -549,7 +549,7 @@ class Devices(API):
             "locationId": location_id,
         }
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/devices/{device_id}/firmware",
+            f"/cloud/json/devices/{device_id}/firmware",
             ep_params=params,
         )
         return result
@@ -583,7 +583,7 @@ class Devices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/devices/{device_id}/firmware",
+            f"/cloud/json/devices/{device_id}/firmware",
             ep_params=params,
         )
         return result
@@ -630,7 +630,7 @@ class Devices(API):
         if user_id is not None:
             params["userId"] = user_id
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/fwupdate",
+            "/cloud/json/fwupdate",
             ep_params=params if params else None,
         )
         return result
@@ -673,7 +673,7 @@ class Devices(API):
         if user_id is not None:
             params["userId"] = user_id
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/fwupdate",
+            "/cloud/json/fwupdate",
             ep_params=params,
         )
         return result
@@ -707,7 +707,7 @@ class Devices(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/devices/{device_id}/logs",
+            f"/cloud/json/devices/{device_id}/logs",
             ep_params=params,
         )
         return result
@@ -746,7 +746,7 @@ class Devices(API):
         if end_date is not None:
             params["endDate"] = end_date
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/deviceLogs",
+            "/cloud/json/deviceLogs",
             ep_params=params,
         )
         return result
@@ -779,7 +779,7 @@ class Devices(API):
             "logDate": log_date,
         }
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/deviceLogContent",
+            "/cloud/json/deviceLogContent",
             ep_params=params,
         )
         return result
@@ -803,7 +803,7 @@ class Devices(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Devices/operation/Get%20pre-registered%20device
         """
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/preregistered/{device_id}",
+            f"/cloud/json/preregistered/{device_id}",
         )
         return result
 
@@ -832,7 +832,7 @@ class Devices(API):
             "logId": log_id,
         }
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/devices/{device_id}/logContent",
+            f"/cloud/json/devices/{device_id}/logContent",
             ep_params=params,
         )
         return result
@@ -862,7 +862,7 @@ class Devices(API):
         }
         body = {"sensitivityMap": sensitivity_map}
         result: Result = self.adapter.post(
-            f"/espapi/cloud/json/devices/{device_id}/sensitivityMap",
+            f"/cloud/json/devices/{device_id}/sensitivityMap",
             ep_params=params,
             ep_json=json.dumps(body),
         )
@@ -890,7 +890,7 @@ class Devices(API):
             "locationId": location_id,
         }
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/devices/{device_id}/sensitivityMap",
+            f"/cloud/json/devices/{device_id}/sensitivityMap",
             ep_params=params,
         )
         return result
@@ -933,7 +933,7 @@ class Devices(API):
         if voip_port is not None:
             body["port"] = voip_port
         result: Result = self.adapter.post(
-            f"/espapi/cloud/json/devices/{device_id}/voip",
+            f"/cloud/json/devices/{device_id}/voip",
             ep_params=params,
             ep_json=json.dumps(body),
         )
@@ -961,7 +961,7 @@ class Devices(API):
             "locationId": location_id,
         }
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/devices/{device_id}/voip",
+            f"/cloud/json/devices/{device_id}/voip",
             ep_params=params,
         )
         return result
@@ -997,7 +997,7 @@ class Devices(API):
         if call_type is not None:
             body["type"] = call_type
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/devices/{device_id}/voipCall",
+            f"/cloud/json/devices/{device_id}/voipCall",
             ep_params=params,
             ep_json=json.dumps(body),
         )
@@ -1025,7 +1025,7 @@ class Devices(API):
             "locationId": location_id,
         }
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/devices/{device_id}/voipCall",
+            f"/cloud/json/devices/{device_id}/voipCall",
             ep_params=params,
         )
         return result
@@ -1064,7 +1064,7 @@ class Devices(API):
         if start_date is not None:
             params["startDate"] = start_date
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/devices",
+            "/cloud/json/devices",
             ep_params=params if params else None,
             ep_json=device_data,
         )
@@ -1097,7 +1097,7 @@ class Devices(API):
             "postId": location_id,  # Note: API spec shows postId but should be locationId
         }
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/locations/{location_id}/devices/{device_id}",
+            f"/cloud/json/locations/{location_id}/devices/{device_id}",
             ep_json=device_data,
         )
         return result
@@ -1121,7 +1121,7 @@ class Devices(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Devices/operation/Delete%20Device
         """
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/locations/{location_id}/devices/{device_id}",
+            f"/cloud/json/locations/{location_id}/devices/{device_id}",
         )
         return result
 
@@ -1148,7 +1148,7 @@ class Devices(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Devices/operation/Activate%20Sim%20Card
         """
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/locations/{location_id}/devices/{device_id}/simCard",
+            f"/cloud/json/locations/{location_id}/devices/{device_id}/simCard",
             ep_json=sim_card_data,
         )
         return result
@@ -1180,7 +1180,7 @@ class Devices(API):
         if simulated_location_id is not None:
             params["simulatedLocationId"] = simulated_location_id
         result: Result = self.adapter.post(
-            f"/espapi/cloud/json/locations/{location_id}/devices/{device_id}/copySimulator",
+            f"/cloud/json/locations/{location_id}/devices/{device_id}/copySimulator",
             ep_params=params if params else None,
         )
         return result
@@ -1208,7 +1208,7 @@ class Devices(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Devices/operation/Link%20Device%20Space
         """
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/locations/{location_id}/devices/{device_id}/spaces/{space_id}",
+            f"/cloud/json/locations/{location_id}/devices/{device_id}/spaces/{space_id}",
         )
         return result
 
@@ -1235,7 +1235,7 @@ class Devices(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Devices/operation/Unlink%20Device%20Space
         """
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/locations/{location_id}/devices/{device_id}/spaces/{space_id}",
+            f"/cloud/json/locations/{location_id}/devices/{device_id}/spaces/{space_id}",
         )
         return result
 
@@ -1260,7 +1260,7 @@ class Devices(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Devices/operation/Get%20Device%20Activation
         """
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/locations/{location_id}/deviceActivation/{device_type}",
+            f"/cloud/json/locations/{location_id}/deviceActivation/{device_type}",
         )
         return result
 
@@ -1291,7 +1291,7 @@ class Devices(API):
             "properties": properties,
         }
         result: Result = self.adapter.post(
-            f"/espapi/cloud/json/devices/{device_id}/properties",
+            f"/cloud/json/devices/{device_id}/properties",
             ep_json=data,
         )
         return result

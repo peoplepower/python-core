@@ -52,7 +52,7 @@ class EnergyManagement(API):
             "endDate": end_date,
         }
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/locations/{location_id}/energyUsage/{aggregation}/{start_date}",
+            f"/cloud/json/locations/{location_id}/energyUsage/{aggregation}/{start_date}",
             ep_params=params,
         )
         return result
@@ -85,7 +85,7 @@ class EnergyManagement(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/devices/{device_id}/currentEnergyUsage",
+            f"/cloud/json/devices/{device_id}/currentEnergyUsage",
             ep_params=params,
         )
         return result
@@ -135,7 +135,7 @@ class EnergyManagement(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/devices/{device_id}/energyUsage/{aggregation}/{start_date}",
+            f"/cloud/json/devices/{device_id}/energyUsage/{aggregation}/{start_date}",
             ep_params=params,
         )
         return result
@@ -161,7 +161,7 @@ class EnergyManagement(API):
         # The billing endpoint might be part of location settings
         # For now, using a reasonable endpoint structure
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/locations/{location_id}/billing",
+            f"/cloud/json/locations/{location_id}/billing",
         )
         return result
 
@@ -186,7 +186,7 @@ class EnergyManagement(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html
         """
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/locations/{location_id}/billing",
+            f"/cloud/json/locations/{location_id}/billing",
             ep_json=billing_data,
         )
         return result

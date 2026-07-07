@@ -159,7 +159,7 @@ class TestPaidServices(unittest.TestCase):
             upgrade=True
         )
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/userServicePlanTransactions/10')
+        self.assertEqual(args[0], '/cloud/json/userServicePlanTransactions/10')
         self.assertEqual(kwargs['ep_params']['upgrade'], True)
 
     def test_get_transactions_without_user_service_plan_id(self):
@@ -170,7 +170,7 @@ class TestPaidServices(unittest.TestCase):
             end_date_ms=2000
         )
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/userServicePlanTransactions')
+        self.assertEqual(args[0], '/cloud/json/userServicePlanTransactions')
 
     def test_assign_services_to_location(self):
         assignment_data = {'locations': [{'locationId': 123}]}
@@ -178,7 +178,7 @@ class TestPaidServices(unittest.TestCase):
         result = self.ps.assign_services_to_location(assignment_data=assignment_data)
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/locationServicePlans/assign')
+        self.assertEqual(args[0], '/cloud/json/locationServicePlans/assign')
         self.assertEqual(kwargs['ep_json'], assignment_data)
         self.assertEqual(result, {'assigned': True})
 
@@ -205,7 +205,7 @@ class TestPaidServices(unittest.TestCase):
         )
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/userServicePlans/10')
+        self.assertEqual(args[0], '/cloud/json/userServicePlans/10')
         self.assertEqual(kwargs['ep_json'], assignment_data)
         self.assertEqual(result, {'assigned': True})
 
@@ -229,7 +229,7 @@ class TestPaidServices(unittest.TestCase):
         result = self.ps.cancel_user_service_plan(service_plan_id=10)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/userServicePlans/10')
+        self.assertEqual(args[0], '/cloud/json/userServicePlans/10')
         self.assertEqual(result, {'cancelled': True})
 
     def test_cancel_user_service_plan_with_params(self):
@@ -248,7 +248,7 @@ class TestPaidServices(unittest.TestCase):
         result = self.ps.get_market_products()
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/marketProducts')
+        self.assertEqual(args[0], '/cloud/json/marketProducts')
         self.assertEqual(result, {'products': []})
 
     def test_get_market_products_with_filters(self):
@@ -268,7 +268,7 @@ class TestPaidServices(unittest.TestCase):
         result = self.ps.get_chargify_token()
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/chargifyToken')
+        self.assertEqual(args[0], '/cloud/json/chargifyToken')
         self.assertEqual(result, {'token': 'test_token'})
 
     def test_get_chargify_token_with_params(self):

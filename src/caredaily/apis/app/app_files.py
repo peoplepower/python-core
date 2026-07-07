@@ -67,7 +67,7 @@ class AppFiles(API):
         params = {k: v for k, v in params.items() if v is not None}
         headers = {"Content-Type": content_type} if file_content else None
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/appfiles",
+            "/cloud/json/appfiles",
             ep_params=params,
             ep_data=file_content if file_content else None,
             ep_headers=headers,
@@ -112,7 +112,7 @@ class AppFiles(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/appfiles",
+            "/cloud/json/appfiles",
             ep_params=params,
         )
         return result
@@ -148,7 +148,7 @@ class AppFiles(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/appfiles/{file_id}",
+            f"/cloud/json/appfiles/{file_id}",
             ep_params=params,
         )
         return result
@@ -179,7 +179,7 @@ class AppFiles(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/appfiles/{file_id}",
+            f"/cloud/json/appfiles/{file_id}",
             ep_params=params,
         )
         return result
@@ -203,6 +203,6 @@ class AppFiles(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Application-Files/operation/Get%20App%20File%20URL
         """
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/appfiles/{file_id}/url",
+            f"/cloud/json/appfiles/{file_id}/url",
         )
         return result

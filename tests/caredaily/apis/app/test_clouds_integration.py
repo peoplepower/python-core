@@ -380,7 +380,7 @@ class TestCloudsIntegration(unittest.TestCase):
             location_id=location_id
         )
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/authClient')
+        self.assertEqual(args[0], '/cloud/json/authClient')
         self.assertEqual(kwargs['ep_params']['clientId'], client_id)
         self.assertEqual(kwargs['ep_params']['locationId'], location_id)
         self.assertEqual(kwargs['ep_json'], client_data)
@@ -392,7 +392,7 @@ class TestCloudsIntegration(unittest.TestCase):
         self.mock_adapter.post.return_value = 'create-oauth-result'
         result = self.ci.create_oauth_client(client_data=client_data)
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/authClient')
+        self.assertEqual(args[0], '/cloud/json/authClient')
         self.assertEqual(kwargs['ep_params'], None)
         self.assertEqual(kwargs['ep_json'], client_data)
         self.assertEqual(result, 'create-oauth-result')
@@ -420,7 +420,7 @@ class TestCloudsIntegration(unittest.TestCase):
             location_id=location_id
         )
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], f'/espapi/cloud/json/authorizations/{cloud_id}')
+        self.assertEqual(args[0], f'/cloud/json/authorizations/{cloud_id}')
         self.assertEqual(kwargs['ep_params']['locationId'], location_id)
         self.assertEqual(result, 'revoke-access-result')
 
@@ -436,7 +436,7 @@ class TestCloudsIntegration(unittest.TestCase):
             location_id=location_id
         )
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/authClient')
+        self.assertEqual(args[0], '/cloud/json/authClient')
         self.assertEqual(kwargs['ep_params']['clientId'], client_id)
         self.assertEqual(kwargs['ep_params']['userId'], user_id)
         self.assertEqual(kwargs['ep_params']['locationId'], location_id)
@@ -447,7 +447,7 @@ class TestCloudsIntegration(unittest.TestCase):
         result = self.ci.get_commissioning_config(application_id=10)
         self.mock_adapter.get.assert_called_once()
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/commissioningConfig')
+        self.assertEqual(args[0], '/cloud/json/commissioningConfig')
         self.assertEqual(kwargs['ep_params']['applicationId'], 10)
         self.assertEqual(result, 'commissioning-config-result')
 
@@ -461,7 +461,7 @@ class TestCloudsIntegration(unittest.TestCase):
         )
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/commissioning')
+        self.assertEqual(args[0], '/cloud/json/commissioning')
         self.assertEqual(kwargs['ep_params']['locationId'], 123)
         self.assertEqual(kwargs['ep_params']['applicationId'], 10)
         self.assertEqual(kwargs['ep_params']['authId'], 5)
@@ -480,6 +480,6 @@ class TestCloudsIntegration(unittest.TestCase):
         result = self.ci.discover_devices(auth_id=5, location_id=123)
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/authorizations/5/discover')
+        self.assertEqual(args[0], '/cloud/json/authorizations/5/discover')
         self.assertEqual(kwargs['ep_params']['locationId'], 123)
         self.assertEqual(result, 'discover-result')

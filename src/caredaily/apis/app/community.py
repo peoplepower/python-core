@@ -52,7 +52,7 @@ class Community(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/communityPosts",
+            "/cloud/json/communityPosts",
             ep_params=params,
         )
         return result
@@ -90,7 +90,7 @@ class Community(API):
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/communityPosts",
+            "/cloud/json/communityPosts",
             ep_params=params,
             ep_json=post_data if post_data else None,
         )
@@ -115,7 +115,7 @@ class Community(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Community/operation/Update%20Post
         """
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/communityPosts/{post_id}",
+            f"/cloud/json/communityPosts/{post_id}",
             ep_json=post_data if post_data else None,
         )
         return result
@@ -139,7 +139,7 @@ class Community(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Community/operation/Update%20Community%20Posts
         """
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/communityPosts",
+            "/cloud/json/communityPosts",
             ep_json=posts_data if posts_data else None,
         )
         return result
@@ -166,7 +166,7 @@ class Community(API):
         if post_ids is not None:
             params["postId"] = post_ids
         result: Result = self.adapter.delete(
-            "/espapi/cloud/json/communityPosts",
+            "/cloud/json/communityPosts",
             ep_params=params if params else None,
         )
         return result
@@ -188,7 +188,7 @@ class Community(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Community/operation/Delete%20Post
         """
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/communityPosts/{post_id}",
+            f"/cloud/json/communityPosts/{post_id}",
         )
         return result
 
@@ -209,7 +209,7 @@ class Community(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Community/operation/Create%20Comment
         """
         result: Result = self.adapter.post(
-            "/espapi/cloud/json/communityPostComments",
+            "/cloud/json/communityPostComments",
             ep_json=comment_data,
         )
         return result
@@ -234,7 +234,7 @@ class Community(API):
             "commentId": comment_id,
         }
         result: Result = self.adapter.delete(
-            "/espapi/cloud/json/communityPostComments",
+            "/cloud/json/communityPostComments",
             ep_params=params,
         )
         return result
@@ -256,7 +256,7 @@ class Community(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Community/operation/Update%20Reaction
         """
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/communityPostReaction",
+            "/cloud/json/communityPostReaction",
             ep_json=reaction_data,
         )
         return result
@@ -278,7 +278,7 @@ class Community(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Community/operation/Get%20Post%20Files
         """
         result: Result = self.adapter.get(
-            f"/espapi/cloud/json/communityPosts/{post_id}/files",
+            f"/cloud/json/communityPosts/{post_id}/files",
         )
         return result
 
@@ -320,7 +320,7 @@ class Community(API):
         if thumbnail_content_type is not None:
             params["thumbnailContentType"] = thumbnail_content_type
         result: Result = self.adapter.post(
-            f"/espapi/cloud/json/communityPosts/{post_id}/files",
+            f"/cloud/json/communityPosts/{post_id}/files",
             ep_params=params,
             ep_json=file_data,
         )
@@ -350,7 +350,7 @@ class Community(API):
             "fileId": file_id,
         }
         result: Result = self.adapter.put(
-            f"/espapi/cloud/json/communityPosts/{post_id}/files",
+            f"/cloud/json/communityPosts/{post_id}/files",
             ep_params=params,
             ep_json=file_data,
         )
@@ -378,7 +378,7 @@ class Community(API):
             "fileId": file_id,
         }
         result: Result = self.adapter.delete(
-            f"/espapi/cloud/json/communityPosts/{post_id}/files",
+            f"/cloud/json/communityPosts/{post_id}/files",
             ep_params=params,
         )
         return result

@@ -61,7 +61,7 @@ class TestCommunity(unittest.TestCase):
         self.mock_adapter.post.return_value = 'comment-result'
         result = self.community.create_community_post_comment(comment_data=comment_data)
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/communityPostComments')
+        self.assertEqual(args[0], '/cloud/json/communityPostComments')
         self.assertEqual(kwargs['ep_json'], comment_data)
         self.assertEqual(result, 'comment-result')
 
@@ -80,7 +80,7 @@ class TestCommunity(unittest.TestCase):
         self.mock_adapter.delete.return_value = 'delete-comment-result'
         result = self.community.delete_community_post_comment(comment_id=comment_id)
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/communityPostComments')
+        self.assertEqual(args[0], '/cloud/json/communityPostComments')
         self.assertEqual(kwargs['ep_params']['commentId'], comment_id)
         self.assertEqual(result, 'delete-comment-result')
 
@@ -90,7 +90,7 @@ class TestCommunity(unittest.TestCase):
         self.mock_adapter.put.return_value = 'reaction-result'
         result = self.community.update_community_post_reaction(reaction_data=reaction_data)
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/communityPostReaction')
+        self.assertEqual(args[0], '/cloud/json/communityPostReaction')
         self.assertEqual(kwargs['ep_json'], reaction_data)
         self.assertEqual(result, 'reaction-result')
 
@@ -109,7 +109,7 @@ class TestCommunity(unittest.TestCase):
         self.mock_adapter.get.return_value = 'files-result'
         result = self.community.get_community_post_files(post_id=post_id)
         args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], f'/espapi/cloud/json/communityPosts/{post_id}/files')
+        self.assertEqual(args[0], f'/cloud/json/communityPosts/{post_id}/files')
         self.assertEqual(result, 'files-result')
 
     def test_upload_community_post_file(self):
@@ -126,7 +126,7 @@ class TestCommunity(unittest.TestCase):
             file_data=file_data
         )
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(args[0], f'/espapi/cloud/json/communityPosts/{post_id}/files')
+        self.assertEqual(args[0], f'/cloud/json/communityPosts/{post_id}/files')
         self.assertEqual(kwargs['ep_params']['type'], file_type)
         self.assertEqual(kwargs['ep_params']['contentType'], content_type)
         self.assertEqual(kwargs['ep_json'], file_data)
@@ -166,7 +166,7 @@ class TestCommunity(unittest.TestCase):
             file_data=file_data
         )
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], f'/espapi/cloud/json/communityPosts/{post_id}/files')
+        self.assertEqual(args[0], f'/cloud/json/communityPosts/{post_id}/files')
         self.assertEqual(kwargs['ep_params']['fileId'], file_id)
         self.assertEqual(kwargs['ep_json'], file_data)
         self.assertEqual(result, 'file-update-result')
@@ -178,7 +178,7 @@ class TestCommunity(unittest.TestCase):
         self.mock_adapter.delete.return_value = 'delete-file-result'
         result = self.community.delete_community_post_file(post_id=post_id, file_id=file_id)
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], f'/espapi/cloud/json/communityPosts/{post_id}/files')
+        self.assertEqual(args[0], f'/cloud/json/communityPosts/{post_id}/files')
         self.assertEqual(kwargs['ep_params']['fileId'], file_id)
         self.assertEqual(result, 'delete-file-result')
 
@@ -192,7 +192,7 @@ class TestCommunity(unittest.TestCase):
         result = self.community.put_community_posts(posts_data=posts_data)
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/communityPosts')
+        self.assertEqual(args[0], '/cloud/json/communityPosts')
         self.assertEqual(kwargs['ep_json'], posts_data)
         self.assertEqual(result, {'resultCode': 0})
 
@@ -206,7 +206,7 @@ class TestCommunity(unittest.TestCase):
         result = self.community.delete_community_posts(post_ids=post_ids)
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/espapi/cloud/json/communityPosts')
+        self.assertEqual(args[0], '/cloud/json/communityPosts')
         self.assertEqual(kwargs['ep_params']['postId'], post_ids)
         self.assertEqual(result, {'resultCode': 0})
 
