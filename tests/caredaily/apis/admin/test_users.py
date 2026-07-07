@@ -38,6 +38,14 @@ class TestUsers(unittest.TestCase):
         self.assertEqual(kwargs['ep_params'], {})
         self.assertEqual(result, 'users-result')
 
+    def test_get_users_by_user_id(self):
+        self.mock_adapter.get.return_value = 'users-result'
+        result = self.users.get_users(organization_id=1, user_id=42)
+        args, kwargs = self.mock_adapter.get.call_args
+        self.assertEqual(args[0], '/espapi/admin/json/users')
+        self.assertEqual(kwargs['ep_params']['userId'], 42)
+        self.assertEqual(result, 'users-result')
+
     def test_get_roles(self):
         self.mock_adapter.get.return_value = 'roles-result'
         result = self.users.get_roles()

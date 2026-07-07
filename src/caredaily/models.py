@@ -37,7 +37,7 @@ class ResultCode(Enum):
     INVALID_CREDENTIALS = 12
     # Error in parsing of input data
     PARSING_ERROR = 14
-    # Missing required paid service for this operation
+    # Missing required paid service for this operation (removed from the API spec in v61)
     MISSING_REQUIRED_SERVICE = 15
     # User account is locked out
     ACCOUNT_LOCKED = 16
@@ -77,7 +77,7 @@ class ResultCode(Enum):
     CANNOT_MODIFY_EXTERNAL_RESOURCE = 34
     # Wrong phone number
     WRONG_PHONE_NUMBER = 35
-    # Operation canceled
+    # Operation canceled (removed from the API spec in v61)
     OPERATION_CANCELED = 36
     # Cannot authorize user on external resource or cloud
     CANNOT_AUTHORIZE_EXTERNAL = 37
@@ -97,6 +97,8 @@ class ResultCode(Enum):
     CHANNEL_NOT_AUTHENTICATED = 45
     # The password is not strong enough
     WEAK_PASSWORD = 46
+    # Bot compilation error
+    BOT_COMPILATION_ERROR = 47
 
 
 class Result(BaseModel):
@@ -158,6 +160,7 @@ class ServerType(Enum):
     # MQTT
     MQTT = "mqtt"
     # streaming API
+    # Deprecated: the streaming server type was removed from the API spec in v61
     STREAMING = "streaming"
     # web UI app
     WEBAPP = "webapp"

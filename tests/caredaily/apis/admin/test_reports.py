@@ -253,3 +253,50 @@ class TestReports(unittest.TestCase):
         args, kwargs = self.mock_adapter.delete.call_args
         self.assertEqual(args[0], "/espapi/reports/123/collections/1")
         self.assertEqual(result, {'resultCode': 0})
+
+    def test_generate_report_with_collection(self):
+        self.mock_adapter.get.return_value = {'resultCode': 0}
+        result = self.reports.generate_report(
+            report_id=5,
+            delivery_type=3,
+            collection_id=7,
+            execution_date=1750000000000,
+        )
+        args, kwargs = self.mock_adapter.get.call_args
+        self.assertEqual(args[0], '/espapi/reports/generate')
+        self.assertEqual(kwargs['ep_params']['collectionId'], 7)
+        self.assertEqual(kwargs['ep_params']['executionDate'], 1750000000000)
+        self.assertEqual(result, {'resultCode': 0})
+
+    def test_get_report_executions_collection_mode(self):
+        self.mock_adapter.get.return_value = {'executions': []}
+        result = self.reports.get_report_executions(
+            collection_id=7,
+            organization_id=123,
+            start_date='2026-01-01',
+            end_date='2026-02-01',
+        )
+        args, kwargs = self.mock_adapter.get.call_args
+        self.assertEqual(args[0], '/espapi/reports/data')
+        self.assertEqual(kwargs['ep_params']['collectionId'], 7)
+        self.assertEqual(kwargs['ep_params']['organizationId'], 123)
+        self.assertNotIn('reportId', kwargs['ep_params'])
+        self.assertEqual(result, {'executions': []})
+
+    def test_delete_report_executions(self):
+        self.mock_adapter.delete.return_value = {'resultCode': 0}
+        result = self.reports.delete_report_executions(
+            collection_id=7,
+            organization_id=123,
+            execution_date='2026-01-15',
+            report_id=5,
+        )
+        self.mock_adapter.delete.assert_called_once()
+        args, kwargs = self.mock_adapter.delete.call_args
+        self.assertEqual(args[0], '/espapi/reports/data')
+        self.assertEqual(kwargs['ep_params']['collectionId'], 7)
+        self.assertEqual(kwargs['ep_params']['organizationId'], 123)
+        self.assertEqual(kwargs['ep_params']['executionDate'], '2026-01-15')
+        self.assertEqual(kwargs['ep_params']['reportId'], 5)
+        self.assertNotIn('collectionReportId', kwargs['ep_params'])
+        self.assertEqual(result, {'resultCode': 0})

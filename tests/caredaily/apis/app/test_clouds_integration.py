@@ -441,3 +441,45 @@ class TestCloudsIntegration(unittest.TestCase):
         self.assertEqual(kwargs['ep_params']['userId'], user_id)
         self.assertEqual(kwargs['ep_params']['locationId'], location_id)
         self.assertEqual(result, 'revoke-oauth-result')
+
+    def test_get_commissioning_config(self):
+        self.mock_adapter.get.return_value = 'commissioning-config-result'
+        result = self.ci.get_commissioning_config(application_id=10)
+        self.mock_adapter.get.assert_called_once()
+        args, kwargs = self.mock_adapter.get.call_args
+        self.assertEqual(args[0], '/espapi/cloud/json/commissioningConfig')
+        self.assertEqual(kwargs['ep_params']['applicationId'], 10)
+        self.assertEqual(result, 'commissioning-config-result')
+
+    def test_start_commissioning_session(self):
+        self.mock_adapter.post.return_value = 'commissioning-session-result'
+        result = self.ci.start_commissioning_session(
+            location_id=123,
+            application_id=10,
+            auth_id=5,
+            params_data={'serial': 'ABC'},
+        )
+        self.mock_adapter.post.assert_called_once()
+        args, kwargs = self.mock_adapter.post.call_args
+        self.assertEqual(args[0], '/espapi/cloud/json/commissioning')
+        self.assertEqual(kwargs['ep_params']['locationId'], 123)
+        self.assertEqual(kwargs['ep_params']['applicationId'], 10)
+        self.assertEqual(kwargs['ep_params']['authId'], 5)
+        self.assertEqual(kwargs['ep_json'], {'params': {'serial': 'ABC'}})
+        self.assertEqual(result, 'commissioning-session-result')
+
+    def test_start_commissioning_session_minimal(self):
+        self.mock_adapter.post.return_value = 'commissioning-session-result'
+        self.ci.start_commissioning_session(location_id=123, application_id=10)
+        args, kwargs = self.mock_adapter.post.call_args
+        self.assertNotIn('authId', kwargs['ep_params'])
+        self.assertIsNone(kwargs['ep_json'])
+
+    def test_discover_devices(self):
+        self.mock_adapter.put.return_value = 'discover-result'
+        result = self.ci.discover_devices(auth_id=5, location_id=123)
+        self.mock_adapter.put.assert_called_once()
+        args, kwargs = self.mock_adapter.put.call_args
+        self.assertEqual(args[0], '/espapi/cloud/json/authorizations/5/discover')
+        self.assertEqual(kwargs['ep_params']['locationId'], 123)
+        self.assertEqual(result, 'discover-result')

@@ -196,3 +196,32 @@ class TestOrganizations(unittest.TestCase):
         args, kwargs = self.mock_adapter.post.call_args
         self.assertEqual(kwargs['ep_json'], notification_data)
         self.assertEqual(result, b'zip archive data')
+
+    def test_put_organization_secret(self):
+        self.mock_adapter.put.return_value = {'resultCode': 0}
+        result = self.org.put_organization_secret(
+            organization_id=123, secret_name='api-token', secret_value='s3cret'
+        )
+        self.mock_adapter.put.assert_called_once()
+        args, kwargs = self.mock_adapter.put.call_args
+        self.assertEqual(args[0], '/espapi/admin/json/organizations/123/secrets/api-token')
+        self.assertEqual(kwargs['ep_json'], {'secretValue': 's3cret'})
+        self.assertEqual(result, {'resultCode': 0})
+
+    def test_delete_organization_secret(self):
+        self.mock_adapter.delete.return_value = {'resultCode': 0}
+        result = self.org.delete_organization_secret(
+            organization_id=123, secret_name='api-token'
+        )
+        self.mock_adapter.delete.assert_called_once()
+        args, kwargs = self.mock_adapter.delete.call_args
+        self.assertEqual(args[0], '/espapi/admin/json/organizations/123/secrets/api-token')
+        self.assertEqual(result, {'resultCode': 0})
+
+    def test_get_organization_secret_names(self):
+        self.mock_adapter.get.return_value = {'resultCode': 0, 'secretNames': ['api-token']}
+        result = self.org.get_organization_secret_names(organization_id=123)
+        self.mock_adapter.get.assert_called_once()
+        args, kwargs = self.mock_adapter.get.call_args
+        self.assertEqual(args[0], '/espapi/admin/json/organizations/123/secrets')
+        self.assertEqual(result, {'resultCode': 0, 'secretNames': ['api-token']})

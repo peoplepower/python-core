@@ -272,12 +272,21 @@ class TestUserCommunication(unittest.TestCase):
         self.assertEqual(kwargs['ep_json'], support_data)
         self.assertEqual(result, {'ticketId': 1})
 
-    def test_support_with_app_name(self):
+    def test_support_with_brand(self):
+        support_data = {'firstName': 'Test', 'email': 'test@example.com'}
+        self.mock_adapter.post.return_value = {'ticketId': 1}
+        result = self.uc.support(support_data=support_data, brand='test_brand')
+        args, kwargs = self.mock_adapter.post.call_args
+        self.assertEqual(kwargs['ep_params']['brand'], 'test_brand')
+
+    def test_support_with_app_name_maps_to_brand(self):
+        # appName was renamed to brand in API v61; app_name is kept for compatibility
         support_data = {'firstName': 'Test', 'email': 'test@example.com'}
         self.mock_adapter.post.return_value = {'ticketId': 1}
         result = self.uc.support(support_data=support_data, app_name='test_app')
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(kwargs['ep_params']['appName'], 'test_app')
+        self.assertEqual(kwargs['ep_params']['brand'], 'test_app')
+        self.assertNotIn('appName', kwargs['ep_params'])
 
     def test_get_survey_questions(self):
         self.mock_adapter.get.return_value = {'survey': {}}

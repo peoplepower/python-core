@@ -17,6 +17,7 @@ from .apis import (
     AdminDevices,
     AdminLocations,
     AdminTags,
+    AI,
     Analytic,
     AppFiles,
     Authentication,
@@ -210,6 +211,8 @@ class CareDaily:
             return Community(self._config)
         if type == Websocket:
             return Websocket(self._config)
+        if type == AI:
+            return AI(self._config)
         return None
 
     # Admin APIs

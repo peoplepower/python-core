@@ -76,6 +76,8 @@ class CloudConnectivity(API):
         brand: str = None,
         appName: str = None,
     ):
+        # deviceId, connected and appName were removed from the API spec in v61
+        # (streaming server type removed); kept here for backward compatibility.
         params = {
             "crtTag": crtTag,
             "deviceId": deviceId,
@@ -98,6 +100,8 @@ class CloudConnectivity(API):
         brand: str = None,
         appName: str = None,
     ):
+        # deviceId, connected and appName were removed from the API spec in v61
+        # (streaming server type removed); kept here for backward compatibility.
         params = {
             "type": server_type.value,
             "deviceId": device_id,

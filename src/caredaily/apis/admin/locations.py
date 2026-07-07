@@ -223,6 +223,7 @@ class Locations(API):
         location_ids: List[int],
         notes: str = None,
         delete: bool = None,
+        start_date: str = None,
     ) -> Result:
         """
         Batch API to manage locations in an organization.
@@ -238,6 +239,8 @@ class Locations(API):
             location_ids: List of location IDs to add, update, or delete
             notes: Notes text to add/update
             delete: Set to True to remove locations from the organization
+            start_date: Date the locations joined the organization; must be between the
+                current organization start date and now
 
         Returns:
             Result: API response confirming operation
@@ -249,6 +252,7 @@ class Locations(API):
             "locationIds": location_ids,
             "notes": notes,
             "delete": delete,
+            "startDate": start_date,
         }
         data = {k: v for k, v in data.items() if v is not None}
         result: Result = self.adapter.put(

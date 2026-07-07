@@ -2,6 +2,7 @@
 # requires-python = ">=3.8"
 # ///
 
+from .ai import AI
 from .app_files import AppFiles
 from .authentication import Authentication
 from .cloud_connectivity import CloudConnectivity
@@ -24,6 +25,7 @@ from .weather import Weather
 from .websocket import Websocket
 
 __all__ = [
+    "AI",
     "AppFiles",
     "Authentication",
     "CloudConnectivity",

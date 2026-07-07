@@ -529,3 +529,34 @@ class TestAnalytic(unittest.TestCase):
         self.assertEqual(args[0], '/espapi/analytic/parameters')
         self.assertEqual(kwargs['ep_json']['devices'], devices)
         self.assertEqual(result, {'resultCode': 0, 'devices': []})
+
+    def test_upload_goicon_document(self):
+        self.mock_adapter.post.return_value = {'resultCode': 0}
+        result = self.analytic.upload_goicon_document(
+            file_content=b'%PDF-1.4',
+            description='Service plan document',
+            category='Service Plans',
+            timestamp='2026-01-01T00:00:00Z',
+            visible_to_residents=True,
+        )
+        self.mock_adapter.post.assert_called_once()
+        args, kwargs = self.mock_adapter.post.call_args
+        self.assertEqual(args[0], '/espapi/analytic/goicon/documents')
+        self.assertEqual(kwargs['ep_params']['description'], 'Service plan document')
+        self.assertEqual(kwargs['ep_params']['category'], 'Service Plans')
+        self.assertEqual(kwargs['ep_params']['timestamp'], '2026-01-01T00:00:00Z')
+        self.assertEqual(kwargs['ep_params']['visibleToResidents'], True)
+        self.assertEqual(kwargs['ep_data'], b'%PDF-1.4')
+        self.assertEqual(kwargs['ep_headers'], {'Content-Type': 'application/octet-stream'})
+        self.assertEqual(result, {'resultCode': 0})
+
+    def test_upload_goicon_document_minimal(self):
+        self.mock_adapter.post.return_value = {'resultCode': 0}
+        self.analytic.upload_goicon_document(
+            file_content=b'%PDF-1.4',
+            description='Doc',
+            category='Service Plans',
+        )
+        args, kwargs = self.mock_adapter.post.call_args
+        self.assertNotIn('timestamp', kwargs['ep_params'])
+        self.assertNotIn('visibleToResidents', kwargs['ep_params'])

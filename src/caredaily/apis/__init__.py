@@ -19,6 +19,7 @@ from .admin import (
 )
 from .api import API
 from .app import (
+    AI,
     AppFiles,
     Authentication,
     CloudConnectivity,
@@ -51,6 +52,7 @@ from .bot import (
 __all__ = [
     "API",
     # App APIs
+    "AI",
     "AppFiles",
     "Authentication",
     "CloudConnectivity",

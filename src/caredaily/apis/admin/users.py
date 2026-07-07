@@ -28,6 +28,7 @@ class Users(API):
         self,
         organization_id: int = None,
         location_id: int = None,
+        user_id: int = None,
         search_by: str = None,
         search_address: str = None,
         service_plan_id: int = None,
@@ -45,6 +46,7 @@ class Users(API):
         Args:
             organization_id: Organization ID to search within
             location_id: Search for a user at a specific location ID
+            user_id: Get a specific user by ID
             search_by: Searches for matching user login name, ID, email address, phone number, first name, last name. Use * for a wildcard
             search_address: Searches by location address fields: street, city, zip code
             service_plan_id: Filter users who have specific service plan
@@ -62,6 +64,7 @@ class Users(API):
         params = {
             "organizationId": organization_id,
             "locationId": location_id,
+            "userId": user_id,
             "searchBy": search_by,
             "searchAddress": search_address,
             "servicePlanId": service_plan_id,

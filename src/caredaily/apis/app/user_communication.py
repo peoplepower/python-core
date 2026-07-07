@@ -402,6 +402,7 @@ class UserCommunication(API):
         self,
         support_data: Dict,
         app_name: str = None,
+        brand: str = None,
     ) -> Result:
         """
         Request Support.
@@ -412,7 +413,9 @@ class UserCommunication(API):
         Args:
             support_data: Support request data including firstName, lastName, email, subject,
                          text, subscribe (required)
-            app_name: App name to forward the support request
+            app_name: Deprecated in API v61 — use brand instead; mapped to brand when brand
+                      is not provided
+            brand: Brand of support request templates
 
         Returns:
             Result: API response with ticket ID and brand information
@@ -421,7 +424,7 @@ class UserCommunication(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/User-Communications/operation/Request%20Support
         """
         params = {
-            "appName": app_name,
+            "brand": brand if brand is not None else app_name,
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.post(

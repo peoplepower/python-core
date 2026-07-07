@@ -143,3 +143,15 @@ class TestLocations(unittest.TestCase):
         args, kwargs = self.mock_adapter.put.call_args
         self.assertEqual(kwargs['ep_json']['delete'], True)
         self.assertNotIn('notes', kwargs['ep_json'])
+
+    def test_add_update_delete_organization_locations_start_date(self):
+        self.mock_adapter.put.return_value = {'status': 'ok'}
+        result = self.locations.add_update_delete_organization_locations(
+            organization_id=123,
+            location_ids=[1],
+            start_date='2026-01-01'
+        )
+        args, kwargs = self.mock_adapter.put.call_args
+        self.assertEqual(args[0], '/espapi/admin/json/organizations/123/locationStatus')
+        self.assertEqual(kwargs['ep_json']['startDate'], '2026-01-01')
+        self.assertEqual(result, {'status': 'ok'})

@@ -1175,6 +1175,49 @@ class Analytic(API):
         )
         return result
 
+    def upload_goicon_document(
+        self,
+        file_content: bytes,
+        description: str,
+        category: str,
+        timestamp: Optional[str] = None,
+        visible_to_residents: Optional[bool] = None,
+    ) -> Result:
+        """
+        Upload GoIcon Document.
+
+        Upload a PDF document to a GoIcon resident associated with the bot's location.
+        The system resolves the GoIcon resident from a cached GoIcon resident ID or,
+        if not found, from the MooringsPark external user ID.
+
+        Args:
+            file_content: PDF document content (binary data)
+            description: Document description
+            category: Document category (e.g., "Service Plans")
+            timestamp: Document timestamp, epoch milliseconds or ISO-8601 date-time
+            visible_to_residents: Whether the document is visible to residents in GoIcon
+
+        Returns:
+            Result: API response confirming upload
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/bots.html#tag/Bot-Server-APIs/operation/Upload%20GoIcon%20Document
+        """
+        params = {
+            "description": description,
+            "category": category,
+            "timestamp": timestamp,
+            "visibleToResidents": visible_to_residents,
+        }
+        params = {k: v for k, v in params.items() if v is not None}
+        result: Result = self.adapter.post(
+            "/espapi/analytic/goicon/documents",
+            ep_params=params,
+            ep_data=file_content,
+            ep_headers={"Content-Type": "application/octet-stream"},
+        )
+        return result
+
     def send_voice_call(
         self,
         voice_call_data: Dict,

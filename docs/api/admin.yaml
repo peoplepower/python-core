@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: 'IoT Software Suite: Admin API'
-  version: '59'
+  version: '61'
   description: |-
     Care Daily offers a full Command Center to engage your customers and manage IoT services, and access to social engagement layers.
 
@@ -746,6 +746,124 @@ paths:
                 resultCode: 0
 
 
+  /admin/json/organizations/{organizationId}/secrets/{secretName}:
+    put:
+      summary: Put an Organization Secret
+      operationId: Put Organization Secret
+      description: >-
+        Create or update an organization named secret value.
+        The value will be stored encrypted.
+      tags:
+        - Organizations
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+        - name: secretName
+          in: path
+          required: true
+          description: Secret value name, maximum 50 characters.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            example:
+              secretValue: ABC123
+            schema:
+              type: object
+              properties:
+                secretValue:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+              example:
+                resultCode: 0
+
+    delete:
+      summary: Delete an Organization Secret
+      operationId: Delete Organization Secret
+      description: Delete an existing secret value.
+      tags:
+        - Organizations
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+        - name: secretName
+          in: path
+          required: true
+          description: Secret value name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+              example:
+                resultCode: 0
+
+  /admin/json/organizations/{organizationId}/secrets:
+    get:
+      summary: Get Organization Secret Names
+      operationId: Get Organization Secret Names
+      description: List all existing secret names
+      tags:
+        - Organizations
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Secret names
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  secretNames:
+                    type: array
+                    items:
+                      type: string
+              example:
+                resultCode: 0
+                secretNames:
+                  - 'ABC123'
+                  - 'DEF456'
+
+
   /admin/json/organizations/{organizationId}/notifications:
     post:
       summary: Test Organization Notifications
@@ -964,6 +1082,14 @@ paths:
                           type: string
                         lastName:
                           type: string
+                        creationDate:
+                          type: string
+                        creationDateMs:
+                          tile: integer
+                        lastLoginDate:
+                          type: string
+                        lastLoginDateMs:
+                          tile: integer
                         email:
                           type: object
                           properties:
@@ -1094,6 +1220,11 @@ paths:
         - name: organizationId
           in: query
           description: Organization ID to search within.
+          schema:
+            type: integer
+        - name: userId
+          in: query
+          description: Get a user by a specific user ID.
           schema:
             type: integer
         - name: locationId
@@ -1535,7 +1666,6 @@ paths:
               location:
                 name: Factory
                 type: 10
-                utilityAccountNo: '1234567'
                 timezone:
                   id: US/Pacific
                 addrStreet1: 123 Prospect St, Apt. 456
@@ -1548,18 +1678,6 @@ paths:
                 zip: '12345'
                 latitude: '10.12345'
                 longitude: '10.12345'
-                size:
-                  unit: ft2
-                  content: 14000
-                storiesNumber: 2
-                roomsNumber: 5
-                bathroomsNumber: 2
-                occupantsNumber: 5
-                usagePeriod: 3
-                heatingType: 2
-                coolingType: 1
-                waterHeaterType: 2
-                thermostatType: 1
             schema:
               type: object
               properties:
@@ -1570,8 +1688,6 @@ paths:
                       type: string
                     type:
                       type: integer
-                    utilityAccountNo:
-                      type: string
                     timezone:
                       type: object
                       properties:
@@ -1599,31 +1715,6 @@ paths:
                       type: string
                     longitude:
                       type: string
-                    size:
-                      type: object
-                      properties:
-                        unit:
-                          type: string
-                        content:
-                          type: integer
-                    storiesNumber:
-                      type: integer
-                    roomsNumber:
-                      type: integer
-                    bathroomsNumber:
-                      type: integer
-                    occupantsNumber:
-                      type: integer
-                    usagePeriod:
-                      type: integer
-                    heatingType:
-                      type: integer
-                    coolingType:
-                      type: integer
-                    waterHeaterType:
-                      type: integer
-                    thermostatType:
-                      type: integer
       responses:
         '200':
           description: OK
@@ -1665,7 +1756,6 @@ paths:
               location:
                 name: My house
                 type: 10
-                utilityAccountNo: '1234567'
                 timezone:
                   id: US/Pacific
                 addrStreet1: 123 Prospect St, Apt. 456
@@ -1678,18 +1768,6 @@ paths:
                 zip: '12345'
                 latitude: '10.12345'
                 longitude: '10.12345'
-                size:
-                  unit: ft2
-                  content: 14000
-                storiesNumber: 2
-                roomsNumber: 5
-                bathroomsNumber: 2
-                occupantsNumber: 5
-                usagePeriod: 3
-                heatingType: 2
-                coolingType: 1
-                waterHeaterType: 2
-                thermostatType: 1
             schema:
               type: object
               properties:
@@ -1700,8 +1778,6 @@ paths:
                       type: string
                     type:
                       type: integer
-                    utilityAccountNo:
-                      type: string
                     timezone:
                       type: object
                       properties:
@@ -1729,31 +1805,6 @@ paths:
                       type: string
                     longitude:
                       type: string
-                    size:
-                      type: object
-                      properties:
-                        unit:
-                          type: string
-                        content:
-                          type: integer
-                    storiesNumber:
-                      type: integer
-                    roomsNumber:
-                      type: integer
-                    bathroomsNumber:
-                      type: integer
-                    occupantsNumber:
-                      type: integer
-                    usagePeriod:
-                      type: integer
-                    heatingType:
-                      type: integer
-                    coolingType:
-                      type: integer
-                    waterHeaterType:
-                      type: integer
-                    thermostatType:
-                      type: integer
       responses:
         '200':
           description: OK
@@ -1843,10 +1894,18 @@ paths:
                   type: array
                   items:
                     type: integer
+                  description: Location IDs to move to the organization
+                startDate:
+                  type: string
+                  description: Start date in the new organization. Must be between the current organization start time and the current time.
                 notes:
                   type: string
+                  description: Location notes
                 delete:
                   type: boolean
+                  description: Remove locations from the organization
+              required:
+                - locationIds
       responses:
         '200':
           description: OK
@@ -2477,6 +2536,10 @@ paths:
                           type: string
                         lastMeasureDateMs:
                           type: integer
+                        proxyId:
+                          type: string
+                        zoneId:
+                          type: string
                         location:
                           type: object
                           properties:
@@ -2514,8 +2577,6 @@ paths:
                                 type: integer
                             required:
                               - tag
-                        proxyId:
-                          type: string
                       required:
                         - id
                         - type
@@ -5098,9 +5159,9 @@ paths:
       description: |-
         Generate specific report. The result is provided in the CSV format.
         
-        Reports can be delivered by email or stored in the system and requested by calling the [Get Report Data API](#tag/Reports/operation/Get%20Report%20Data).
+        Reports can be delivered by email or stored in the reports generation history and requested by calling the [Get Report Data API](#tag/Reports/operation/Get%20Report%20Data).
 
-        All report parameters should be provided in the query string.
+        All report parameters should be provided in the query string as name=value pairs.
       tags:
         - Reports
       security:
@@ -5124,6 +5185,16 @@ paths:
         - name: organizationId
           in: query
           description: Generate report for specific organization
+          schema:
+            type: integer
+        - name: collectionId
+          in: query
+          description: Generate report for specific reports collection
+          schema:
+            type: integer
+        - name: executionDate
+          in: query
+          description: Store the result in the collection reports execution history for this date
           schema:
             type: integer
       responses:
@@ -5184,19 +5255,19 @@ paths:
           description: Report collection ID. When provided, returns executions for all reports in the collection. Required if reportId and reportGroupId are not provided.
           schema:
             type: integer
+        - name: organizationId
+          in: query
+          description: Organization ID. Required when collectionId is provided; optional for organizational report groups in report mode.
+          schema:
+            type: integer
         - name: reportId
           in: query
-          description: Report ID. Required together with reportGroupId if collectionId is not provided.
+          description: Report ID. Required together with reportGroupId if collectionId is not provided or used as a filter for collections.
           schema:
             type: integer
         - name: reportGroupId
           in: query
           description: Report group ID. Required together with reportId if collectionId is not provided.
-          schema:
-            type: integer
-        - name: organizationId
-          in: query
-          description: Organization ID. Required when collectionId is provided; optional for organizational report groups in report mode.
           schema:
             type: integer
       responses:
@@ -5371,6 +5442,55 @@ paths:
                       - id: 17
                         name: Care
                         description: Care
+
+    delete:
+      summary: Delete Report Executions
+      operationId: Delete Report Executions
+      description: |-
+        The API deletes stored report executions history filtered by requested parameters.
+      tags:
+        - Reports
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: collectionId
+          in: query
+          required: true
+          description: Report collection ID
+          schema:
+            type: integer
+        - name: organizationId
+          in: query
+          required: true
+          description: Organization ID
+          schema:
+            type: integer
+        - name: executionDate
+          in: query
+          description: Execution date
+          required: true
+          schema:
+            type: string
+        - name: reportId
+          in: query
+          description: Report ID filter
+          schema:
+            type: integer
+        - name: collectionReportId
+          in: query
+          description: Collection report ID filter
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
 
 
   /reports/data/{token}:

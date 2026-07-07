@@ -658,3 +658,87 @@ class Organizations(API):
             ep_headers=headers,
         )
         return result
+
+    def put_organization_secret(
+        self,
+        organization_id: int,
+        secret_name: str,
+        secret_value: str,
+    ) -> Result:
+        """
+        Put an Organization Secret.
+
+        Store an encrypted secret value for the organization.
+
+        Args:
+            organization_id: Organization ID
+            secret_name: Secret name (max 50 characters)
+            secret_value: Secret value to store
+
+        Returns:
+            Result: API response confirming the secret was stored
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Organizations/operation/Put%20Organization%20Secret
+        """
+        data = {
+            "secretValue": secret_value,
+        }
+        headers = self.adapter._get_headers(key_type=APIKeyType.USER, api_key=self.adapter._headers.get('ADMIN_KEY'))
+        result: Result = self.adapter.put(
+            f"/espapi/admin/json/organizations/{organization_id}/secrets/{secret_name}",
+            ep_json=data,
+            ep_headers=headers,
+        )
+        return result
+
+    def delete_organization_secret(
+        self,
+        organization_id: int,
+        secret_name: str,
+    ) -> Result:
+        """
+        Delete an Organization Secret.
+
+        Args:
+            organization_id: Organization ID
+            secret_name: Secret name to delete
+
+        Returns:
+            Result: API response confirming the secret was deleted
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Organizations/operation/Delete%20Organization%20Secret
+        """
+        headers = self.adapter._get_headers(key_type=APIKeyType.USER, api_key=self.adapter._headers.get('ADMIN_KEY'))
+        result: Result = self.adapter.delete(
+            f"/espapi/admin/json/organizations/{organization_id}/secrets/{secret_name}",
+            ep_headers=headers,
+        )
+        return result
+
+    def get_organization_secret_names(
+        self,
+        organization_id: int,
+    ) -> Result:
+        """
+        Get Organization Secret Names.
+
+        Retrieve the names of secrets stored for the organization.
+        Secret values are never returned.
+
+        Args:
+            organization_id: Organization ID
+
+        Returns:
+            Result: API response with the list of secret names
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Organizations/operation/Get%20Organization%20Secret%20Names
+        """
+        headers = self.adapter._get_headers(key_type=APIKeyType.USER, api_key=self.adapter._headers.get('ADMIN_KEY'))
+        result: Result = self.adapter.get(
+            f"/espapi/admin/json/organizations/{organization_id}/secrets",
+            ep_headers=headers,
+        )
+        return result

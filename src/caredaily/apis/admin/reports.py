@@ -187,13 +187,15 @@ class Reports(API):
         report_id: int,
         delivery_type: int,
         organization_id: Optional[int] = None,
+        collection_id: Optional[int] = None,
+        execution_date: Optional[int] = None,
         **kwargs,
     ) -> Result:
         """
         Generate specific report. The result is provided in the CSV format.
 
-        Reports can be delivered by email or stored in the system and requested by calling
-        the Get Report Data API.
+        Reports can be delivered by email or stored in the reports generation history
+        and requested by calling the Get Report Data API.
 
         All report parameters should be provided in the query string.
 
@@ -201,6 +203,8 @@ class Reports(API):
             report_id: Report ID
             delivery_type: Way to return report data (2=send by email, 3=save result to be retrieved later)
             organization_id: Generate report for specific organization
+            collection_id: Generate report for specific reports collection
+            execution_date: Store the result in the collection reports execution history for this date
             **kwargs: Additional report parameters to pass in query string
 
         Returns:
@@ -215,6 +219,10 @@ class Reports(API):
         }
         if organization_id is not None:
             params["organizationId"] = organization_id
+        if collection_id is not None:
+            params["collectionId"] = collection_id
+        if execution_date is not None:
+            params["executionDate"] = execution_date
         params.update(kwargs)
         result: Result = self.adapter.get(
             "/espapi/reports/generate",
@@ -228,27 +236,34 @@ class Reports(API):
 
     def get_report_executions(
         self,
-        report_id: int,
-        report_group_id: int,
-        start_date: str,
-        end_date: str,
+        report_id: Optional[int] = None,
+        report_group_id: Optional[int] = None,
+        start_date: str = None,
+        end_date: str = None,
         organization_id: Optional[int] = None,
+        collection_id: Optional[int] = None,
     ) -> Result:
         """
         Get report executions history.
 
-        Reports are executed according to the schedules defined for the report groups to which they belong.
+        Two mutually exclusive modes are supported:
+        - Collection mode (collection_id is provided): returns executions for all reports
+          in the given report collection. organization_id is required in this mode.
+        - Report mode (report_id + report_group_id are provided): returns executions for
+          a specific report and report group. organization_id is optional (required only
+          for organizational report groups).
 
         The output format of the report data depends on whether the report is analytical or not:
         - For analytical reports: single-row data returned as key-value pairs
         - For non-analytical reports: set of rows stored as a zip archive in AWS S3 with pre-signed URL
 
         Args:
-            report_id: Report ID
-            report_group_id: Report group ID
+            report_id: Report ID (report mode)
+            report_group_id: Report group ID (report mode)
             start_date: Start date
             end_date: End date
-            organization_id: Organization ID, required for organizational report group
+            organization_id: Organization ID, required in collection mode or for organizational report groups
+            collection_id: Report collection ID (collection mode)
 
         Returns:
             Result: API response with report executions data
@@ -261,10 +276,55 @@ class Reports(API):
             "reportGroupId": report_group_id,
             "startDate": start_date,
             "endDate": end_date,
+            "organizationId": organization_id,
+            "collectionId": collection_id,
         }
-        if organization_id is not None:
-            params["organizationId"] = organization_id
+        params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
+            "/espapi/reports/data",
+            ep_params=params,
+            ep_headers=self.adapter._get_headers(
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
+            ),
+        )
+        return result
+
+    def delete_report_executions(
+        self,
+        collection_id: int,
+        organization_id: int,
+        execution_date: str,
+        report_id: Optional[int] = None,
+        collection_report_id: Optional[int] = None,
+    ) -> Result:
+        """
+        Delete report executions history.
+
+        Deletes stored report executions history filtered by the requested parameters.
+
+        Args:
+            collection_id: Report collection ID
+            organization_id: Organization ID
+            execution_date: Execution date
+            report_id: Report ID filter
+            collection_report_id: Collection report ID filter
+
+        Returns:
+            Result: API response confirming deletion
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Reports/operation/Delete%20Report%20Executions
+        """
+        params = {
+            "collectionId": collection_id,
+            "organizationId": organization_id,
+            "executionDate": execution_date,
+            "reportId": report_id,
+            "collectionReportId": collection_report_id,
+        }
+        params = {k: v for k, v in params.items() if v is not None}
+        result: Result = self.adapter.delete(
             "/espapi/reports/data",
             ep_params=params,
             ep_headers=self.adapter._get_headers(

@@ -532,3 +532,96 @@ class CloudsIntegration(API):
             ep_params=params,
         )
         return result
+
+    def get_commissioning_config(
+        self,
+        application_id: int,
+    ) -> Result:
+        """
+        Get Commissioning Configuration from Third-Party Cloud.
+
+        Retrieve the commissioning configuration profiles for a third-party cloud
+        application. This API does not require authentication.
+
+        Args:
+            application_id: Application/Cloud ID
+
+        Returns:
+            Result: API response with commissioning configuration profiles
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Clouds-Integration/operation/Commissioning%20Configuration
+        """
+        params = {
+            "applicationId": application_id,
+        }
+        result: Result = self.adapter.get(
+            "/espapi/cloud/json/commissioningConfig",
+            ep_params=params,
+        )
+        return result
+
+    def start_commissioning_session(
+        self,
+        location_id: int,
+        application_id: int,
+        auth_id: int = None,
+        params_data: Dict = None,
+    ) -> Result:
+        """
+        Start Commissioning Session for Third-Party Cloud.
+
+        Args:
+            location_id: Location ID where the third-party devices will be linked
+            application_id: Application/Cloud ID
+            auth_id: Existing authorization ID
+            params_data: Commissioning parameters as key-value pairs
+
+        Returns:
+            Result: API response with the commissioning session (authId and value)
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Clouds-Integration/operation/Commissioning%20Session
+        """
+        params = {
+            "locationId": location_id,
+            "applicationId": application_id,
+            "authId": auth_id,
+        }
+        params = {k: v for k, v in params.items() if v is not None}
+        data = {"params": params_data} if params_data else None
+        result: Result = self.adapter.post(
+            "/espapi/cloud/json/commissioning",
+            ep_params=params,
+            ep_json=data,
+        )
+        return result
+
+    def discover_devices(
+        self,
+        auth_id: int,
+        location_id: int,
+    ) -> Result:
+        """
+        Discover devices from Third-Party Cloud.
+
+        Trigger device discovery for an existing third-party cloud authorization.
+
+        Args:
+            auth_id: Authorization ID
+            location_id: Location ID where the discovered devices will be linked
+
+        Returns:
+            Result: API response confirming discovery started
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Clouds-Integration/operation/Discover%20devices%20from%20Third-Party%20Cloud
+        """
+        params = {
+            "locationId": location_id,
+        }
+        result: Result = self.adapter.put(
+            f"/espapi/cloud/json/authorizations/{auth_id}/discover",
+            ep_params=params,
+        )
+        return result

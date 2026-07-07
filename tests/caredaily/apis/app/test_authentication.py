@@ -123,6 +123,15 @@ class TestAuthentication(unittest.TestCase):
         args, kwargs = self.mock_adapter.get.call_args
         self.assertEqual(args[0], '/espapi/cloud/json/signatureKey')
         self.assertEqual(kwargs['ep_params']['appName'], 'test_app')
+        # v61: authenticated with the default user API key, no header override
+        self.assertNotIn('ep_headers', kwargs)
+        self.assertEqual(result, 'private-key-result')
+
+    def test_get_private_key_end_user(self):
+        self.mock_adapter.get.return_value = 'private-key-result'
+        result = self.auth.get_private_key(app_name='test_app', end_user=True)
+        args, kwargs = self.mock_adapter.get.call_args
+        self.assertEqual(kwargs['ep_params']['endUser'], True)
         self.assertEqual(result, 'private-key-result')
 
     def test_get_private_key_no_params(self):
@@ -140,6 +149,17 @@ class TestAuthentication(unittest.TestCase):
         self.assertEqual(args[0], '/espapi/cloud/json/signatureKey')
         self.assertEqual(kwargs['ep_params']['appName'], 'test_app')
         self.assertEqual(json.loads(kwargs['ep_data'])['publicKey'], '-----BEGIN PUBLIC KEY-----')
+        # v61: authenticated with the default user API key, no header override
+        self.assertNotIn('ep_headers', kwargs)
+        self.assertEqual(result, 'public-key-result')
+
+    def test_put_public_key_end_user(self):
+        self.mock_adapter.put.return_value = 'public-key-result'
+        result = self.auth.put_public_key(
+            app_name='test_app', public_key='-----BEGIN PUBLIC KEY-----', end_user=True
+        )
+        args, kwargs = self.mock_adapter.put.call_args
+        self.assertEqual(kwargs['ep_params']['endUser'], True)
         self.assertEqual(result, 'public-key-result')
 
     def test_get_operation_token(self):

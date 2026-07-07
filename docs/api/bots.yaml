@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: 'IoT Software Suite: Bot API'
-  version: '59'
+  version: '61'
   description: |-
     The Bot Server is a real-time data analytics framework that allows software developers to create new bots,
     features, and services on top of any Internet-connected product.
@@ -3891,33 +3891,7 @@ paths:
                 priorityCategory: 1
                 priorityRank: 10
                 priorityComment: Short note here
-                salesTaxRate: '0.0677'
                 fileUploadPolicy: 0
-                size:
-                  unit: ft2
-                  content: 14000
-                storiesNumber: 2
-                roomsNumber: 5
-                bathroomsNumber: 2
-                occupantsNumber: 5
-                occupantsRange:
-                  - start: 0
-                    end: 6
-                    number: 1
-                  - start: 7
-                    end: 13
-                    number: 1
-                  - start: 14
-                    end: 20
-                    number: 1
-                  - start: 21
-                    end: 120
-                    number: 2
-                usagePeriod: 3
-                heatingType: 2
-                coolingType: 1
-                waterHeaterType: 2
-                thermostatType: 1
                 test: false
             schema:
               type: object
@@ -3940,49 +3914,7 @@ paths:
                       type: integer
                     priorityComment:
                       type: string
-                    salesTaxRate:
-                      type: string
                     fileUploadPolicy:
-                      type: integer
-                    size:
-                      type: object
-                      properties:
-                        unit:
-                          type: string
-                        content:
-                          type: integer
-                    storiesNumber:
-                      type: integer
-                    roomsNumber:
-                      type: integer
-                    bathroomsNumber:
-                      type: integer
-                    occupantsNumber:
-                      type: integer
-                    occupantsRange:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          start:
-                            type: integer
-                          end:
-                            type: integer
-                          number:
-                            type: integer
-                        required:
-                          - start
-                          - end
-                          - number
-                    usagePeriod:
-                      type: integer
-                    heatingType:
-                      type: integer
-                    coolingType:
-                      type: integer
-                    waterHeaterType:
-                      type: integer
-                    thermostatType:
                       type: integer
                     test:
                       type: boolean
@@ -4278,6 +4210,67 @@ paths:
               example:
                 resultCode: 0
 
+
+  /analytic/goicon/documents:
+    post:
+      summary: Upload GoIcon Document
+      operationId: Upload GoIcon Document
+      description: |-
+        Upload a PDF document to a GoIcon resident associated with the bot's location.
+
+        The system resolves the GoIcon resident from the bot's location:
+        1. Looks for a cached GoIcon resident ID in external_users (applicationId=1005).
+        2. If not found, falls back to searching GoIcon residents by the MooringsPark external user ID.
+
+      tags:
+        - Bot Server APIs
+      security:
+        - botApiKey: []
+      parameters:
+        - name: description
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Document description.
+        - name: category
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Document category (e.g., "Service Plans").
+        - name: timestamp
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Document timestamp. Accepts either epoch milliseconds or ISO-8601 date-time.
+        - name: visibleToResidents
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: Whether the document is visible to residents in GoIcon.
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+              description: PDF file content.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+              example:
+                resultCode: 0
 
   /analytic/notifications:
     post:
@@ -6299,7 +6292,11 @@ paths:
             type: string
         - name: openAiPath
           in: query
-          description: A path (index) which will be used for an Open AI API request. Available values are 0 (/v1/chat/completions, default) and 1 (/v1/responses).
+          description: |-
+            A path index which will be used for an Open AI API request.<br>
+            Available values are<br>
+            <b>0</b> - /v1/chat/completions, default,<br>
+            <b>1</b> - /v1/responses.
           schema:
             type: integer
       requestBody:

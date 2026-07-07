@@ -307,30 +307,31 @@ class Authentication(API):
     def get_private_key(
         self,
         app_name: str = None,
+        end_user: bool = None,
     ):
         """
         Get a private signature key for request signing.
 
+        Since API v61 this endpoint is authenticated with the user API key.
+
         Args:
             app_name: Application name
+            end_user: Request a key for the end-user 1st step signature login
 
         Returns:
             Result: API response with private key
 
         Reference:
-            https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Authentication/operation/Get%20Private%20Key
+            https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Authentication/operation/Get%20Signature%20Private%20Key
         """
         params = {
             "appName": app_name,
+            "endUser": end_user,
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
-            "/espapi/cloud/json/signatureKey", 
+            "/espapi/cloud/json/signatureKey",
             ep_params=params,
-            ep_headers=self.adapter._get_headers(
-                api_key=self.adapter._headers.get("ADMIN_KEY"),
-                key_type=APIKeyType.USER
-            )
         )
         return result
 
@@ -338,38 +339,37 @@ class Authentication(API):
         self,
         app_name: str,
         public_key: str,
+        end_user: bool = None,
     ):
         """
         Upload a public key for request signature verification.
 
+        Since API v61 this endpoint is authenticated with the user API key.
+
         Args:
             app_name: Application name
             public_key: Public key in PEM format
+            end_user: Register the key for the end-user 1st step signature login
 
         Returns:
             Result: API response confirming upload
 
         Reference:
-            https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Authentication/operation/Put%20Public%20Key
+            https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Authentication/operation/Put%20Signature%20Public%20Key
         """
         params = {
             "appName": app_name,
+            "endUser": end_user,
         }
+        params = {k: v for k, v in params.items() if v is not None}
         data = {
             "publicKey": public_key,
         }
-        print("key:", self.adapter._headers.get("ADMIN_KEY"))
-        print("Params:", params)
         result: Result = self.adapter.put(
-            "/espapi/cloud/json/signatureKey", 
+            "/espapi/cloud/json/signatureKey",
             ep_params=params,
             ep_data=json.dumps(data),
-            ep_headers=self.adapter._get_headers(
-                api_key=self.adapter._headers.get("ADMIN_KEY"),
-                key_type=APIKeyType.USER
-            )
         )
-        print("result:", result.data)
         return result
 
     def get_operation_token(

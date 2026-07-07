@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: 'Care Daily AI and IoT Platform: Application API'
-  version: '59'
+  version: '61'
   description: |-
     The Care Daily AI and IoT Platform is the most comprehensive carrier-grade software suite ever developed for the creation and deployment of family-centric smart home and building services.
     The Care Daily AI Platform supports an AI Marketplace for 24/7 assistive services built with IoT devices, including coordination and communications between families and professionals.
@@ -108,7 +108,6 @@ info:
     | 11 | Not enough free files space |
     | 12 | Invalid username or wrong password |
     | 14 | Error in parsing of input data |
-    | 15 | Missing required paid service for this operation |
     | 16 | User account is locked out |
     | 17 | A passcode, which has been sent to the user, is required to sign in |
     | 18 | Wrong schedule format |
@@ -128,7 +127,6 @@ info:
     | 33 | Wrong operation token |
     | 34 | Cannot modify external resources |
     | 35 | Wrong phone number |
-    | 36 | Operation canceled |
     | 37 | Cannot authorize user on external resource or cloud |
     | 38 | Requested resource is not available |
     | 39 | Device not found on external cloud |
@@ -138,6 +136,7 @@ info:
     | 44 | Too often API calls |
     | 45 | The communication channel is not authenticated |
     | 46 | The password is not strong enough |
+    | 47 | Bot compilation error |
 
     ## Date and Time Formats
 
@@ -308,7 +307,6 @@ paths:
         * Application restful API servers for all clouds. 
         * Web application hosts for the current cloud.
         * Device IO API server for this cloud, only if the device ID parameter is provided
-        * Streaming /streaming API server for this cloud, only if the device ID parameter is provided
 
         To obtain same information about other clouds call the same API on the corresponding `appapi` server.
       parameters:
@@ -317,14 +315,6 @@ paths:
           description: When specified, the API will return connection settings for this device.
           schema:
             type: string
-        - name: connected
-          in: query
-          description: |-
-            Check, if the device is connected to the streaming server:<br>
-            false - return the best available server,<br>
-            true - return the server, where the device is connected now or nothing.
-          schema:
-            type: boolean
       responses:
         '200':
           description: Cloud Connection Settings
@@ -373,14 +363,13 @@ paths:
                             properties:
                               type:
                                 type: string
-                                enum: [appapi, wsapi, deviceio, mqtt, streaming, webapp]
+                                enum: [appapi, wsapi, deviceio, mqtt, webapp]
                                 description: |-
                                   Server Type<br>
                                   appapi - restful API<br>
                                   wsapi - websockets API<br>
                                   deviceio - device IO API<br>
                                   mqtt - MQTT<br>
-                                  streaming - streaming API<br>
                                   webapp - web UI app
                               host:
                                 type: string
@@ -426,10 +415,6 @@ paths:
                         port: 8443
                         ssl: true
                         path: /deviceio
-                      - type: streaming
-                        host: esp.peoplepowerco.com
-                        port: 8443
-                        ssl: true
                       - type: webapp
                         host: app.peoplepowerco.com
                         port: 443
@@ -472,12 +457,11 @@ paths:
             <br>wsapi - websockets API
             <br>deviceio - device IO API
             <br>mqtt - MQTT
-            <br>streaming - streaming API
             <br>webapp - web UI app
           required: true
           schema:
             type: string
-            enum: [appapi, wsapi, deviceio, mqtt, streaming, webapp]
+            enum: [appapi, wsapi, deviceio, mqtt, webapp]
         - name: crtTag
           in: query
           description: |-
@@ -487,27 +471,9 @@ paths:
             Default behavior depends on the device type configuration.
           schema:
             type: boolean
-        - name: deviceId
-          in: query
-          description: Device ID to get streaming server
-          schema:
-            type: string
-        - name: connected
-          in: query
-          description: |-
-            Check, if the device is connected to the streaming server:<br>
-            false - return the best available server - default,<br>
-            true - return the server, where the device is connected now or nothing
-          schema:
-            type: boolean
         - name: brand
           in: query
           description: Return brand specific server, if available
-          schema:
-            type: integer
-        - name: appName
-          in: query
-          description: Return app specific server, if available
           schema:
             type: integer
       responses:
@@ -594,29 +560,9 @@ paths:
           required: true
           schema:
             type: string
-        - name: deviceId
-          in: query
-          description: |-
-            Device ID to receive the device server.
-            <br>For maximum scalability, we recommend a device check in with this API about every hour to discover, if it needs to switch servers.
-          schema:
-            type: string
-        - name: connected
-          in: query
-          description: |-
-            Check, if the device is connected to the streaming server:
-            <br><b>false</b> - return the best available server,
-            <br><b>true</b> - return the server, where the device is connected now or nothing.
-          schema:
-            type: boolean
         - name: brand
           in: query
           description: Return brand specific server, if available.
-          schema:
-            type: integer
-        - name: appName
-          in: query
-          description: Return app specific server, if available.
           schema:
             type: integer
       responses:
@@ -696,6 +642,24 @@ paths:
         A temporary pass code is generated by the cloud and sent to the user using an independent communication channel like SMS or email.
         A client provides a pass code in the `passcode` header.
         
+        ### Signature Login without Password
+
+        A client can request from the cloud a private RSA key or upload own public RSA key to the user's account. The private key must be stored encrypted.
+
+        Once a public key has been registered for the user and `appName` by calling
+        the [Get Private Key](#tag/Authentication/operation/Get%20Private%20Key) or the [Put Public Key](#tag/Authentication/operation/Put%20Public%20Key),
+        subsequent logins can be performed with the username and a signature — no password or pass code:
+
+        1. The client calls the API with the username, `sign=true`, `appName`, and the end-user API key type 0.
+        No password and no pass code are submitted.
+        The cloud returns a very short living key (a signature challenge), if a public key is registered for this user and `appName`.
+        Otherwise, the cloud returns the object not found result code.
+
+        2. The client signs this key (converted to bytes using UTF-8 encoding) with the locally stored private key.
+
+        3. The client calls the API with the username, the signature in the `passcode` header, `sign=true`, `appName`,
+        the signature algorithm name in the `signAlgorithm` parameter, and the end-user API key type.
+        
         ### 2-Step Authentication using Passcode
         
         Some users having administrative privileges may be required to use 2-step authentication.
@@ -726,22 +690,20 @@ paths:
         If the client knows that TOTP is available for the user, it can provide all username, password, and the code (in the `passcode` header) in one login API call with the `totp=true` parameter.
         
         ### 2-Step Authentication using Signature
-        
+
         A client can request from the cloud a private RSA key or upload own public RSA key to the user's account.
         The authentication is following:
-      
+
         1. The client calls the API with the username, the password, the admin or service API key type, the `sign=true` parameter, and the `appName` used to generate the signature keys.
-        
-        2. The cloud returns a very short living key.
-        
-        3. The client has to sign this key (converted to bytes using UTF-8 encoding).
-        
-        4. The client calls the API with the username,
-        the key's signature in the `passcode` header, `sign=true`, `appName`,
+        The cloud returns a very short living key (signature challenge).
+
+        2. The client has to sign this key (converted to bytes using UTF-8 encoding).
+
+        3. The client calls the API with the username, the key's signature in the `passcode` header, `sign=true`, `appName`,
         the signature algorithm name passed in the `signAlgorithm` parameter, and the admin or service API key type.
         Do not submit the password on this step.
         
-        Supported signature algorithms, see [PKCS #1](https://www.rfc-editor.org/rfc/rfc2437.txt).
+        ### Supported signature algorithms, see [PKCS #1](https://www.rfc-editor.org/rfc/rfc2437.txt).
         **SHA512withRSA** is recommended.
         
         | Signature Algorithm | Description |
@@ -822,12 +784,15 @@ paths:
             type: string
         - name: PASSWORD
           in: header
-          description: User's password
+          description: >-
+            User's password.
+            Can be omitted together with `passcode` when `sign=true` is used to request a signature challenge
+            for an already registered public key (see "Signature Login without Password").
           schema:
             type: string
         - name: passcode
           in: header
-          description: Temporary pass code or TOTP code
+          description: Temporary pass code, TOTP code, or base64-encoded signature (when `sign=true`)
           schema:
             type: string
       responses:
@@ -1265,13 +1230,16 @@ paths:
 
   /cloud/json/signatureKey:
     get:
-      summary: Get Private Key
+      summary: Get Signature Private Key
       operationId: Get Private Key
-      description: Generate a new RSA signature private/public keys pair for the user.
+      description: |-
+        Generate a new RSA signature private/public keys pair for the user.
+        Return the private key and store the public key in the user's account.
+        The returned key can be used either for end-user login on the 1'st step or for administrator login on the 2'nd step.
       tags:
         - Authentication
       security:
-        - adminApiKey: []
+        - userApiKey: []
       parameters:
         - name: appName
           in: query
@@ -1279,6 +1247,13 @@ paths:
           required: true
           schema:
             type: string
+        - name: endUser
+          in: query
+          description: |-
+            Generate keys for the end-user 1'st step login.
+            Otherwise the keys usage will be defined from the authentication API key type.
+          schema:
+            type: boolean
       responses:
         '200':
           description: Private key
@@ -1292,18 +1267,22 @@ paths:
                   privateKey:
                     type: string
                     description: PKCS#8 encoded private key in Base64 format
+                  admin:
+                    type: boolean
+                    description: If these must be used for administrator login on the 2'nd step.
               example:
                 resultCode: 0
                 privateKey: UugJtGEXxMfnVyql4N4crIAfqOUlJ=
+                admin: false
 
     put:
-      summary: Put Public Key
+      summary: Put Signature Public Key
       operationId: Put Public Key
-      description: Upload own RSA public key to the account.
+      description: Upload own RSA signature public key to the account.
       tags:
         - Authentication
       security:
-        - adminApiKey: []
+        - userApiKey: []
       parameters:
         - name: appName
           in: query
@@ -1311,6 +1290,13 @@ paths:
           required: true
           schema:
             type: integer
+        - name: endUser
+          in: query
+          description: |-
+            Use this key for the end-user 1'st step login.
+            Otherwise the key's usage will be defined from the authentication API key type.
+          schema:
+            type: boolean
       requestBody:
         content:
           application/json:
@@ -1332,8 +1318,12 @@ paths:
                 properties:
                   resultCode:
                     type: integer
+                  admin:
+                    type: boolean
+                    description: If these must be used for administrator login on the 2'nd step.
               example:
-                resultCode: 0
+                resultCode: 0,
+                admin: true
 
 
   /cloud/json/token:
@@ -1445,7 +1435,6 @@ paths:
                 phone: '1234567890'
                 phoneType: 1
                 appName: Care
-                anonymous: true
                 language: en
                 medicalRecordNumber: '12345'
                 pronounId: 1
@@ -1474,20 +1463,6 @@ paths:
                 test: false
                 latitude: '10.12345'
                 longitude: '10.12345'
-                salesTaxRate: '0.0644'
-                size:
-                  unit: ft2
-                  content: 14000
-                storiesNumber: 2
-                roomsNumber: 5
-                utilityAccountNo: '1234567'
-                bathroomsNumber: 2
-                occupantsNumber: 5
-                usagePeriod: 3
-                heatingType: 2
-                coolingType: 1
-                waterHeaterType: 2
-                thermostatType: 1
               model:
                 key0: value0
                 key1: value1
@@ -1528,8 +1503,6 @@ paths:
                     appName:
                       type: string
                       description: Application creating a user
-                    anonymous:
-                      type: boolean
                     language:
                       type: string
                       description: Preferred language
@@ -1614,36 +1587,6 @@ paths:
                     longitude:
                       type: string
                       description: Location's geographycal coordinates
-                    salesTaxRate:
-                      type: string
-                      description: Sales tax rate
-                    size:
-                      type: object
-                      properties:
-                        unit:
-                          type: string
-                        content:
-                          type: integer
-                    storiesNumber:
-                      type: integer
-                    roomsNumber:
-                      type: integer
-                    utilityAccountNo:
-                      type: string
-                    bathroomsNumber:
-                      type: integer
-                    occupantsNumber:
-                      type: integer
-                    usagePeriod:
-                      type: integer
-                    heatingType:
-                      type: integer
-                    coolingType:
-                      type: integer
-                    waterHeaterType:
-                      type: integer
-                    thermostatType:
-                      type: integer
                 model:
                   type: object
                   additionalProperties:
@@ -1792,10 +1735,6 @@ paths:
                           description:
                             type: string
                             description: Role description
-                      anonymous:
-                        type: boolean
-                        description: |-
-                          When the user sends messages in a community social network, enabling this flag will cause their name to be hidden when they send messages and on lists of individuals who are part of a group inside an organization, etc.
                       phone:
                         type: string
                         description: Phone number
@@ -2020,35 +1959,8 @@ paths:
                           type: integer
                         codeType:
                           type: integer
-                        salesTaxRate:
-                          type: string
                         event:
                           type: string
-                        size:
-                          type: object
-                          properties:
-                            unit:
-                              type: string
-                            value:
-                              type: integer
-                        storiesNumber:
-                          type: integer
-                        roomsNumber:
-                          type: integer
-                        bathroomsNumber:
-                          type: integer
-                        occupantsNumber:
-                          type: integer
-                        usagePeriod:
-                          type: integer
-                        heatingType:
-                          type: integer
-                        coolingType:
-                          type: integer
-                        waterHeaterType:
-                          type: integer
-                        thermostatType:
-                          type: integer
                         startDate:
                           type: string
                         startDateMs:
@@ -2070,23 +1982,25 @@ paths:
                               type: string
                         auths:
                           type: array
+                          description: Cloud integration authentications
                           items:
                             type: object
                             properties:
                               authId:
                                 type: integer
+                                description: Internal authentication ID
                               appId:
                                 type: integer
+                                description: External cloud application ID
                               appName:
                                 type: string
-                              userName:
+                                description: External cloud name
+                              appUserId:
                                 type: string
-                              active:
-                                type: boolean
-                              expiry:
-                                type: string
-                              expiryMs:
+                                description: External cloud user or location ID
+                              userId:
                                 type: integer
+                                description: Internal user ID
                         services:
                           type: array
                           items:
@@ -2149,7 +2063,6 @@ paths:
                     id: 2
                     name: SUPER ADMINISTRATOR
                     description: Super administrator can do many things
-                  anonymous: true
                   phone: '1234567890'
                   phoneType: 1
                   smsStatus: 1
@@ -2217,7 +2130,6 @@ paths:
                     priorityDate: '2019-01-29T02:45:30Z'
                     priorityDateMs: 1548747995000
                     codeType: 1
-                    salesTaxRate: '0.0721'
                     event: HOME
                     size:
                       unit: ft2
@@ -2243,11 +2155,9 @@ paths:
                     auths:
                       - authId: 123
                         appId: 2
-                        appName: Ann name
-                        userName: john
-                        active: true
-                        expiry: '2020-01-01T00:00:00Z'
-                        expiryMs: 1601624000000
+                        appName: App name
+                        appUserId: 123456
+                        userId: 67890
                     services:
                       - name: Family
                         desc: Care Daily Family service
@@ -2302,7 +2212,6 @@ paths:
                 smsResetStatus: true
                 phone: '1234567890'
                 phoneType: 1
-                anonymous: true
                 language: en
                 pronounId: 1
                 accessibility: 7
@@ -2334,8 +2243,6 @@ paths:
                       type: string
                     phoneType:
                       type: integer
-                    anonymous:
-                      type: boolean
                     language:
                       type: string
                     medicalRecordNumber:
@@ -2987,21 +2894,7 @@ paths:
                 test: false
                 latitude: '10.12345'
                 longitude: '10.12345'
-                salesTaxRate: '0.0588'
                 fileUploadPolicy: 0
-                size:
-                  unit: ft2
-                  content: 14000
-                storiesNumber: 2
-                roomsNumber: 5
-                utilityAccountNo: '1234567'
-                bathroomsNumber: 2
-                occupantsNumber: 5
-                usagePeriod: 3
-                heatingType: 2
-                coolingType: 1
-                waterHeaterType: 2
-                thermostatType: 1
             schema:
               type: object
               properties:
@@ -3049,36 +2942,7 @@ paths:
                       type: string
                     longitude:
                       type: string
-                    salesTaxRate:
-                      type: string
                     fileUploadPolicy:
-                      type: integer
-                    size:
-                      type: object
-                      properties:
-                        unit:
-                          type: string
-                        content:
-                          type: integer
-                    storiesNumber:
-                      type: integer
-                    roomsNumber:
-                      type: integer
-                    utilityAccountNo:
-                      type: string
-                    bathroomsNumber:
-                      type: integer
-                    occupantsNumber:
-                      type: integer
-                    usagePeriod:
-                      type: integer
-                    heatingType:
-                      type: integer
-                    coolingType:
-                      type: integer
-                    waterHeaterType:
-                      type: integer
-                    thermostatType:
                       type: integer
       responses:
         '200':
@@ -3132,21 +2996,7 @@ paths:
                 test: false
                 latitude: '10.12345'
                 longitude: '10.12345'
-                salesTaxRate: '0.0677'
                 fileUploadPolicy: 0
-                size:
-                  unit: ft2
-                  content: 14000
-                storiesNumber: 2
-                roomsNumber: 5
-                utilityAccountNo: '1234567'
-                bathroomsNumber: 2
-                occupantsNumber: 5
-                usagePeriod: 3
-                heatingType: 2
-                coolingType: 1
-                waterHeaterType: 2
-                thermostatType: 1
             schema:
               type: object
               properties:
@@ -3192,36 +3042,7 @@ paths:
                       type: string
                     longitude:
                       type: string
-                    salesTaxRate:
-                      type: string
                     fileUploadPolicy:
-                      type: integer
-                    size:
-                      type: object
-                      properties:
-                        unit:
-                          type: string
-                        content:
-                          type: integer
-                    storiesNumber:
-                      type: integer
-                    roomsNumber:
-                      type: integer
-                    utilityAccountNo:
-                      type: string
-                    bathroomsNumber:
-                      type: integer
-                    occupantsNumber:
-                      type: integer
-                    usagePeriod:
-                      type: integer
-                    heatingType:
-                      type: integer
-                    coolingType:
-                      type: integer
-                    waterHeaterType:
-                      type: integer
-                    thermostatType:
                       type: integer
       responses:
         '200':
@@ -4207,6 +4028,128 @@ paths:
               example:
                 resultCode: 0
 
+    get:
+      summary: Get Sub-Locations History
+      operationId: Get Sub-Locations
+      tags:
+        - Locations
+      description: |-
+        Get parent or child location associations history to this location.
+      security:
+        - userApiKey: []
+      parameters:
+        - name: locationId
+          in: path
+          description: Location ID
+          required: true
+          schema:
+            type: integer
+        - name: parents
+          in: query
+          description: Get history of parent or child locations
+          schema:
+            type: boolean
+        - name: startDate
+          in: query
+          description: Start date
+          required: true
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          description: End date
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  locations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        startDate:
+                          type: string
+                          description: Association start date
+                        startDateMs:
+                          type: integer
+                        endDate:
+                          type: string
+                          description: Association end date
+                        endDateMs:
+                          type: integer
+                        endReason:
+                          type: integer
+                          description: |-
+                            Association end reason:
+                            <br>1 - Existing relation extended (new link for existing pair),
+                            <br>2 - Parent location deleted,
+                            <br>3 - Child location deleted,
+                            <br>4 - Requested by an API call,
+                            <br>5 - Resident discharged,
+                            <br>6 - Resident transfered.
+                        location:
+                          type: object
+                          description: Associated location details
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                            subType:
+                              type: integer
+                            language:
+                              type: string
+                            externalId:
+                              type: string
+                            organizationId:
+                              type: integer
+                            timezone:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                            fileUploadPolicy:
+                              type: integer
+                            type:
+                              type: integer
+                            latitude:
+                              type: string
+                            longitude:
+                              type: string
+                            priorityCategory:
+                              type: integer
+                            priorityRank:
+                              type: integer
+                            priorityComment:
+                              type: string
+                            priorityDate:
+                              type: string
+                            priorityDateMs:
+                              type: integer
+                            codeType:
+                              type: integer
+                            event:
+                              type: string
+                            test:
+                              type: boolean
+              example:
+                resultCode: 0
+                locations:
+                  - startDate: 2026-01-01T12:00:00Z
+                    endDate: 2026-05-01T12:00:00Z
+                    endReason: 5
+                    location:
+                      id: 12345
+                      name: Room 6
+                      subType: 1
 
 
   /cloud/json/location/{locationId}/spaces:
@@ -5312,6 +5255,129 @@ paths:
                       count: 10
 
 
+  /clouse/json/openai:
+    post:
+      summary: Send a request to OpenAI
+      operationId: Send a request to OpenAI
+      description: |-
+        Send a synchronous request to OpenAI API to obtain a model response for the given chat conversation.
+        
+        The response from CharGPT is returned by the API and can look like:
+
+        >
+            {
+                "id" : "chatcmpl-86GKbsl3bP5YmmxutIY8aS5c5o5gK",
+                "object" : "chat.completion",
+                "created" : 1696503437,
+                "model" : "gpt-3.5-turbo-0613",
+                "choices" : [
+                  {
+                    "index" : 0,
+                    "message" : {
+                        "role" : "assistant",
+                        "content" : "This is a test!"
+                    },
+                    "finish_reason" : "stop"
+                  }
+                ],
+                "usage" : {
+                    "prompt_tokens" : 13,
+                    "completion_tokens" : 5,
+                    "total_tokens" : 18
+                }
+            }
+      tags:
+        - Synthetic APIs
+      security:
+        - userApiKey: []
+      parameters:
+        - name: locationId
+          in: query
+          description: Location ID
+          required: true
+          schema:
+            type: integer
+        - name: openAiOrganization
+          in: query
+          description: An organization which will be used (charged) for an Open AI API request.
+          schema:
+            type: string
+        - name: openAiPath
+          in: query
+          description: |-
+            A path index which will be used for an Open AI API request.<br>
+            Available values are<br>
+            <b>0</b> - /v1/chat/completions,<br>
+            <b>1</b> - /v1/responses.
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            example:
+              answer:
+                model: gpt-5
+                input: Some text for the Responses API
+                messages:
+                  - content: Some text for the Chat Completions API
+                    role: user
+                temperature: 0.7
+      responses:
+        '200':
+          description: OpenAI response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  answer:
+                    type: object
+              example:
+                resultCode: 0
+
+
+  /clouse/json/openaiToken:
+    get:
+      summary: Get OpenAI client token
+      operationId: Get OpenAI client token
+      description: |-
+        Send a synchronous request to OpenAI API to retrieve an ephemeral token.
+      tags:
+        - Synthetic APIs
+      security:
+        - userApiKey: []
+      parameters:
+        - name: locationId
+          in: query
+          description: Location ID
+          required: true
+          schema:
+            type: integer
+        - name: expiry
+          in: query
+          description: An optional expiry in seconds
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OpenAI response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  answer:
+                    type: object
+              example:
+                resultCode: 0
+
+
   /cloud/json/devices:
     post:
       summary: Register a Device
@@ -5560,6 +5626,24 @@ paths:
                           type: string
                         connected:
                           type: boolean
+                        modelId:
+                          type: string
+                        lastDataReceivedDate:
+                          type: string
+                        lastDataReceivedDateMs:
+                          type: integer
+                        lastMeasureDate:
+                          type: string
+                        lastMeasureDateMs:
+                          type: integer
+                        lastConnectedDate:
+                          type: string
+                        lastConnectedDateMs:
+                          type: integer
+                        proxyId:
+                          type: string
+                        zoneId:
+                          type: string
                         newDevice:
                           type: boolean
                         icon:
@@ -5611,22 +5695,6 @@ paths:
                                 type: integer
                               name:
                                 type: string
-                        modelId:
-                          type: string
-                        lastDataReceivedDate:
-                          type: string
-                        lastDataReceivedDateMs:
-                          type: integer
-                        lastMeasureDate:
-                          type: string
-                        lastMeasureDateMs:
-                          type: integer
-                        lastConnectedDate:
-                          type: string
-                        lastConnectedDateMs:
-                          type: integer
-                        proxyId:
-                          type: string
                       required:
                         - id
                         - type
@@ -6309,9 +6377,8 @@ paths:
       description: |-
         A gateway or proxy can request a list of assigned subscription services to the device and the location.
 
-        The `PPCAuthorization` headers may take on one of two forms, to identify the source device:
+        The `PPCAuthorization` headers may take on one form to identify the source device:
         * Using a Device Authentication Token: `PPCAuthorization: esp token="ABC12345"`
-        * Using a Streaming Session ID: `PPCAuthorization: stream session="DEF67890"`
       tags:
         - Devices
       parameters:
@@ -9660,9 +9727,9 @@ paths:
       tags:
         - User Communications
       parameters:
-        - name: appName
+        - name: brand
           in: query
-          description: App name to forward the support request
+          description: Brand of the support request templates
           schema:
             type: string
       requestBody:
@@ -11786,10 +11853,9 @@ paths:
         For example: `video/mp4`, `image/jpeg`, `audio/mp3`.
         The content type of thumbnail image is always `image/jpeg`.
 
-        The `PPCAuthorization` headers may take on one of two forms, to identify the source device:
+        The `PPCAuthorization` headers may take on one form to identify the source device:
 
         * Using a Device Authentication Token: `PPCAuthorization: esp token="ABC12345"`
-        * Using a Streaming Session ID: `PPCAuthorization: stream session="DEF67890"`
 
         A client can request only a creation of the file record without immediate uploading of the file or thumbnail content.
         In this case the API will return temporary content and thumbnail upload URL's, where data can be uploaded,
@@ -14974,12 +15040,9 @@ paths:
                               totalAmount:
                                 type: string
                                 description: Total price amount
-                              totalTax:
-                                type: string
-                                description: Total tax amount
                               amounts:
                                 type: array
-                                description: Price and tax amounts for each item
+                                description: Price amounts for each item
                                 items:
                                   type: object
                                   properties:
@@ -14989,13 +15052,9 @@ paths:
                                       type: string
                                     taxable:
                                       type: boolean
-                                    tax:
-                                      type: string
                                   required:
                                     - value
                                     - desc
-                                    - taxable
-                                    - tax
                             required:
                               - id
                               - type
@@ -15005,7 +15064,6 @@ paths:
                               - currencySymbol
                               - currencyCode
                               - totalAmount
-                              - totalTax
                               - amounts
                         subscriptions:
                           type: array
@@ -15111,7 +15169,6 @@ paths:
                         currencySymbol: $
                         currencyCode: USD
                         totalAmount: '19.99'
-                        totalTax: '0.7'
                         amounts:
                           - value: '9.99'
                             desc: basic service
@@ -15119,7 +15176,6 @@ paths:
                           - value: '10'
                             desc: pro service
                             taxable: true
-                            tax: '0.7'
                       - id: 3
                         type: 3
                         paymentType: 2
@@ -15127,7 +15183,6 @@ paths:
                         currencySymbol: $
                         currencyCode: USD
                         totalAmount: '19.99'
-                        totalTax: '0.7'
                         amounts:
                           - value: '9.99'
                             desc: basic service
@@ -15135,7 +15190,6 @@ paths:
                           - value: '10'
                             desc: pro service
                             taxable: true
-                            tax: '0.7'
                       - id: 4
                         type: 4
                         paymentType: 1
@@ -18112,17 +18166,6 @@ paths:
                       please provide a comma-separated list of the index numbers/letters you plan to use.
                       For example, a 4-socket power strip might use these index numbers to control individual sockets: 0,1,2,3
                     extended: true
-                  - name: streamingConnection
-                    desc: |-
-                      Does this thing need a websocket connection to Presto, to support streaming?
-                      If not, we'll optimize by leaving it off.
-                    defaultValue: ''
-                    extended: true
-                    options:
-                      - id: ''
-                        value: 'No'
-                      - id: '1'
-                        value: 'Yes'
                   - name: energyAdjustment
                     desc: If this is a power/energy meter, do we need to apply an energy adjustment? (Leave this blank if you don't know)
                     defaultValue: ''
@@ -20130,8 +20173,6 @@ paths:
       summary: Get Third-Party Clouds
       operationId: Get Third-Party Clouds
       description: |-
-        OAuth 2.0 Client.
-        
         This API returns supported third-party clouds/applications, where a user may obtain authorization, so Care Daily can access user's data there as a client.
       tags:
         - Clouds Integration
@@ -20178,11 +20219,11 @@ paths:
       summary: Access a Third-Party Cloud
       operationId: Access a Third-Party Cloud
       description: |-
-        OAuth 2.0 Client. This URL is meant to be loaded in a web view.
-
-        It will redirect a user to the third party application web page for authenticating and authorizing access to user's data in the external application.
+        This URL will redirect a user to the third party application web page for authenticating and authorizing access to user's data in the external application.
 
         After completing the operation, the user will be redirected back to a completion web page provided by the Care Daily AI Platform.
+
+        It is meant to be loaded in a web view.
       tags:
         - Clouds Integration
       security:
@@ -20202,7 +20243,7 @@ paths:
             type: integer
         - name: scope
           in: query
-          description: OAuth2 scope
+          description: OAuth 2 scope
           schema:
             type: string
         - name: brand
@@ -20222,13 +20263,162 @@ paths:
                 description: Redirect URL
 
 
+  /cloud/json/commissioningConfig:
+    get:
+      summary: Get Commissioning Configuration from Third-Party Cloud
+      operationId: Commissioning Configuration
+      description: |-
+        Get commissioning configuration from Third-Party Cloud before starting devices set up.
+        
+        The returned content depends on the Third-Party cloud response.
+      tags:
+        - Clouds Integration
+      parameters:
+        - name: applicationId
+          in: query
+          description: The application ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Commissioning Configuration
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  config:
+                    type: object
+              example:
+                resultCode: 0
+                config:
+                  profiles:
+                    - id: installer
+                      name: Installer
+                    - id: customer
+                      name: End Customer
+
+
+  /cloud/json/commissioning:
+    post:
+      summary: Start Commissioning Session for Third-Party Cloud
+      operationId: Commissioning Session
+      description: |-
+        Start Commissioning Session for Third-Party Cloud to intiate devices set up.
+        
+        The returned content depends on the Third-Party cloud response.
+      tags:
+        - Clouds Integration
+      security:
+        - userApiKey: []
+      parameters:
+        - name: locationId
+          in: query
+          description: Location ID
+          required: true
+          schema:
+            type: integer
+        - name: applicationId
+          in: query
+          description: The application ID
+          required: true
+          schema:
+            type: integer
+        - name: authId
+          in: query
+          description: Optional authorization ID
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                params:
+                  type: object
+                  additionalProperties:
+                    type: string
+                  description: Session parameters key/value string map
+            example:
+              params:
+                profileId: installer
+      responses:
+        '200':
+          description: Commissioning Session
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  session:
+                    type: object
+                    properties:
+                      authId:
+                        type: integer
+                        description: New or existing authorization ID
+                      value:
+                        type: object
+                        description: Third-Party cloud response
+              example:
+                resultCode: 0
+                session:
+                  authId: 12345
+                  value:
+                    code: uw7QF5JsLYDjyrIKcgBIn3sG04Xk7mD3
+                    expires_in: 300
+                    setup_app_url: https://deeplinks.nami.surf/native/companion-mode/uw7QF5JsLYDjyrIKcgBIn3sG04Xk7mD3
+
+
+  /cloud/json/authorizations/{authId}/discover:
+    put:
+      summary: Discover devices from Third-Party Cloud
+      operationId: Discover devices from Third-Party Cloud
+      description: |-
+        When a Third-Party Cloud is connected to a location, the system discovers all devices there automatically, if that cloud allows it.
+        
+        This API repeats devices discovery on a Third-Party Cloud again.
+      tags:
+        - Clouds Integration
+      security:
+        - userApiKey: []
+      parameters:
+        - name: authId
+          in: path
+          description: The authorization ID to discover devices
+          required: true
+          schema:
+            type: integer
+        - name: locationId
+          in: query
+          description: Location ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+              example:
+                resultCode: 0
+
+
   /cloud/json/authorizations/{authId}:
     delete:
       summary: Revoke Access to a Third-Party Cloud
       operationId: Revoke Access to a Third-Party Cloud
       description: |-
-        OAuth 2.0 Client.
-        
         The user may revoke authorization for the Care Daily AI Platform to access the user's data on a third-party host.
 
         This operation will delete all corresponding access and refresh tokens.
@@ -20268,8 +20458,6 @@ paths:
       summary: Authorize a Third-Party Application
       operationId: Authorize a Third-Party Application
       description: |-
-        OAuth 2.0 Host.
-        
         OAuth 2.0 allows the Care Daily AI Platform to act as a host for a third-party application.
         The Care Daily AI Platform provides authorization information to third party applications using the OAuth 2.0 open standard.        
         
@@ -20296,7 +20484,7 @@ paths:
 
         You may find the list of authorized third-party OAuth 2.0 clients in the get user information API.
       tags:
-        - Clouds Integration
+        - OAuth Hosting
       parameters:
         - name: brand
           in: path
@@ -20336,15 +20524,13 @@ paths:
       summary: Approve or Deny Authorization
       operationId: Approve or Deny Authorization
       description: |-
-        OAuth 2.0 Host.
-        
         Allow a user to approve or deny an authorization request from the third-party OAuth 2.0 client.
 
         The user has to choose the location to access.
 
         The user will be redirected to the the OAuth 2.0 client callback URL.
       tags:
-        - Clouds Integration
+        - OAuth Hosting
       security:
         - tempApiKey: []
       parameters:
@@ -20375,7 +20561,7 @@ paths:
             type: string
         - name: locationId
           in: query
-          description: Location ID, where the third-party app is going to have access
+          description: Location ID, where the third-party client is going to have access
           required: true
           schema:
             type: integer
@@ -20399,8 +20585,6 @@ paths:
       summary: Get Access Token
       operationId: Get Access Token
       description: |-
-        OAuth 2.0 Host.
-        
         This API uses an authorization code or a previously generated refresh token to grant new access to the Care Daily AI Platform.
         It returns a new access token, a token type, expiration time, and a refresh token.
 
@@ -20425,7 +20609,7 @@ paths:
         * `invalid_token` - The authorization code or refresh token is incorrect
         * `server_error` - Internal server error
       tags:
-        - Clouds Integration
+        - OAuth Hosting
       security:
         - basicOAuth: []
       parameters:
@@ -20477,11 +20661,9 @@ paths:
       summary: Update OAuth Client
       operationId: Update OAuth Client
       description: |-
-        OAuth 2.0 Host.
-        
         Update access to specfic devices for OAuth 2.0 client.
       tags:
-        - Clouds Integration
+        - OAuth Hosting
       security:
         - userApiKey: []
       parameters:
@@ -20529,12 +20711,10 @@ paths:
       summary: Revoke OAuth Client
       operationId: Revoke OAuth Client
       description: |-
-        OAuth 2.0 Host.
-        
         The user may revoke authorization for a third party clients to access the user's data on the Care Daily AI Platform.
         This operation will invalidate all corresponding access and refresh tokens.
       tags:
-        - Clouds Integration
+        - OAuth Hosting
       security:
         - userApiKey: []
       parameters:
@@ -21798,7 +21978,9 @@ tags:
       <tr><td>passwordStrong</td><td>boolean</td><td>The password corresponds to the "strong" password criteria</td></tr>
       <tr><td>firstName</td><td>string</td><td>User's first name</td></tr>
       <tr><td>lastName</td><td>string</td><td>User's last name(s)</td></tr>
-      <tr><td>communityName</td><td>string</td><td>User's community pseudo name.</td></tr>
+      <tr><td>communityName</td><td>string</td><td>User's community pseudo name</td></tr>
+      <tr><td>creationDate</td><td>string</td><td>User's creation date and time</td></tr>
+      <tr><td>lastLoginDate</td><td>string</td><td>User's last sign in date</td></tr>
       <tr><td>organizationId</td><td>integer</td><td>Organization ID used the user's creation.</td></tr>
       <tr><td>appName</td><td>string</td>
         <td>Each app on the Care Daily AI Platform identifies itself with a unique name.
@@ -21809,10 +21991,11 @@ tags:
       <tr><td>email 'status'</td><td>numeric</td>
           <td>Email address status.<br>
           0 - OK<br>
-          1 - Hard Bounce<br>
+          1 - Hard Bounce or Blocked by ISP<br>
           2 - Spam complaint<br>
           3 - Bad address<br>
-          4 - Spam notification
+          4 - Spam notification<br>
+          5 - Unsubscribe Request
           </td>
       </tr>
       <tr><td>email 'verified'</td><td>boolean</td><td>the email address was verified</td></tr>
@@ -21847,10 +22030,6 @@ tags:
           3 - No, invalid phone number</td>
       </tr>
       <tr><td>smsResetStatus</td><td>boolean</td><td>Reset user's phone number SMS status to unknown</td></tr>
-      <tr><td>anonymous</td><td>boolean</td>
-          <td>When the user sends messages in a community social network, enabling this flag will cause their name to be hidden when they send messages
-          and on lists of individuals who are part of a group inside an organization, etc. Default is false.</td>
-      </tr>
       <tr><td>accessibility</td><td>integer</td>
           <td>Bitmask representation of accessibility preferences:<br>
           0 - None<br>
@@ -21937,52 +22116,8 @@ tags:
       <tr><td>zip</td><td>string</td><td>Zip / Postal Code</td></tr>
       <tr><td>latitude</td><td>string</td><td>The latitude in degrees</td></tr>
       <tr><td>longitude</td><td>string</td><td>The longitude in degrees</td></tr>
-      <tr><td>salesTaxRate</td><td>string</td><td>Sales tax rate. The value must be positive and less than 1.</td></tr>
       <tr><td>test</td><td>boolean</td><td>This is a test location.</td></tr>
       <tr><td>codeType</td><td>integer</td><td>Location code type</td></tr>
-      <tr><td>size</td><td>An object containing 'unit' and 'value'</td>
-      <td>This represents the approximate size of the location.
-          Please see the request example for more details. Size units:<br>ft2 - Square Foot<br>m2 - Square Meter</td></tr>
-      <tr><td>storiesNumber</td><td>numeric</td><td>Number of stories in the home / building.</td></tr>
-      <tr><td>roomsNumber</td><td>numeric</td><td>Number of rooms.</td></tr>
-      <tr><td>bathroomsNumber</td><td>numeric</td><td>Number of bathrooms.</td></tr>
-      <tr><td>utilityAccountNo</td><td>string</td>
-        <td>Utility account number, when this user account is linked to acquire data from a utility.</td></tr>
-      <tr><td>occupantsNumber</td><td>numeric</td><td>Total number of people living / working at this location.</td></tr>
-      <tr><td>usagePeriod</td><td>numeric</td>
-        <td>Keeps a note about when the location is used by people.<br>1 - Day<br>2 - Night<br>3 - Both</td></tr>
-      <tr><td>heatingType</td><td>numeric</td>
-          <td>This is a bitmap that describes the type of heating that is used at this location.<br>
-          1 - Electric<br>
-          2 - Natural Gas<br>
-          4 - Propane<br>
-          8 - Oil<br>
-          16 - Biomass<br>
-          64 - Other</td>
-      </tr>
-      <tr><td>coolingType</td><td>numeric</td>
-          <td>This is a bitmap that describes the type of cooling that is used at this location.<br>
-          1 - Central A/C<br>
-          2 - Window A/C<br>
-          4 - Open windows / fans<br>
-          64 - Other</td>
-      </tr>
-      <tr><td>waterHeaterType</td><td>numeric</td>
-          <td>This is a bitmap that describes the type of water heating that is used at this location.<br>
-          1 - Electric<br>
-          2 - Natural Gas<br>
-          4 - Propane<br>
-          8 - Oil<br>
-          16 - Biomass<br>
-          32 - Solar<br>
-          64 - Other</td>
-      </tr>
-      <tr><td>thermostatType</td><td>numeric</td>
-          <td>This is a bitmap that describes the type of thermostat that is used at this location.<br>
-          1 - Non-programmable<br>
-          2 - Programmable<br>
-          3 - Internet Connected</td>
-      </tr>
       </table>
 
   - name: Locations
@@ -22495,8 +22630,10 @@ tags:
 
   - name: Clouds Integration
     description: |-
-      OAuth 2.0 allows the Care Daily AI Platform to act as a client to obtain authorizations from third-party clouds and applications to access user data.
-      
+      OAuth 2.0 allows the Care Daily AI Platform to act as a client to obtain authorizations from third-party clouds and applications to access user data there.
+
+  - name: OAuth Hosting
+    description: |-
       As a host the Care Daily AI Platform can provide data to OAuth 2.0 clients.
 
   - name: Energy Management
