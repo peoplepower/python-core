@@ -7,7 +7,6 @@ from .app_files import AppFiles
 from .authentication import Authentication
 from .cloud_connectivity import CloudConnectivity
 from .clouds_integration import CloudsIntegration
-from .community import Community
 from .device_files import DeviceFiles
 from .device_measurements import DeviceMeasurements
 from .devices import Devices
@@ -30,7 +29,6 @@ __all__ = [
     "Authentication",
     "CloudConnectivity",
     "CloudsIntegration",
-    "Community",
     "DeviceFiles",
     "DeviceMeasurements",
     "Devices",

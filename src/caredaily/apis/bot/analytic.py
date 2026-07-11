@@ -832,6 +832,7 @@ class Analytic(API):
                      - 2 = Organization Users
             notification_data: Notification data containing:
                 - brand: Notification brand
+                - botNotificationId: Bot notification ID to select organization notification groups
                 - users: List of user IDs (for organizational bots)
                 - userCategories: List of user categories
                 - pushMessage: Push message object

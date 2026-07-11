@@ -68,7 +68,7 @@ class Reports(API):
         self,
         organization_id: int,
         report_group_id: int,
-        notification_category: Optional[int] = None,
+        notification_group_id: Optional[int] = None,
     ) -> Result:
         """
         Assign a report group to specific organization or update an existing assignment.
@@ -79,8 +79,8 @@ class Reports(API):
         Args:
             organization_id: Organization ID
             report_group_id: Group ID
-            notification_category: Notification category of organization users.
-                                  To clear the notification category set it to 0.
+            notification_group_id: Notification group ID.
+                                  To clear the notification group ID set it to 0.
 
         Returns:
             Result: API response confirming assignment
@@ -91,8 +91,8 @@ class Reports(API):
         params = {
             "reportGroupId": report_group_id,
         }
-        if notification_category is not None:
-            params["notificationCategory"] = notification_category
+        if notification_group_id is not None:
+            params["notificationGroupId"] = notification_group_id
         result: Result = self.adapter.put(
             f"/espapi/reports/groups/{organization_id}",
             ep_params=params,
@@ -107,7 +107,6 @@ class Reports(API):
         self,
         organization_id: int,
         report_group_id: int,
-        notification_category: Optional[int] = None,
     ) -> Result:
         """
         Delete report group organization assignment.
@@ -115,7 +114,6 @@ class Reports(API):
         Args:
             organization_id: Organization ID
             report_group_id: Group ID
-            notification_category: Notification category of organization users
 
         Returns:
             Result: API response confirming deletion
@@ -126,8 +124,6 @@ class Reports(API):
         params = {
             "reportGroupId": report_group_id,
         }
-        if notification_category is not None:
-            params["notificationCategory"] = notification_category
         result: Result = self.adapter.delete(
             f"/espapi/reports/groups/{organization_id}",
             ep_params=params,
@@ -379,7 +375,7 @@ class Reports(API):
         name: str,
         execution_schedule: str,
         description: str = None,
-        notification_categories: list[int] = None,
+        notification_group_id: int = None,
         start_date: str = None,
         reports: list[dict] = None,
     ) -> Result:
@@ -398,7 +394,7 @@ class Reports(API):
             name: Collection name
             execution_schedule: Cron expression for the execution schedule
             description: Collection description
-            notification_categories: Notification categories
+            notification_group_id: Notification group ID
             start_date: Start date in ISO-8601 format. Defaults to the current date and time.
             reports: List of report dicts, each with reportId and optional parameters dict
 
@@ -414,8 +410,8 @@ class Reports(API):
         }
         if description is not None:
             body["description"] = description
-        if notification_categories is not None:
-            body["notificationCategories"] = notification_categories
+        if notification_group_id is not None:
+            body["notificationGroupId"] = notification_group_id
         if start_date is not None:
             body["startDate"] = start_date
         if reports is not None:
@@ -437,7 +433,7 @@ class Reports(API):
         name: str = None,
         description: str = None,
         execution_schedule: str = None,
-        notification_categories: list[int] = None,
+        notification_group_id: int = None,
         start_date: str = None,
         reports: list[dict] = None,
     ) -> Result:
@@ -460,7 +456,7 @@ class Reports(API):
             name: Collection name
             description: Collection description
             execution_schedule: Cron expression for the execution schedule
-            notification_categories: Notification categories
+            notification_group_id: Notification group ID
             start_date: Start date in ISO-8601 format
             reports: List of report operation dicts
 
@@ -477,8 +473,8 @@ class Reports(API):
             body["description"] = description
         if execution_schedule is not None:
             body["executionSchedule"] = execution_schedule
-        if notification_categories is not None:
-            body["notificationCategories"] = notification_categories
+        if notification_group_id is not None:
+            body["notificationGroupId"] = notification_group_id
         if start_date is not None:
             body["startDate"] = start_date
         if reports is not None:

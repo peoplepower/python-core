@@ -390,3 +390,35 @@ class TestUserCommunication(unittest.TestCase):
         self.assertEqual(kwargs['ep_params']['messageId'], 456)
         self.assertEqual(kwargs['ep_params']['readStatus'], True)
         self.assertEqual(result, {'updated': True})
+
+    def test_start_answering_survey(self):
+        self.mock_adapter.post.return_value = 'survey-answer-result'
+        result = self.uc.start_answering_survey(
+            location_id=1,
+            survey_key='intake_assessment',
+            user_id=2,
+        )
+        self.mock_adapter.post.assert_called_once()
+        args, kwargs = self.mock_adapter.post.call_args
+        self.assertEqual(args[0], '/cloud/json/surveyAnswers')
+        self.assertEqual(kwargs['ep_params']['locationId'], 1)
+        self.assertEqual(kwargs['ep_params']['surveyKey'], 'intake_assessment')
+        self.assertEqual(kwargs['ep_params']['userId'], 2)
+        self.assertNotIn('botNotificationId', kwargs['ep_params'])
+        self.assertIsNone(kwargs['ep_json'])
+        self.assertEqual(result, 'survey-answer-result')
+
+    def test_start_answering_survey_with_bot_notification_id(self):
+        self.mock_adapter.post.return_value = 'survey-answer-result'
+        questions = [{'questionKey': 'Question#1', 'answer': '1'}]
+        result = self.uc.start_answering_survey(
+            location_id=1,
+            survey_key='intake_assessment',
+            user_id=2,
+            bot_notification_id=123,
+            questions=questions,
+        )
+        args, kwargs = self.mock_adapter.post.call_args
+        self.assertEqual(kwargs['ep_params']['botNotificationId'], 123)
+        self.assertEqual(kwargs['ep_json']['questions'], questions)
+        self.assertEqual(result, 'survey-answer-result')

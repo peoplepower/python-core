@@ -27,7 +27,6 @@ from .apis import (
     Challenges,
     CloudConnectivity,
     CloudsIntegration,
-    Community,
     DeveloperTeams,
     DeviceFiles,
     DeviceMeasurements,
@@ -207,8 +206,6 @@ class CareDaily:
             return CloudsIntegration(self._config)
         if type == RAG:
             return RAG(self._config)
-        if type == Community:
-            return Community(self._config)
         if type == Websocket:
             return Websocket(self._config)
         if type == AI:

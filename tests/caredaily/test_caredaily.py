@@ -18,7 +18,6 @@ from caredaily.apis import (
     Challenges,
     CloudConnectivity,
     CloudsIntegration,
-    Community,
     DeveloperTeams,
     DeviceFiles,
     DeviceMeasurements,
@@ -377,7 +376,6 @@ class TestCareDaily(unittest.TestCase):
             (DeviceTypesAndParameters, DeviceTypesAndParameters),
             (CloudsIntegration, CloudsIntegration),
             (RAG, RAG),
-            (Community, Community),
             (Websocket, Websocket),
         ]
 

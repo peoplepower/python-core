@@ -36,34 +36,32 @@ class TestReports(unittest.TestCase):
         result = self.reports.set_report_group_organization(
             organization_id=123,
             report_group_id=1,
-            notification_category=6
+            notification_group_id=6
         )
         self.mock_adapter.put.assert_called_once()
         args, kwargs = self.mock_adapter.put.call_args
         self.assertEqual(kwargs['ep_params']['reportGroupId'], 1)
-        self.assertEqual(kwargs['ep_params']['notificationCategory'], 6)
+        self.assertEqual(kwargs['ep_params']['notificationGroupId'], 6)
         self.assertEqual(result, {'resultCode': 0})
 
-    def test_set_report_group_organization_without_notification_category(self):
+    def test_set_report_group_organization_without_notification_group(self):
         self.mock_adapter.put.return_value = {'resultCode': 0}
         self.reports.set_report_group_organization(
             organization_id=123,
             report_group_id=1
         )
         args, kwargs = self.mock_adapter.put.call_args
-        self.assertNotIn('notificationCategory', kwargs['ep_params'])
+        self.assertNotIn('notificationGroupId', kwargs['ep_params'])
 
     def test_delete_report_group_organization_success(self):
         self.mock_adapter.delete.return_value = {'resultCode': 0}
         result = self.reports.delete_report_group_organization(
             organization_id=123,
-            report_group_id=1,
-            notification_category=6
+            report_group_id=1
         )
         self.mock_adapter.delete.assert_called_once()
         args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(kwargs['ep_params']['reportGroupId'], 1)
-        self.assertEqual(kwargs['ep_params']['notificationCategory'], 6)
+        self.assertEqual(kwargs['ep_params'], {'reportGroupId': 1})
         self.assertEqual(result, {'resultCode': 0})
 
     def test_get_reports_success(self):
@@ -205,13 +203,13 @@ class TestReports(unittest.TestCase):
             name="Weekly Reports",
             execution_schedule="0 0 8 ? * MON",
             description="Weekly activity reports",
-            notification_categories=[1, 2],
+            notification_group_id=1,
             start_date="2025-01-15T08:00:00Z",
             reports=reports_list,
         )
         args, kwargs = self.mock_adapter.post.call_args
         self.assertEqual(kwargs['ep_json']['description'], "Weekly activity reports")
-        self.assertEqual(kwargs['ep_json']['notificationCategories'], [1, 2])
+        self.assertEqual(kwargs['ep_json']['notificationGroupId'], 1)
         self.assertEqual(kwargs['ep_json']['startDate'], "2025-01-15T08:00:00Z")
         self.assertEqual(kwargs['ep_json']['reports'], reports_list)
 

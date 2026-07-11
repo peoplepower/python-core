@@ -754,6 +754,7 @@ class UserCommunication(API):
         answer_id: int = None,
         pre_answer_id: int = None,
         send_to_user: bool = None,
+        bot_notification_id: int = None,
         notification_category: int = None,
         questions: List[Dict] = None,
         notification_model: Dict = None,
@@ -769,7 +770,7 @@ class UserCommunication(API):
 
         The API can send an email to a user or to an organization notification users with
         a link to answer the survey or to view the existing answers, if the sendToUser or
-        the notificationCategory parameters are provided.
+        the botNotificationId or the notificationCategory parameters are provided.
 
         The API returns the answer record with an authentication token and a URL to answer
         the survey for the user or view the previous answers.
@@ -781,6 +782,7 @@ class UserCommunication(API):
             answer_id: An existing answer record ID to recreate previous API response and action
             pre_answer_id: Copy question answers from this answer record
             send_to_user: Send the email directly to the user
+            bot_notification_id: Send the email to organization notification users selected by this notification ID
             notification_category: Send the email to organization notification users with this category
             questions: Optional answers to the survey questions (list of dicts with questionKey and answer)
             notification_model: Additional notification template parameters as a string map
@@ -798,6 +800,7 @@ class UserCommunication(API):
             "answerId": answer_id,
             "preAnswerId": pre_answer_id,
             "sendToUser": send_to_user,
+            "botNotificationId": bot_notification_id,
             "notificationCategory": notification_category,
         }
         params = {k: v for k, v in params.items() if v is not None}

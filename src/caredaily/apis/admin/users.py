@@ -252,31 +252,38 @@ class Users(API):
         )
         return result
 
-    def get_notification_users(
+    def get_notification_groups(
         self,
         organization_id: int,
+        group_id: int = None,
     ) -> Result:
         """
-        Retrieve notification users for an organization.
+        Retrieve notification groups for an organization.
 
-        Organization Notification Categories:
+        Optional organization notification categories for backward compatibility:
         - 1: Manager
         - 2: Technician
-        - 3: Organization Bills
+        - 3: Organization Billing
         - 4: Research
         - 5: Provider
+        - 6: Reports
 
         Args:
             organization_id: Organization ID
+            group_id: Filter by group ID
 
         Returns:
-            Result: API response with notification users data
+            Result: API response with notification groups and their users
 
         Reference:
-            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Users-and-Locations/operation/Get%20Notification%20Users
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Users-and-Locations/operation/Get%20Notification%20Groups
         """
+        params = {}
+        if group_id is not None:
+            params["groupId"] = group_id
         result: Result = self.adapter.get(
-            f"/espapi/admin/json/organizations/{organization_id}/notificationUsers",
+            f"/espapi/admin/json/organizations/{organization_id}/notificationGroups",
+            ep_params=params if params else None,
             ep_headers=self.adapter._get_headers(
                 api_key=self.adapter._headers.get("ADMIN_KEY"),
                 key_type=APIKeyType.USER
@@ -284,40 +291,107 @@ class Users(API):
         )
         return result
 
-    def update_notification_user(
+    def create_notification_group(
         self,
         organization_id: int,
-        user_id: int,
-        add_category: int = None,
-        delete_category: int = None,
+        name: str = None,
+        group_id: int = None,
+        category: int = None,
+        description: str = None,
+        default_group: bool = None,
+        location_tag: str = None,
     ) -> Result:
         """
-        Update notification user settings by adding or removing notification categories.
-
-        This API allows to add and remove notification users with required categories.
-        The response contains an array of this user notification categories after the operation completed.
+        Create or update an organization notification group.
 
         Args:
             organization_id: Organization ID
-            user_id: User ID
-            add_category: Notification categories to add, multiple values supported
-            delete_category: Notification categories to remove, multiple values supported
+            name: Group name
+            group_id: Optional group ID to update existing group
+            category: Optional notification category
+            description: Optional group description
+            default_group: Default group for notifications
+            location_tag: Location tag filter
 
         Returns:
-            Result: API response with updated notification categories
+            Result: API response with created or updated group ID
 
         Reference:
-            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Users-and-Locations/operation/Update%20Notification%20User
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Users-and-Locations/operation/Create%20Notification%20Group
         """
-        params = {
-            "userId": user_id,
-            "addCategory": add_category,
-            "deleteCategory": delete_category,
+        group = {
+            "groupId": group_id,
+            "category": category,
+            "name": name,
+            "description": description,
+            "defaultGroup": default_group,
+            "locationTag": location_tag,
         }
-        params = {k: v for k, v in params.items() if v is not None}
+        group = {k: v for k, v in group.items() if v is not None}
+        result: Result = self.adapter.post(
+            f"/espapi/admin/json/organizations/{organization_id}/notificationGroups",
+            ep_json={"group": group},
+            ep_headers=self.adapter._get_headers(
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
+            ),
+        )
+        return result
+
+    def delete_notification_group(
+        self,
+        organization_id: int,
+        group_id: int,
+    ) -> Result:
+        """
+        Delete an organization notification group.
+
+        Args:
+            organization_id: Organization ID
+            group_id: Group ID to delete
+
+        Returns:
+            Result: API response confirming deletion
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Users-and-Locations/operation/Delete%20Notification%20Group
+        """
+        result: Result = self.adapter.delete(
+            f"/espapi/admin/json/organizations/{organization_id}/notificationGroups",
+            ep_params={"groupId": group_id},
+            ep_headers=self.adapter._get_headers(
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
+            ),
+        )
+        return result
+
+    def update_notification_users(
+        self,
+        organization_id: int,
+        users: list[dict],
+    ) -> Result:
+        """
+        Add and remove notification users to and from notification groups.
+
+        Args:
+            organization_id: Organization ID
+            users: Users to add to or delete from notification groups.
+                Each dict may contain:
+                - userId: User ID
+                - groupId: Group ID. If not set for the delete request, the user
+                  will be deleted from all groups in the organization.
+                - delete: Delete the user from the group
+
+        Returns:
+            Result: API response confirming the update
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Users-and-Locations/operation/Update%20Notification%20Users
+        """
         result: Result = self.adapter.put(
             f"/espapi/admin/json/organizations/{organization_id}/notificationUsers",
-            ep_params=params,
+            ep_json={"users": users},
             ep_headers=self.adapter._get_headers(
                 api_key=self.adapter._headers.get("ADMIN_KEY"),
                 key_type=APIKeyType.USER

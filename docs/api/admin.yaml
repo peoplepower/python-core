@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: 'IoT Software Suite: Admin API'
-  version: '61'
+  version: '62'
   description: |-
     Care Daily offers a full Command Center to engage your customers and manage IoT services, and access to social engagement layers.
 
@@ -1920,6 +1920,272 @@ paths:
                 resultCode: 0
 
 
+  /admin/json/organizations/{organizationId}/notificationGroups:
+    get:
+      summary: Get Notification Groups
+      operationId: Get Notification Groups
+      description: |-
+        Get Organization Notification Groups
+        
+        Optional organization notification categories for backward compatibility
+        
+        | Category | Description |
+        |:--------:|-------------|
+        | 1 | Manager |
+        | 2 | Technician |
+        | 3 | Organization Billing |
+        | 4 | Research |
+        | 5 | Provider |
+        | 6 | Reports |
+      tags:
+        - Users and Locations
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+        - name: groupId
+          in: query
+          description: Filter by group ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Notification Grops
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  groups:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        groupId:
+                          type: integer
+                          description: Group ID
+                        category:
+                          type: integer
+                          description: Optional notification category
+                        name:
+                          type: string
+                          description: Group name
+                        description:
+                          type: string
+                          description: Group description
+                        defaultGroup:
+                          type: boolean
+                          description: Default group for notifications
+                        locationTag:
+                          type: string
+                          description: Location tag filter
+                        users:
+                          type: array
+                          description: Group users
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                              userName:
+                                type: string
+                              altUsername:
+                                type: string
+                              firstName:
+                                type: string
+                              lastName:
+                                type: string
+                              email:
+                                type: object
+                                properties:
+                                  email:
+                                    type: string
+                                  verified:
+                                    type: boolean
+                                  status:
+                                    type: integer
+                              role:
+                                type: object
+                                properties:
+                                  id:
+                                    type: integer
+                                  name:
+                                    type: string
+                                  description:
+                                    type: string
+              example:
+                resultCode: 0
+                groups:
+                  - groupId: 123
+                    name: Managers
+                    defaultGroup: true
+                    users:
+                      - id: 123
+                        userName: john.smith@gmail.com
+                        altUsername: '1234567890'
+                        firstName: John
+                        lastName: Smith
+                        email:
+                          email: john.smith@gmail.com
+                          verified: true
+                          status: 0
+                        role:
+                          id: 5
+                          name: Organization administrator
+                          description: Role description
+
+    post:
+      summary: Create Notification Group
+      operationId: Create Notification Group
+      description: Create or update organization notification group
+      tags:
+        - Users and Locations
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                group:
+                  type: object
+                  properties:
+                    groupId:
+                      type: integer
+                      description: Optional group ID to update existing group
+                    category:
+                      type: integer
+                      description: Optional notification category
+                    name:
+                      type: string
+                      description: Group name
+                    description:
+                      type: string
+                      description: Optional group description
+                    defaultGroup:
+                      type: boolean
+                      description: Default group for notifications
+                    locationTag:
+                      type: string
+                      description: Location tag filter
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  groupId:
+                    type: integer
+                    description: Created or updated group ID
+              example:
+                resultCode: 0
+
+    delete:
+      summary: Delete Notification Group
+      operationId: Delete Notification Group
+      description: Delete organization notification group
+      tags:
+        - Users and Locations
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+        - name: groupId
+          in: query
+          description: Group ID to delete
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+              example:
+                resultCode: 0
+
+
+  /admin/json/organizations/{organizationId}/notificationUsers:
+    put:
+      summary: Update Notification Users
+      operationId: Update Notification Users
+      description: >-
+        This API allows to add and remove notification users to and from notification groups.
+      tags:
+        - Users and Locations
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                users:
+                  type: array
+                  description: Users to add to or delete from notification groups
+                  items:
+                    type: object
+                    properties:
+                      userId:
+                        type: integer
+                        description: User ID
+                      groupId:
+                        type: integer
+                        description: Group ID. If not set for the delete request, the user will be deleted from all groups in the organization.
+                      delete:
+                        type: boolean
+                        description: Delete the user from the group
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+              example:
+                resultCode: 0
+
+
   /admin/json/organizations/{organizationId}/narratives:
     get:
       summary: Get Organization Narratives
@@ -2175,155 +2441,6 @@ paths:
                       organizationId: 20567
                       creationDate: '2018-10-01T03:05:07'
                       creationDateMs: 1537692964000
-
-
-  /admin/json/organizations/{organizationId}/notificationUsers:
-    get:
-      summary: Get Notification Users
-      operationId: Get Notification Users
-      description: |-
-        Organization Notification Categories
-        
-        | Category | Description |
-        |:--------:|-------------|
-        | 1 | Manager |
-        | 2 | Technician |
-        | 3 | Organization Bills |
-        | 4 | Research |
-        | 5 | Provider |
-      tags:
-        - Users and Locations
-      security:
-        - adminApiKey: []
-      parameters:
-        - name: organizationId
-          in: path
-          description: Organization ID
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Notification Users
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-                  users:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        userName:
-                          type: string
-                        altUsername:
-                          type: string
-                        firstName:
-                          type: string
-                        lastName:
-                          type: string
-                        email:
-                          type: object
-                          properties:
-                            email:
-                              type: string
-                            verified:
-                              type: boolean
-                            status:
-                              type: integer
-                        role:
-                          type: object
-                          properties:
-                            id:
-                              type: integer
-                            name:
-                              type: string
-                            description:
-                              type: string
-                        categories:
-                          type: array
-                          items:
-                            type: integer
-              example:
-                resultCode: 0
-                users:
-                  - id: 123
-                    userName: john.smith@gmail.com
-                    altUsername: '1234567890'
-                    firstName: John
-                    lastName: Smith
-                    email:
-                      email: john.smith@gmail.com
-                      verified: true
-                      status: 0
-                    role:
-                      id: 5
-                      name: Organization administrator
-                      description: Role description
-                    categories:
-                      - 1
-                      - 2
-                      - 3
-
-    put:
-      summary: Update Notification User
-      operationId: Update Notification User
-      description: >-
-        This API allows to add and remove notification users with required categories.
-
-        The response contains an array of this user notification categories after the operation completed.
-      tags:
-        - Users and Locations
-      security:
-        - adminApiKey: []
-      parameters:
-        - name: organizationId
-          in: path
-          description: Organization ID
-          required: true
-          schema:
-            type: integer
-        - name: userId
-          in: query
-          description: User ID
-          required: true
-          schema:
-            type: integer
-        - name: addCategory
-          in: query
-          description: Notification categories to add, multiple values supported
-          schema:
-            type: integer
-        - name: deleteCategory
-          in: query
-          description: Notification categories to remove, multiple values supported
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-                  categories:
-                    type: array
-                    items:
-                      type: integer
-              example:
-                resultCode: 0
-                categories:
-                  - 1
-                  - 2
-                  - 3
 
 
   /admin/json/timeStates:
@@ -4772,10 +4889,10 @@ paths:
                         organizationId:
                           type: integer
                           description: Top level organization ID in the hierarchy, if the group is assigned to it.
-                        notificationCategory:
+                        notificationGroupId:
                           type: integer
                           description: |-
-                            Organization [notification category](#tag/Users-and-Locations/operation/Get%20Notification%20Users) to send emails about completed scheduled reports.
+                            Organization [notification group ID](#tag/Users-and-Locations/operation/Get%20Notification%20Groups) to send emails about completed scheduled reports.
               example:
                 resultCode: 0
                 groups:
@@ -4786,7 +4903,7 @@ paths:
                     dashboardName: Care Dashboard
                     analytic: true
                     organizationId: 123
-                    notificationCategory: 6
+                    notificationGroupId: 6
 
     put:
       summary: Set Report Group Organization
@@ -4815,11 +4932,11 @@ paths:
           required: true
           schema:
             type: integer
-        - name: notificationCategory
+        - name: notificationGroupId
           in: query
           description: |-
-            Notification category of organization users.<br>
-            To clear the notification category set it to 0.
+            Notification group ID.<br>
+            To clear the notification group ID set it to 0.
           schema:
             type: integer
       responses:
@@ -4854,11 +4971,6 @@ paths:
           in: query
           description: Group ID
           required: true
-          schema:
-            type: integer
-        - name: notificationCategory
-          in: query
-          description: Notification category of organization users
           schema:
             type: integer
       responses:
@@ -5603,7 +5715,7 @@ paths:
                     name: Weekly Reports
                     description: Weekly activity reports for all locations
                     executionSchedule: 0 0 8 ? * MON
-                    notificationCategories: [1, 2]
+                    notificationGroupId: 1
                     nextExecutionDate: '2025-01-20T08:00:00Z'
                     nextExecutionDateMs: 1737360000000
                     reports:
@@ -5657,11 +5769,9 @@ paths:
                 executionSchedule:
                   type: string
                   description: Cron expression for the execution schedule
-                notificationCategories:
-                  type: array
-                  items:
-                    type: integer
-                  description: Notification categories
+                notificationGroupId:
+                  type: integer
+                  description: Notification group ID
                 reports:
                   type: array
                   items:
@@ -5681,7 +5791,7 @@ paths:
               name: Weekly Reports
               description: Weekly activity reports for all locations
               executionSchedule: 0 0 8 ? * MON
-              notificationCategories: [1, 2]
+              notificationGroupId: 1
               reports:
                 - reportId: 1
                   parameters:
@@ -5748,11 +5858,9 @@ paths:
                 executionSchedule:
                   type: string
                   description: Cron expression for the execution schedule
-                notificationCategories:
-                  type: array
-                  items:
-                    type: integer
-                  description: Notification categories
+                notificationGroupId:
+                  type: integer
+                  description: Notification group ID
                 reports:
                   type: array
                   items:
@@ -7101,11 +7209,9 @@ components:
         executionSchedule:
           type: string
           description: Cron expression for the execution schedule
-        notificationCategories:
-          type: array
-          items:
-            type: integer
-          description: Notification categories
+        notificationGroupId:
+          type: integer
+          description: Notification group ID
         lastExecutionDate:
           type: string
           description: Last execution date in ISO-8601 format

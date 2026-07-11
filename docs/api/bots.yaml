@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: 'IoT Software Suite: Bot API'
-  version: '61'
+  version: '62'
   description: |-
     The Bot Server is a real-time data analytics framework that allows software developers to create new bots,
     features, and services on top of any Internet-connected product.
@@ -390,8 +390,6 @@ paths:
               app:
                 category: L,E
                 type: 0
-                executionPlace: 0
-                serviceName: PaidService
                 core: 1
                 marketing:
                   - lang: en
@@ -414,10 +412,6 @@ paths:
                       type: string
                     type:
                       type: integer
-                    executionPlace:
-                      type: integer
-                    serviceName:
-                      type: string
                     core:
                       type: integer
                     marketing:
@@ -497,8 +491,6 @@ paths:
                           type: string
                         type:
                           type: integer
-                        executionPlace:
-                          type: integer
                         core:
                           type: integer
                         marketing:
@@ -536,7 +528,6 @@ paths:
                     developerTeam: developer team name
                     category: L,E
                     type: 0
-                    executionPlace: 0
                     core: 1
                     marketing:
                       - lang: en
@@ -1109,6 +1100,28 @@ paths:
                           - push
                           - sms
                           - msg
+                    notifications:
+                      type: array
+                      description: Notifications sent by a bot to organizations
+                      items:
+                        type: object
+                        properties:
+                          notificationId:
+                            type: integer
+                          title:
+                            type: object
+                            additionalProperties:
+                              type: string
+                            description: Multilingual title string map
+                          description:
+                            type: object
+                            additionalProperties:
+                              type: string
+                            description: Multilingual description string map
+                          serviceName:
+                            type: string
+                          exampleObjectName:
+                            type: string
       responses:
         '200':
           description: OK
@@ -2073,6 +2086,182 @@ paths:
                     development: true
                     name: Care Daily
                     domainName: PPC
+
+
+  /cloud/appstore/botNotifications/{organizationId}:
+    get:
+      summary: Get Bot Notification Settings
+      operationId: Get Bot Notifications
+      description: Get bots approved for the organization with their notification settings.
+      tags:
+        - End-User Bot Shop APIs
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+        - name: bundle
+          in: query
+          description: Optional bot bundle ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Bot Notifications
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  apps:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        appId:
+                          type: integer
+                        bundle:
+                          type: string
+                        name:
+                          type: string
+                        author:
+                          type: string
+                        category:
+                          type: string
+                        description:
+                          type: string
+                        type:
+                          type: integer
+                        core:
+                          type: integer
+                        notifications:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              notificationId:
+                                type: integer
+                              title:
+                                type: object
+                                additionalProperties:
+                                  type: string
+                                description: Multilingual title string map
+                              description:
+                                type: object
+                                additionalProperties:
+                                  type: string
+                                description: Multilingual description string map
+                              serviceName:
+                                type: string
+                              exampleObjectName:
+                                type: string
+                              groups:
+                                type: array
+                                description: Assigned notification groups
+                                items:
+                                  type: object
+                                  properties:
+                                    groupId:
+                                      type: integer
+                                      description: Group ID
+                                    organizationId:
+                                      type: integer
+                                    name:
+                                      type: string
+                                      description: Group name
+                                    description:
+                                      type: string
+                                      description: Group description
+                      required:
+                        - appId
+                        - bundle
+                        - name
+                        - author
+                        - category
+                        - description
+                        - type
+                        - core
+                        - notifications
+              example:
+                resultCode: 0
+                apps:
+                  - appId: 2342
+                    bundle: ai.caredaily.MyBot
+                    name: My First App
+                    author: Your Company
+                    category: L,E
+                    description: This is an example of how to run bots
+                    type: 0
+                    core: 1
+                    notifications:
+                      - notificationId: 123
+                        title: Notification to managers
+                        description: This notification is sent periodically
+                        groups:
+                          - groupId: 456
+                            organizationId: 789
+                            name: Managers
+                            description: Managers receive critical information at all times of the day.
+
+    put:
+      summary: Update Bot Notification Settings
+      operationId: Update Bot Notifications
+      description: Add or delete organization notification groups to or from bot's notifications.
+      tags:
+        - End-User Bot Shop APIs
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          schema:
+            type: integer
+          required: true
+        - name: bundle
+          in: query
+          description: Bot bundle ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                groups:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      notificationId:
+                        type: integer
+                        description: Bot notification ID
+                      groupId:
+                        type: integer
+                        description: Group ID to add to or delete from the bot notification
+                      delete:
+                        type: boolean
+                        description: Delete it
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+              example:
+                resultCode: 0
 
 
   /cloud/appstore/search:
@@ -4371,6 +4560,8 @@ paths:
               properties:
                 brand:
                   type: string
+                botNotificationId:
+                  type: integer
                 users:
                   type: array
                   items:
@@ -7702,16 +7893,6 @@ tags:
       |:----:|:------------|
       |  0   | Can be assigned to locations in organizations |
       |  1   | Can only be purchased by organization administrators for their organizations |
-    
-      ### Execution Place
-      
-      The place where the bot will be running.
-      
-      | Value | Meaning       |
-      |:-----:|:--------------|
-      |   0   | Cloud only    |
-      |   1   | Edge only     |
-      |   2   | Cloud or edge |
     
       ### Core Class
       
