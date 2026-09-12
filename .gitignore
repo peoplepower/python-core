@@ -107,8 +107,9 @@ ENV/
 
 .pytest_cache
 
-# Claude
-.claude
+# Claude (share skills, keep local settings/worktrees/agents ignored)
+.claude/*
+!.claude/skills/
 
 # Cursor
 .cursor
