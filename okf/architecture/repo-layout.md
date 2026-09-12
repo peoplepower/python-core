@@ -16,6 +16,10 @@ sources:
     resource: peoplepower/python-core:pyproject.toml
     title: Package metadata and extras
     last_modified: 2026-03-27T21:39:02-07:00
+  - id: gitignore
+    resource: peoplepower/python-core:.gitignore
+    title: Ignore rules (.claude/* with !.claude/skills/ carve-out)
+    last_modified: 2026-09-11T00:00:00Z
 ---
 
 `python-core` ships one installable package, `caredaily`, with three parts[^src-tree]:
@@ -41,6 +45,7 @@ sources:
 | `src/caredaily/cli/app.py` | Click group + `ping`, `login`, `cloud-connectivity` commands |
 | `src/caredaily/cli/configure.py` | `configure` subgroup (init, interactive profile setup) |
 | `tests/caredaily/` | Mirrors `src/` layout; [mocked-adapter pattern](/testing/mocked-adapter-pattern.md) |
+| `.claude/skills/caredaily/SKILL.md` | Claude Code project skill teaching SDK/CLI *usage* (factories, auth flows, gotchas); the only tracked part of `.claude/` — `.gitignore` uses `.claude/*` + `!.claude/skills/` so local settings/agents/worktrees stay ignored[^gitignore] |
 
 # Packaging
 
@@ -51,3 +56,4 @@ sources:
 
 [^src-tree]: caredaily package source
 [^pyproject]: Package metadata and extras
+[^gitignore]: Ignore rules (.claude/* with !.claude/skills/ carve-out)
