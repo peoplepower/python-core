@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OKF Bundle Visualization</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px; color: #1f2430; background: #fff;
+    display: flex; flex-direction: column;
+  }
+  header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 10px 16px; border-bottom: 1px solid #e2e5ea; background: #fafbfc;
+    flex: 0 0 auto;
+  }
+  header h1 { font-size: 16px; font-weight: 600; }
+  header .meta { color: #6b7280; font-size: 12px; }
+  .tabs { margin-left: auto; display: flex; gap: 4px; }
+  .tabs button {
+    font: inherit; padding: 6px 14px; border: 1px solid #d1d5db; background: #fff;
+    border-radius: 6px; cursor: pointer;
+  }
+  .tabs button.active { background: #1f2430; color: #fff; border-color: #1f2430; }
+  main { flex: 1 1 auto; min-height: 0; position: relative; }
+  .pane { position: absolute; inset: 0; display: none; }
+  .pane.active { display: flex; }
+
+  /* ---- graph pane ---- */
+  #graph-pane { flex-direction: row; }
+  #sidebar {
+    flex: 0 0 220px; border-right: 1px solid #e2e5ea; padding: 12px;
+    overflow-y: auto; background: #fafbfc;
+  }
+  #sidebar label { display: block; font-size: 11px; text-transform: uppercase;
+    letter-spacing: .04em; color: #6b7280; margin: 12px 0 4px; }
+  #sidebar label:first-child { margin-top: 0; }
+  #search, #colorby {
+    width: 100%; font: inherit; padding: 6px 8px;
+    border: 1px solid #d1d5db; border-radius: 6px; background: #fff;
+  }
+  #legend { margin-top: 6px; }
+  #legend div { display: flex; align-items: center; gap: 6px; padding: 2px 0; font-size: 12px; }
+  #legend span.swatch { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; }
+  .checkline { display: flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 13px; }
+  #canvas-wrap { flex: 1 1 auto; position: relative; min-width: 0; }
+  #canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; }
+  #canvas.dragging { cursor: grabbing; }
+  #detail {
+    position: absolute; top: 0; right: 0; bottom: 0; width: 320px; max-width: 80%;
+    background: #fff; border-left: 1px solid #e2e5ea; padding: 16px;
+    overflow-y: auto; transform: translateX(100%); transition: transform .15s ease;
+    box-shadow: -4px 0 12px rgba(0,0,0,.05);
+  }
+  #detail.open { transform: translateX(0); }
+  #detail h2 { font-size: 15px; margin-bottom: 4px; padding-right: 24px; }
+  #detail .path { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: #6b7280;
+    word-break: break-all; margin-bottom: 10px; }
+  #detail .desc { margin: 8px 0; color: #374151; }
+  #detail dl { font-size: 12px; margin: 10px 0; }
+  #detail dt { color: #6b7280; text-transform: uppercase; font-size: 10px; letter-spacing: .04em; margin-top: 8px; }
+  #detail dd { margin-top: 2px; }
+  #detail .close { position: absolute; top: 10px; right: 12px; border: 0; background: none;
+    font-size: 18px; cursor: pointer; color: #6b7280; }
+  #detail ul { list-style: none; }
+  #detail ul li a { color: #2563eb; text-decoration: none; font-size: 12px; cursor: pointer;
+    word-break: break-all; }
+  #detail ul li a:hover { text-decoration: underline; }
+  .tagchip { display: inline-block; background: #eef2f7; border-radius: 10px;
+    padding: 1px 8px; font-size: 11px; margin: 2px 3px 0 0; }
+  .issue { font-size: 12px; padding: 4px 8px; border-radius: 4px; margin-top: 4px; }
+  .issue.error { background: #fee2e2; color: #991b1b; }
+  .issue.warning { background: #fef3c7; color: #92400e; }
+  #detail .expand {
+    display: block; width: 100%; margin: 10px 0 2px; padding: 7px 10px;
+    font: inherit; font-size: 12.5px; border: 1px solid #d1d5db; border-radius: 6px;
+    background: #fff; cursor: pointer; color: #1f2430;
+  }
+  #detail .expand:hover { background: #f3f4f6; }
+
+  /* ---- full-markdown modal ---- */
+  #mdmodal {
+    position: fixed; inset: 0; z-index: 50; display: none;
+    background: rgba(15,18,25,.45); align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  #mdmodal.open { display: flex; }
+  #mdmodal .mdbox {
+    background: #fff; border-radius: 10px; width: 100%; max-width: 860px;
+    max-height: 92%; display: flex; flex-direction: column;
+    box-shadow: 0 12px 40px rgba(0,0,0,.25); overflow: hidden;
+  }
+  #mdmodal .mdbar {
+    display: flex; align-items: baseline; gap: 12px; padding: 12px 18px;
+    border-bottom: 1px solid #e2e5ea; background: #fafbfc; flex: 0 0 auto;
+  }
+  #mdmodal .mdbar h2 { font-size: 15px; }
+  #mdmodal .mdbar .path { font-family: ui-monospace, Menlo, monospace; font-size: 11px;
+    color: #6b7280; word-break: break-all; }
+  #mdmodal .mdbar button { margin-left: auto; border: 0; background: none;
+    font-size: 20px; cursor: pointer; color: #6b7280; line-height: 1; }
+  #mdmodal .mdcontent { overflow-y: auto; padding: 18px 22px 26px; }
+  .md { font-size: 13.5px; line-height: 1.55; color: #1f2430; }
+  .md h1, .md h2, .md h3, .md h4 { margin: 18px 0 6px; line-height: 1.25; }
+  .md h1:first-child, .md h2:first-child, .md h3:first-child { margin-top: 0; }
+  .md h1 { font-size: 19px; } .md h2 { font-size: 16px; }
+  .md h3 { font-size: 14px; } .md h4 { font-size: 13px; }
+  .md p { margin: 8px 0; }
+  .md ul, .md ol { margin: 8px 0; padding-left: 24px; }
+  .md li { margin: 2px 0; }
+  .md code { font-family: ui-monospace, Menlo, monospace; font-size: 12px;
+    background: #eef2f7; border-radius: 4px; padding: 1px 4px; }
+  .md pre { background: #f6f8fa; border: 1px solid #e2e5ea; border-radius: 6px;
+    padding: 10px 12px; overflow-x: auto; margin: 10px 0; }
+  .md pre code { background: none; padding: 0; font-size: 12px; display: block; }
+  .md blockquote { border-left: 3px solid #d1d5db; margin: 8px 0; padding: 2px 12px;
+    color: #4b5563; }
+  .md hr { border: 0; border-top: 1px solid #e2e5ea; margin: 14px 0; }
+  .md table { width: auto; margin: 10px 0; font-size: 12.5px; }
+  .md th, .md td { border: 1px solid #e2e5ea; padding: 4px 10px; }
+  .md a { color: #2563eb; text-decoration: none; }
+  .md a:hover { text-decoration: underline; }
+  .md a.mdlink { cursor: pointer; }
+
+  /* ---- health pane ---- */
+  #health-pane { flex-direction: column; overflow-y: auto; padding: 20px; display: none; }
+  #health-pane.active { display: block; }
+  .cards { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+  .card { border: 1px solid #e2e5ea; border-radius: 8px; padding: 12px 18px; min-width: 120px;
+    background: #fafbfc; }
+  .card .num { font-size: 24px; font-weight: 700; }
+  .card .num.bad { color: #dc2626; }
+  .card .num.warn { color: #d97706; }
+  .card .lbl { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: .04em; }
+  .tables { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+  section h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em;
+    color: #374151; margin-bottom: 8px; }
+  section .note { font-size: 12px; color: #6b7280; margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td { text-align: left; padding: 5px 8px; border-bottom: 1px solid #eef0f3; vertical-align: top; }
+  th { color: #6b7280; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+  td.mono, td a.node-link { font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; }
+  td a.node-link { color: #2563eb; text-decoration: none; cursor: pointer; word-break: break-all; }
+  td a.node-link:hover { text-decoration: underline; }
+  .lvl { font-weight: 600; }
+  .lvl.error { color: #dc2626; }
+  .lvl.warning { color: #d97706; }
+  .empty { color: #9ca3af; font-style: italic; font-size: 12.5px; padding: 4px 8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="bundle-name">OKF Bundle</h1>
+  <span class="meta" id="generated"></span>
+  <div class="tabs">
+    <button id="tab-graph" class="active">Graph</button>
+    <button id="tab-health">Health</button>
+  </div>
+</header>
+<main>
+  <div class="pane active" id="graph-pane">
+    <div id="sidebar">
+      <label for="search">Search</label>
+      <input id="search" type="search" placeholder="title, path, tag&hellip;">
+      <label for="colorby">Color by</label>
+      <select id="colorby">
+        <option value="type">Type</option>
+        <option value="dir">Top-level directory</option>
+        <option value="trust">Trust tier</option>
+        <option value="status">Status</option>
+      </select>
+      <div id="legend"></div>
+      <div class="checkline">
+        <input type="checkbox" id="group-dirs">
+        <label for="group-dirs" style="all:unset;cursor:pointer">Group by directory</label>
+      </div>
+      <div class="checkline">
+        <input type="checkbox" id="show-broken">
+        <label for="show-broken" style="all:unset;cursor:pointer">Show broken links</label>
+      </div>
+    </div>
+    <div id="canvas-wrap">
+      <canvas id="canvas"></canvas>
+      <div id="detail">
+        <button class="close" id="detail-close" title="Close">&times;</button>
+        <div id="detail-body"></div>
+      </div>
+    </div>
+  </div>
+  <div class="pane" id="health-pane"></div>
+</main>
+<div id="mdmodal">
+  <div class="mdbox">
+    <div class="mdbar">
+      <h2 id="mdtitle"></h2>
+      <span class="path" id="mdpath"></span>
+      <button id="mdclose" title="Close">&times;</button>
+    </div>
+    <div class="mdcontent md" id="mdcontent"></div>
+  </div>
+</div>
+
+<script id="okf-data" type="application/json">"__OKF_DATA_JSON__"</script>
+<script>
+"use strict";
+const DATA = JSON.parse(document.getElementById("okf-data").textContent);
+
+document.getElementById("bundle-name").textContent = DATA.bundle;
+document.getElementById("generated").textContent =
+  "OKF v" + (DATA.okfVersion || "0.2") + " · " +
+  DATA.stats.concepts + " concepts · generated " + DATA.generated;
+
+/* ---------------------------------------------------------------- tabs */
+const panes = { graph: document.getElementById("graph-pane"),
+                health: document.getElementById("health-pane") };
+const tabs  = { graph: document.getElementById("tab-graph"),
+                health: document.getElementById("tab-health") };
+function showTab(name) {
+  for (const k of Object.keys(panes)) {
+    panes[k].classList.toggle("active", k === name);
+    tabs[k].classList.toggle("active", k === name);
+  }
+  if (name === "graph") resize();
+}
+tabs.graph.addEventListener("click", () => showTab("graph"));
+tabs.health.addEventListener("click", () => showTab("health"));
+
+/* ---------------------------------------------------------- graph model */
+const PALETTE = ["#2563eb","#dc2626","#059669","#d97706","#7c3aed","#db2777",
+                 "#0891b2","#65a30d","#9333ea","#b45309","#0f766e","#4b5563"];
+const nodes = DATA.nodes.map(n => ({ ...n, x: 0, y: 0, vx: 0, vy: 0 }));
+const byId = new Map(nodes.map(n => [n.id, n]));
+const edges = DATA.edges
+  .filter(e => e.broken || (byId.has(e.source) && byId.has(e.target)))
+  .map(e => ({ ...e, s: byId.get(e.source), t: byId.get(e.target) }));
+const neighbors = new Map(nodes.map(n => [n.id, new Set()]));
+for (const e of edges) {
+  if (e.broken || !e.s || !e.t) continue;
+  neighbors.get(e.s.id).add(e.t.id);
+  neighbors.get(e.t.id).add(e.s.id);
+}
+for (const n of nodes) n.r = 4 + Math.sqrt(n.in + n.out) * 2.2;
+
+function topDir(n) { return n.dir === "." ? "(root)" : n.dir.split("/")[0]; }
+function groupKey(n) {
+  if (colorMode === "type") return n.type || "(none)";
+  if (colorMode === "trust") return n.trust || "unverified";
+  if (colorMode === "status") return n.status || "stable";
+  return topDir(n);
+}
+let colorMode = "type";
+let groupDirs = false;
+let groupColors = new Map();
+const dirNames = [...new Set(nodes.map(topDir))].sort();
+const dirColors = new Map(dirNames.map((d, i) => [d, PALETTE[i % PALETTE.length]]));
+function dirCentroids() {
+  const cents = new Map();
+  for (const n of nodes) {
+    const d = topDir(n);
+    let c = cents.get(d);
+    if (!c) cents.set(d, c = { x: 0, y: 0, count: 0, maxR: 0 });
+    c.x += n.x; c.y += n.y; c.count++;
+  }
+  for (const c of cents.values()) { c.x /= c.count; c.y /= c.count; }
+  for (const n of nodes) {
+    const c = cents.get(topDir(n));
+    c.maxR = Math.max(c.maxR, Math.hypot(n.x - c.x, n.y - c.y) + n.r);
+  }
+  return cents;
+}
+function rebuildLegend() {
+  const groups = [...new Set(nodes.map(groupKey))].sort();
+  groupColors = new Map(groups.map((g, i) => [g, PALETTE[i % PALETTE.length]]));
+  const legend = document.getElementById("legend");
+  legend.innerHTML = "";
+  for (const g of groups) {
+    const row = document.createElement("div");
+    const sw = document.createElement("span");
+    sw.className = "swatch";
+    sw.style.background = groupColors.get(g);
+    row.appendChild(sw);
+    row.appendChild(document.createTextNode(g + " (" +
+      nodes.filter(n => groupKey(n) === g).length + ")"));
+    legend.appendChild(row);
+  }
+}
+
+/* seed positions: one cluster ring per group so layout converges fast */
+function seedPositions() {
+  const groups = [...new Set(nodes.map(groupKey))].sort();
+  const G = groups.length, R = 90 * Math.max(2, Math.sqrt(G));
+  groups.forEach((g, gi) => {
+    const cx = G > 1 ? R * Math.cos(2 * Math.PI * gi / G) : 0;
+    const cy = G > 1 ? R * Math.sin(2 * Math.PI * gi / G) : 0;
+    const members = nodes.filter(n => groupKey(n) === g);
+    members.forEach((n, i) => {
+      const a = 2 * Math.PI * i / Math.max(1, members.length);
+      const r = 20 + 8 * Math.sqrt(i);
+      n.x = cx + r * Math.cos(a);
+      n.y = cy + r * Math.sin(a);
+    });
+  });
+}
+
+/* ------------------------------------------------------ force simulation */
+let alpha = 1;
+function tick() {
+  if (alpha < 0.005) return;
+  alpha *= 0.985;
+  const k = alpha;
+  // pairwise repulsion — O(n^2), fine for a few hundred nodes
+  for (let i = 0; i < nodes.length; i++) {
+    const a = nodes[i];
+    for (let j = i + 1; j < nodes.length; j++) {
+      const b = nodes[j];
+      let dx = a.x - b.x, dy = a.y - b.y;
+      let d2 = dx * dx + dy * dy;
+      if (d2 < 1) { dx = Math.random() - 0.5; dy = Math.random() - 0.5; d2 = 1; }
+      const f = 1400 * k / d2;
+      const d = Math.sqrt(d2);
+      dx = dx / d * f; dy = dy / d * f;
+      a.vx += dx; a.vy += dy; b.vx -= dx; b.vy -= dy;
+    }
+  }
+  // spring attraction along edges
+  for (const e of edges) {
+    if (e.broken || !e.s || !e.t) continue;
+    const dx = e.t.x - e.s.x, dy = e.t.y - e.s.y;
+    const d = Math.max(1, Math.sqrt(dx * dx + dy * dy));
+    let f = 0.02 * k * (d - 70);
+    // when grouping, cross-directory springs are weakened so clusters can separate
+    if (groupDirs && topDir(e.s) !== topDir(e.t)) f *= 0.15;
+    e.s.vx += dx / d * f; e.s.vy += dy / d * f;
+    e.t.vx -= dx / d * f; e.t.vy -= dy / d * f;
+  }
+  // pull each node toward its top-level-directory centroid
+  if (groupDirs) {
+    const cents = dirCentroids();
+    for (const n of nodes) {
+      const c = cents.get(topDir(n));
+      n.vx += (c.x - n.x) * 0.05 * k;
+      n.vy += (c.y - n.y) * 0.05 * k;
+    }
+  }
+  // weak centering + integrate
+  for (const n of nodes) {
+    n.vx -= n.x * 0.002 * k;
+    n.vy -= n.y * 0.002 * k;
+    if (n !== dragNode) { n.x += n.vx; n.y += n.vy; }
+    n.vx *= 0.6; n.vy *= 0.6;
+  }
+}
+
+/* ------------------------------------------------------------ rendering */
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const view = { x: 0, y: 0, k: 1 };
+let hoverNode = null, selectedNode = null, dragNode = null;
+let searchTerm = "";
+let showBroken = false;
+
+function resize() {
+  const wrap = document.getElementById("canvas-wrap");
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = wrap.clientWidth * dpr;
+  canvas.height = wrap.clientHeight * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  view.cx = wrap.clientWidth / 2;
+  view.cy = wrap.clientHeight / 2;
+}
+window.addEventListener("resize", resize);
+
+function worldToScreen(x, y) {
+  return [view.cx + (x - view.x) * view.k, view.cy + (y - view.y) * view.k];
+}
+function screenToWorld(sx, sy) {
+  return [(sx - view.cx) / view.k + view.x, (sy - view.cy) / view.k + view.y];
+}
+function matches(n) {
+  if (!searchTerm) return true;
+  const q = searchTerm.toLowerCase();
+  return n.title.toLowerCase().includes(q) || n.id.toLowerCase().includes(q) ||
+         n.tags.some(t => t.toLowerCase().includes(q));
+}
+function isDimmed(n) {
+  if (searchTerm && !matches(n)) return true;
+  const focus = hoverNode || selectedNode;
+  if (focus && n !== focus && !neighbors.get(focus.id).has(n.id)) return true;
+  return false;
+}
+
+function drawGroups() {
+  const cents = dirCentroids();
+  ctx.font = "600 12px -apple-system, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "alphabetic";
+  for (const [dir, c] of cents) {
+    const [sx, sy] = worldToScreen(c.x, c.y);
+    const sr = (c.maxR + 14) * view.k;
+    const color = dirColors.get(dir) || "#4b5563";
+    ctx.globalAlpha = 0.07;
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.arc(sx, sy, sr, 0, 2 * Math.PI); ctx.fill();
+    ctx.globalAlpha = 0.35;
+    ctx.strokeStyle = color; ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = color;
+    ctx.fillText(dir, sx, sy - sr - 6);
+  }
+  ctx.textAlign = "left";
+}
+
+function draw() {
+  const w = canvas.clientWidth || canvas.width, h = canvas.clientHeight || canvas.height;
+  ctx.clearRect(0, 0, w, h);
+  if (groupDirs) drawGroups();
+  const focus = hoverNode || selectedNode;
+  // edges
+  for (const e of edges) {
+    if (e.broken) {
+      if (!showBroken || !e.s) continue;
+      const [x1, y1] = worldToScreen(e.s.x, e.s.y);
+      ctx.strokeStyle = "rgba(220,38,38,.7)";
+      ctx.setLineDash([4, 3]);
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x1 + 18, y1 + 18);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      continue;
+    }
+    const emph = focus && (e.s === focus || e.t === focus);
+    const dim = focus && !emph;
+    ctx.strokeStyle = emph ? "rgba(31,36,48,.55)" : dim ? "rgba(31,36,48,.05)" : "rgba(31,36,48,.14)";
+    ctx.lineWidth = emph ? 1.4 : 1;
+    const [x1, y1] = worldToScreen(e.s.x, e.s.y);
+    const [x2, y2] = worldToScreen(e.t.x, e.t.y);
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    if (emph) { // arrowhead on emphasized edges only, to show direction
+      const dx = x2 - x1, dy = y2 - y1, d = Math.max(1, Math.hypot(dx, dy));
+      const tr = e.t.r * view.k + 3;
+      const ax = x2 - dx / d * tr, ay = y2 - dy / d * tr;
+      ctx.beginPath();
+      ctx.moveTo(ax, ay);
+      ctx.lineTo(ax - (dx / d * 6) + (dy / d * 3), ay - (dy / d * 6) - (dx / d * 3));
+      ctx.lineTo(ax - (dx / d * 6) - (dy / d * 3), ay - (dy / d * 6) + (dx / d * 3));
+      ctx.fillStyle = "rgba(31,36,48,.55)";
+      ctx.fill();
+    }
+  }
+  // nodes
+  for (const n of nodes) {
+    const [x, y] = worldToScreen(n.x, n.y);
+    const dim = isDimmed(n);
+    ctx.globalAlpha = dim ? 0.12 : 1;
+    ctx.fillStyle = groupColors.get(groupKey(n)) || "#4b5563";
+    ctx.beginPath();
+    ctx.arc(x, y, n.r * Math.min(1.4, Math.max(0.6, view.k)), 0, 2 * Math.PI);
+    ctx.fill();
+    if (n === selectedNode || n === hoverNode) {
+      ctx.strokeStyle = "#1f2430"; ctx.lineWidth = 2; ctx.stroke();
+    }
+    if (n.issues.length && !dim) {
+      ctx.strokeStyle = n.issues.some(i => i.level === "error") ? "#dc2626" : "#d97706";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(x, y, n.r * Math.min(1.4, Math.max(0.6, view.k)) + 2.5, 0, 2 * Math.PI);
+      ctx.stroke();
+    }
+    if (n.stale && !dim) { // past stale_after: dashed outer ring
+      ctx.strokeStyle = "#d97706";
+      ctx.lineWidth = 1.2;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.arc(x, y, n.r * Math.min(1.4, Math.max(0.6, view.k)) + 5, 0, 2 * Math.PI);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    ctx.globalAlpha = 1;
+  }
+  // labels: zoomed in, or focused node + neighbors
+  ctx.font = "11px -apple-system, sans-serif";
+  ctx.textBaseline = "middle";
+  for (const n of nodes) {
+    const show = view.k >= 1.5 || n === selectedNode || n === hoverNode ||
+      (focus && neighbors.get(focus.id).has(n.id));
+    if (!show || isDimmed(n)) continue;
+    const [x, y] = worldToScreen(n.x, n.y);
+    const label = n.title;
+    ctx.fillStyle = "rgba(255,255,255,.85)";
+    const tw = ctx.measureText(label).width;
+    ctx.fillRect(x + n.r + 4, y - 8, tw + 6, 16);
+    ctx.fillStyle = "#1f2430";
+    ctx.fillText(label, x + n.r + 7, y);
+  }
+}
+
+function loop() { tick(); draw(); requestAnimationFrame(loop); }
+
+/* ---------------------------------------------------------- interaction */
+function nodeAt(sx, sy) {
+  const [wx, wy] = screenToWorld(sx, sy);
+  let best = null, bestD = Infinity;
+  for (const n of nodes) {
+    const d = Math.hypot(n.x - wx, n.y - wy);
+    const hit = (n.r * Math.min(1.4, Math.max(0.6, view.k)) + 4) / view.k;
+    if (d < hit && d < bestD) { best = n; bestD = d; }
+  }
+  return best;
+}
+let panStart = null;
+canvas.addEventListener("mousedown", e => {
+  const n = nodeAt(e.offsetX, e.offsetY);
+  if (n) { dragNode = n; }
+  else { panStart = { x: e.offsetX, y: e.offsetY, vx: view.x, vy: view.y }; }
+  canvas.classList.add("dragging");
+});
+canvas.addEventListener("mousemove", e => {
+  if (dragNode) {
+    const [wx, wy] = screenToWorld(e.offsetX, e.offsetY);
+    dragNode.x = wx; dragNode.y = wy;
+    dragNode.vx = dragNode.vy = 0;
+    alpha = Math.max(alpha, 0.1);
+  } else if (panStart) {
+    view.x = panStart.vx - (e.offsetX - panStart.x) / view.k;
+    view.y = panStart.vy - (e.offsetY - panStart.y) / view.k;
+  } else {
+    hoverNode = nodeAt(e.offsetX, e.offsetY);
+    canvas.style.cursor = hoverNode ? "pointer" : "grab";
+  }
+});
+window.addEventListener("mouseup", e => {
+  if (dragNode && e.target === canvas) {
+    const moved = Math.hypot(dragNode.vx, dragNode.vy);
+    void moved;
+  }
+  dragNode = null; panStart = null;
+  canvas.classList.remove("dragging");
+});
+canvas.addEventListener("click", e => {
+  const n = nodeAt(e.offsetX, e.offsetY);
+  if (n) selectNode(n); else { selectedNode = null; closeDetail(); }
+});
+canvas.addEventListener("wheel", e => {
+  e.preventDefault();
+  const factor = Math.exp(-e.deltaY * 0.0015);
+  const [wx, wy] = screenToWorld(e.offsetX, e.offsetY);
+  view.k = Math.min(8, Math.max(0.15, view.k * factor));
+  // keep the point under the cursor fixed
+  view.x = wx - (e.offsetX - view.cx) / view.k;
+  view.y = wy - (e.offsetY - view.cy) / view.k;
+}, { passive: false });
+
+/* --------------------------------------------------------- detail panel */
+const detail = document.getElementById("detail");
+const detailBody = document.getElementById("detail-body");
+document.getElementById("detail-close").addEventListener("click", closeDetail);
+function closeDetail() { detail.classList.remove("open"); selectedNode = null; }
+
+function esc(s) {
+  return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+function nodeLinkList(ids) {
+  if (!ids.length) return '<span class="empty">none</span>';
+  return "<ul>" + ids.sort().map(id =>
+    `<li><a data-node="${esc(id)}">${esc(id)}</a></li>`).join("") + "</ul>";
+}
+function selectNode(n, recenter) {
+  selectedNode = n;
+  const inbound = edges.filter(e => !e.broken && e.t === n).map(e => e.s.id);
+  const outbound = edges.filter(e => !e.broken && e.s === n).map(e => e.t.id);
+  const brokenOut = edges.filter(e => e.broken && e.s === n).map(e => e.target);
+  detailBody.innerHTML = `
+    <h2>${esc(n.title)}</h2>
+    <div class="path">${esc(n.id)}</div>
+    ${n.description ? `<div class="desc">${esc(n.description)}</div>` : ""}
+    ${n.markdown ? `<button class="expand" data-expand="${esc(n.id)}">Expand full markdown</button>` : ""}
+    <dl>
+      <dt>Type</dt><dd>${esc(n.type || "(none)")}${n.runtime ? " · runtime: " + esc(n.runtime) : ""}</dd>
+      <dt>Status / trust</dt><dd>${esc(n.status || "stable")} · ${esc(n.trust || "unverified")}</dd>
+      ${n.generatedAt || n.generatedBy ? `<dt>Generated</dt><dd>` +
+        esc(n.generatedBy || "(unknown)") + (n.generatedAt ? " · " + esc(n.generatedAt) : "") + `</dd>` : ""}
+      ${(n.verified || []).length ? `<dt>Verified</dt><dd>` + n.verified.map(v =>
+        esc(v.by) + (v.at ? " · " + esc(v.at) : "")).join("<br>") + `</dd>` : ""}
+      ${n.staleAfter ? `<dt>Stale after</dt><dd>${esc(n.staleAfter)}` +
+        (n.stale ? ` <span class="issue warning" style="display:inline;padding:1px 6px">past due</span>` : "") + `</dd>` : ""}
+      ${(n.sources || []).length ? `<dt>Sources (${n.sources.length})</dt><dd>` + n.sources.map(s =>
+        `<div style="font-size:11.5px;word-break:break-all">${esc(s.title || s.id || s.resource)}</div>`).join("") + `</dd>` : ""}
+      ${n.tags.length ? `<dt>Tags</dt><dd>` +
+        n.tags.map(t => `<span class="tagchip">${esc(t)}</span>`).join("") + `</dd>` : ""}
+      ${n.issues.length ? `<dt>Issues</dt><dd>` + n.issues.map(i =>
+        `<div class="issue ${esc(i.level)}">${esc(i.msg)}</div>`).join("") + `</dd>` : ""}
+      <dt>Inbound links (${inbound.length})</dt><dd>${nodeLinkList(inbound)}</dd>
+      <dt>Outbound links (${outbound.length})</dt><dd>${nodeLinkList(outbound)}</dd>
+      ${brokenOut.length ? `<dt>Broken outbound</dt><dd>` + brokenOut.map(t =>
+        `<div class="issue warning">${esc(t)}</div>`).join("") + `</dd>` : ""}
+    </dl>`;
+  detail.classList.add("open");
+  if (recenter) { view.x = n.x; view.y = n.y; view.k = Math.max(view.k, 1.2); }
+}
+detailBody.addEventListener("click", e => {
+  const ds = e.target.dataset || {};
+  if (ds.expand && byId.has(ds.expand)) { openMarkdown(byId.get(ds.expand)); return; }
+  if (ds.node && byId.has(ds.node)) selectNode(byId.get(ds.node), true);
+});
+
+/* --------------------------------------------------- full-markdown modal */
+const mdmodal = document.getElementById("mdmodal");
+const mdcontent = document.getElementById("mdcontent");
+document.getElementById("mdclose").addEventListener("click", closeMarkdown);
+mdmodal.addEventListener("click", e => { if (e.target === mdmodal) closeMarkdown(); });
+window.addEventListener("keydown", e => {
+  if (e.key === "Escape" && mdmodal.classList.contains("open")) closeMarkdown();
+});
+function openMarkdown(n) {
+  document.getElementById("mdtitle").textContent = n.title;
+  document.getElementById("mdpath").textContent = n.id;
+  mdcontent.innerHTML = renderMarkdown(n.markdown || "*(no content)*", n.id);
+  mdcontent.scrollTop = 0;
+  mdmodal.classList.add("open");
+}
+function closeMarkdown() { mdmodal.classList.remove("open"); }
+mdcontent.addEventListener("click", e => {
+  const id = e.target.dataset && e.target.dataset.node;
+  if (id && byId.has(id)) {
+    closeMarkdown();
+    showTab("graph");
+    selectNode(byId.get(id), true);
+  }
+});
+
+/* resolve a relative markdown link against the linking file's path */
+function resolveRel(fromId, href) {
+  if (/^[a-z][a-z0-9+.-]*:/i.test(href) || href.startsWith("#")) return null;
+  const stack = href.startsWith("/") ? [] : fromId.split("/").slice(0, -1);
+  for (const part of href.split(/[?#]/)[0].split("/")) {
+    if (part === "" || part === ".") continue;
+    if (part === "..") stack.pop(); else stack.push(part);
+  }
+  return stack.join("/");
+}
+
+/* minimal markdown -> HTML renderer (headings, lists, code, tables, quotes,
+   inline code/bold/italic/links). Concept-to-concept links become clickable
+   node links; external links open in a new tab. */
+function renderMarkdown(src, fromId) {
+  const inline = s => {
+    // stash inline code spans so later formatting can't touch their contents
+    const codes = [];
+    let rest = esc(s).replace(/`([^`]+)`/g, (_, c) => {
+      codes.push(c);
+      return "\u0000" + (codes.length - 1) + "\u0000";
+    });
+    rest = rest
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/(^|[\s(])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>")
+      .replace(/\[([^\]]+)\]\(([^()\s]+)\)/g, (m, txt, href) => {
+        const target = resolveRel(fromId, href);
+        if (target && byId.has(target))
+          return `<a class="mdlink" data-node="${esc(target)}">${txt}</a>`;
+        if (/^https?:/i.test(href))
+          return `<a href="${href}" target="_blank" rel="noopener">${txt}</a>`;
+        return txt;
+      });
+    return rest.replace(/\u0000(\d+)\u0000/g, (_, k) => "<code>" + codes[+k] + "</code>");
+  };
+  const lines = src.split(/\r?\n/);
+  const html = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (/^\s*$/.test(line)) { i++; continue; }
+    let m;
+    if ((m = line.match(/^(`{3,}|~{3,})/))) {           // fenced code block
+      const fence = m[1][0].repeat(m[1].length);
+      const buf = [];
+      i++;
+      while (i < lines.length && !lines[i].startsWith(fence)) buf.push(lines[i++]);
+      i++;
+      html.push("<pre><code>" + esc(buf.join("\n")) + "</code></pre>");
+    } else if ((m = line.match(/^(#{1,6})\s+(.*)$/))) { // heading
+      const lvl = Math.min(4, m[1].length);
+      html.push(`<h${lvl}>` + inline(m[2].replace(/\s#+\s*$/, "")) + `</h${lvl}>`);
+      i++;
+    } else if (/^\s*([-*_])\s*\1\s*\1[\s\-*_]*$/.test(line)) { // hr
+      html.push("<hr>");
+      i++;
+    } else if (/^\s*>/.test(line)) {                    // blockquote
+      const buf = [];
+      while (i < lines.length && /^\s*>/.test(lines[i]))
+        buf.push(lines[i++].replace(/^\s*>\s?/, ""));
+      html.push("<blockquote>" + renderMarkdown(buf.join("\n"), fromId) + "</blockquote>");
+    } else if (/^\s*([-*+]|\d+[.)])\s+/.test(line)) {   // list (flat)
+      const ordered = /^\s*\d+[.)]\s+/.test(line);
+      const items = [];
+      while (i < lines.length && /^\s*([-*+]|\d+[.)])\s+/.test(lines[i])) {
+        let item = lines[i++].replace(/^\s*([-*+]|\d+[.)])\s+/, "");
+        while (i < lines.length && /^\s{2,}\S/.test(lines[i]) &&
+               !/^\s*([-*+]|\d+[.)])\s+/.test(lines[i]))
+          item += " " + lines[i++].trim();
+        items.push("<li>" + inline(item) + "</li>");
+      }
+      html.push((ordered ? "<ol>" : "<ul>") + items.join("") + (ordered ? "</ol>" : "</ul>"));
+    } else if (line.includes("|") && i + 1 < lines.length &&
+               /^\s*\|?[\s:|-]+\|[\s:|-]*$/.test(lines[i + 1])) { // table
+      const row = l => l.replace(/^\s*\|/, "").replace(/\|\s*$/, "").split("|").map(c => c.trim());
+      const head = row(lines[i]);
+      i += 2;
+      const body = [];
+      while (i < lines.length && lines[i].includes("|") && !/^\s*$/.test(lines[i]))
+        body.push(row(lines[i++]));
+      html.push("<table><tr>" + head.map(c => "<th>" + inline(c) + "</th>").join("") + "</tr>" +
+        body.map(r => "<tr>" + r.map(c => "<td>" + inline(c) + "</td>").join("") + "</tr>").join("") +
+        "</table>");
+    } else {                                            // paragraph
+      const buf = [line];
+      i++;
+      while (i < lines.length && !/^\s*$/.test(lines[i]) &&
+             !/^(#{1,6}\s|`{3}|~{3}|\s*>|\s*([-*+]|\d+[.)])\s+)/.test(lines[i]) &&
+             !(lines[i].includes("|") && i + 1 < lines.length &&
+               /^\s*\|?[\s:|-]+\|[\s:|-]*$/.test(lines[i + 1])))
+        buf.push(lines[i++]);
+      html.push("<p>" + inline(buf.join(" ")) + "</p>");
+    }
+  }
+  return html.join("\n");
+}
+
+/* ------------------------------------------------------------- controls */
+document.getElementById("search").addEventListener("input", e => {
+  searchTerm = e.target.value.trim();
+});
+document.getElementById("colorby").addEventListener("change", e => {
+  colorMode = e.target.value;
+  rebuildLegend();
+});
+document.getElementById("group-dirs").addEventListener("change", e => {
+  groupDirs = e.target.checked;
+  alpha = 1; // reheat the simulation so clusters re-form (or relax back)
+});
+document.getElementById("show-broken").addEventListener("change", e => {
+  showBroken = e.target.checked;
+});
+
+/* ---------------------------------------------------------- health pane */
+function fileLink(id) {
+  return byId.has(id)
+    ? `<a class="node-link" data-node="${esc(id)}">${esc(id)}</a>`
+    : `<span class="mono">${esc(id)}</span>`;
+}
+function tableOr(rows, headers, empty) {
+  if (!rows.length) return `<div class="empty">${empty}</div>`;
+  return `<table><tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>` +
+    rows.join("") + "</table>";
+}
+function countTable(obj) {
+  const rows = Object.entries(obj).sort((a, b) => b[1] - a[1])
+    .map(([k, v]) => `<tr><td>${esc(k)}</td><td>${v}</td></tr>`);
+  return tableOr(rows, ["Value", "Count"], "none");
+}
+function renderHealth() {
+  const h = DATA.health, s = DATA.stats;
+  const fresh = h.freshness || [];
+  const nStale = fresh.filter(f => f.band === "stale").length;
+  const nReview = fresh.filter(f => f.band === "review").length;
+  const cards = [
+    ["Concepts", s.concepts, ""],
+    ["Errors", s.errors, s.errors ? "bad" : ""],
+    ["Warnings", s.warnings, s.warnings ? "warn" : ""],
+    ["Orphans", h.orphans.length, h.orphans.length ? "warn" : ""],
+    ["Broken links", h.brokenLinks.length, h.brokenLinks.length ? "warn" : ""],
+    ["Stale", nStale, nStale ? "bad" : ""],
+    ["To review", nReview, nReview ? "warn" : ""],
+    ["Unverified", (h.unverified || []).length, (h.unverified || []).length ? "warn" : ""],
+    ["Past stale_after", (h.pastStale || []).length, (h.pastStale || []).length ? "bad" : ""],
+  ].map(([lbl, num, cls]) =>
+    `<div class="card"><div class="num ${cls}">${num}</div><div class="lbl">${lbl}</div></div>`
+  ).join("");
+
+  const findings = h.findings
+    .slice().sort((a, b) => (a.level === b.level ? 0 : a.level === "error" ? -1 : 1))
+    .map(f => `<tr><td><span class="lvl ${esc(f.level)}">${esc(f.level)}</span></td>` +
+      `<td>${fileLink(f.file)}</td><td>${esc(f.msg)}</td></tr>`);
+  const broken = h.brokenLinks.map(b =>
+    `<tr><td>${fileLink(b.from)}</td><td class="mono">${esc(b.target)}</td></tr>`);
+  const listRows = ids => ids.map(id => `<tr><td>${fileLink(id)}</td></tr>`);
+
+  const freshRows = fresh.filter(f => f.band !== "fresh").map(f =>
+    `<tr><td><span class="lvl ${f.band === "stale" ? "error" : "warning"}">${f.score}</span></td>` +
+    `<td>${fileLink(f.id)}</td><td>${f.docDays}d</td>` +
+    `<td>${f.sourceDays == null ? "-" : f.sourceDays + "d"}</td>` +
+    `<td>${esc((f.reasons || []).join("; "))}</td></tr>`);
+
+  panes.health.innerHTML = `
+    <div class="cards">${cards}</div>
+    <div class="tables">
+      <section style="grid-column: 1 / -1">
+        <h3>Validation findings</h3>
+        ${tableOr(findings, ["Level", "File", "Message"], "no findings — bundle is clean")}
+      </section>
+      <section style="grid-column: 1 / -1">
+        <h3>Freshness</h3>
+        <div class="note">0&ndash;100 staleness score from git age vs. declared <span class="mono">sources</span> (&sect;5.1), <span class="mono">stale_after</span> expiry (&sect;5.5), and missing source paths (see <span class="mono">okf.py freshness</span>). Only sub-fresh concepts (&lt;${65}) are listed.</div>
+        ${tableOr(freshRows, ["Score", "Concept", "Doc age", "Source age", "Why"], "all concepts score fresh")}
+      </section>
+      <section>
+        <h3>Broken links</h3>
+        ${tableOr(broken, ["From", "Target"], "no broken links")}
+      </section>
+      <section>
+        <h3>Orphaned concepts</h3>
+        <div class="note">No inbound links from other concepts (index.md links are intentionally not counted — every concept is index-linked per SPEC &sect;8).</div>
+        ${tableOr(listRows(h.orphans), ["File"], "no orphans")}
+      </section>
+      <section>
+        <h3>Unverified concepts</h3>
+        <div class="note">No <span class="mono">verified</span> entries (&sect;5.3). Advisory, not a defect.</div>
+        ${tableOr(listRows(h.unverified || []), ["File"], "every concept is verified")}
+      </section>
+      <section>
+        <h3>Past stale_after</h3>
+        ${tableOr(listRows(h.pastStale || []), ["File"], "nothing past its stale_after")}
+      </section>
+      <section>
+        <h3>Missing description</h3>
+        ${tableOr(listRows(h.missingDescription), ["File"], "all concepts have descriptions")}
+      </section>
+      <section>
+        <h3>Missing generated.at</h3>
+        ${tableOr(listRows(h.missingGenerated || []), ["File"], "all concepts record generated.at")}
+      </section>
+      <section><h3>Trust tiers</h3>${countTable(s.byTrust || {})}</section>
+      <section><h3>Lifecycle status</h3>${countTable(s.byStatus || {})}</section>
+      <section><h3>Concepts by type</h3>${countTable(s.byType)}</section>
+      <section><h3>Concepts by directory</h3>${countTable(s.byDir)}</section>
+      <section><h3>Concepts by tag</h3>${countTable(s.byTag)}</section>
+    </div>`;
+  panes.health.addEventListener("click", e => {
+    const id = e.target.dataset && e.target.dataset.node;
+    if (id && byId.has(id)) { showTab("graph"); selectNode(byId.get(id), true); }
+  });
+}
+
+/* ----------------------------------------------------------------- init */
+rebuildLegend();
+seedPositions();
+renderHealth();
+resize();
+loop();
+</script>
+</body>
+</html>
