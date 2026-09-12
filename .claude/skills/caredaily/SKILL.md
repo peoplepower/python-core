@@ -60,9 +60,13 @@ api_key = result.data["key"]
 ```
 
 **Passcode / TOTP:** if the account requires a second factor, the login raises
-`CareDailyException` with `context["resultCode"] == 17` (PASSCODE_REQUIRED).
-Obtain the code (`auth.send_passcode(...)` for SMS/email, or the user's TOTP
-app) and retry with `passcode=` instead of `password=`.
+`CareDailyException` (import from `caredaily`) with
+`context["resultCode"] == 17` (PASSCODE_REQUIRED). Obtain the code —
+`auth.send_passcode(username, pref_delivery_type=None, brand=None, prefix=None,
+app_hash=None)` triggers an SMS/email code, or use the user's TOTP app — then
+retry `login_by_username(username, passcode=...)` with `passcode=` instead of
+`password=`. The retry returns the same `Result` shape (key at
+`result.data["key"]`).
 
 **RSA signature login (2-step):** `caredaily configure signature --profile p
 --app-name myapp` handles the whole recipe — login with `sign=True`, sign the
