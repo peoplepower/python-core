@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: 'IoT Software Suite: Admin API'
-  version: '62'
+  version: '63'
   description: |-
     Care Daily offers a full Command Center to engage your customers and manage IoT services, and access to social engagement layers.
 
@@ -864,58 +864,6 @@ paths:
                   - 'DEF456'
 
 
-  /admin/json/organizations/{organizationId}/notifications:
-    post:
-      summary: Test Organization Notifications
-      operationId: Test notifications
-      description: |-
-        Request to generate possible common notifications including emails, SMS, push notifications.
-        The API will return all notification texts in a zip archive.
-      tags:
-        - Organizations
-      security:
-        - adminApiKey: []
-      parameters:
-        - name: organizationId
-          in: path
-          description: Organization ID
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        content:
-          application/json:
-            example:
-              brand: default
-              template: account/user_registration.vm
-              language: en
-              model:
-                key0: value0
-                key1: value1
-            schema:
-              type: object
-              properties:
-                brand:
-                  type: string
-                  description: Brand to overwrite the organization's brand
-                template:
-                  type: string
-                  description: Test the specific notification template
-                language:
-                  type: string
-                  description: Generate notifications in specific language. Otherwise the user's language is used.
-                model:
-                  type: object
-                  additionalProperties:
-                    type: string
-                  description: Notification template parameters key/value string map
-      responses:
-        '200':
-          description: ZIP archive
-        '404':
-          description: Resource not found
-
-
   /admin/json/roles:
     get:
       summary: Get Roles
@@ -1199,6 +1147,487 @@ paths:
                     type: integer
               example:
                 resultCode: 0
+
+
+  /admin/json/organizations/{organizationId}/notificationGroups:
+    get:
+      summary: Get Notification Groups
+      operationId: Get Notification Groups
+      description: |-
+        Get Organization Notification Groups
+        
+        Optional organization notification categories for backward compatibility
+        
+        | Category | Description |
+        |:--------:|-------------|
+        | 1 | Manager |
+        | 2 | Technician |
+        | 3 | Organization Billing |
+        | 4 | Research |
+        | 5 | Provider |
+        | 6 | Reports |
+      tags:
+        - Notifications
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+        - name: groupId
+          in: query
+          description: Filter by group ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Notification Grops
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  groups:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        groupId:
+                          type: integer
+                          description: Group ID
+                        category:
+                          type: integer
+                          description: Optional notification category
+                        name:
+                          type: string
+                          description: Group name
+                        description:
+                          type: string
+                          description: Group description
+                        defaultGroup:
+                          type: boolean
+                          description: Default group for notifications
+                        locationTag:
+                          type: string
+                          description: Location tag filter
+                        users:
+                          type: array
+                          description: Group users
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                              userName:
+                                type: string
+                              altUsername:
+                                type: string
+                              firstName:
+                                type: string
+                              lastName:
+                                type: string
+                              email:
+                                type: object
+                                properties:
+                                  email:
+                                    type: string
+                                  verified:
+                                    type: boolean
+                                  status:
+                                    type: integer
+                              role:
+                                type: object
+                                properties:
+                                  id:
+                                    type: integer
+                                  name:
+                                    type: string
+                                  description:
+                                    type: string
+              example:
+                resultCode: 0
+                groups:
+                  - groupId: 123
+                    name: Managers
+                    defaultGroup: true
+                    users:
+                      - id: 123
+                        userName: john.smith@gmail.com
+                        altUsername: '1234567890'
+                        firstName: John
+                        lastName: Smith
+                        email:
+                          email: john.smith@gmail.com
+                          verified: true
+                          status: 0
+                        role:
+                          id: 5
+                          name: Organization administrator
+                          description: Role description
+
+    post:
+      summary: Create Notification Group
+      operationId: Create Notification Group
+      description: Create or update organization notification group
+      tags:
+        - Notifications
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                group:
+                  type: object
+                  properties:
+                    groupId:
+                      type: integer
+                      description: Optional group ID to update existing group
+                    category:
+                      type: integer
+                      description: Optional notification category
+                    name:
+                      type: string
+                      description: Group name
+                    description:
+                      type: string
+                      description: Optional group description
+                    defaultGroup:
+                      type: boolean
+                      description: Default group for notifications
+                    locationTag:
+                      type: string
+                      description: Location tag filter
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  groupId:
+                    type: integer
+                    description: Created or updated group ID
+              example:
+                resultCode: 0
+
+    delete:
+      summary: Delete Notification Group
+      operationId: Delete Notification Group
+      description: Delete organization notification group
+      tags:
+        - Notifications
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+        - name: groupId
+          in: query
+          description: Group ID to delete
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+              example:
+                resultCode: 0
+
+
+  /admin/json/organizations/{organizationId}/notificationUsers:
+    put:
+      summary: Update Notification Users
+      operationId: Update Notification Users
+      description: >-
+        This API allows to add and remove notification users to and from notification groups.
+      tags:
+        - Notifications
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                users:
+                  type: array
+                  description: Users to add to or delete from notification groups
+                  items:
+                    type: object
+                    properties:
+                      userId:
+                        type: integer
+                        description: User ID
+                      groupId:
+                        type: integer
+                        description: Group ID. If not set for the delete request, the user will be deleted from all groups in the organization.
+                      delete:
+                        type: boolean
+                        description: Delete the user from the group
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+              example:
+                resultCode: 0
+
+
+  /admin/json/organizations/{organizationId}/notificationAssignments:
+    get:
+      summary: Get Notification Group Assignments
+      operationId: Get Notification Assignments
+      description: |-
+        Return all possible notifications declared by bots,
+        which are approved for the organization or included to the organization's service plans,
+        and assigned notification groups.
+      tags:
+        - Notifications
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Notifications
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  notifications:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        notificationId:
+                          type: integer
+                          description: Notification ID
+                        title:
+                          type: string
+                          description: Notification title in the user's language
+                        description:
+                          type: string
+                          description: Notification description in the user's language
+                        serviceName:
+                          type: string
+                          description: Required service
+                        exampleObjectName:
+                          type: string
+                          description: Notification example stored as a bot object
+                        bundle:
+                          type: string
+                          description: Bot's bundle name
+                        groups:
+                          type: array
+                          description: Assigned notification groups
+                          items:
+                            type: object
+                            properties:
+                              groupId:
+                                type: integer
+                                description: Group ID
+                              organizationId:
+                                type: integer
+                              name:
+                                type: string
+                                description: Group name
+                              description:
+                                type: string
+                                description: Group description
+                        bots:
+                          type: array
+                          description: Bots sending this notification
+                          items:
+                            type: object
+                            properties:
+                              appId:
+                                type: integer
+                              bundle:
+                                type: string
+                              name:
+                                type: string
+                              author:
+                                type: string
+                              category:
+                                type: string
+                              description:
+                                type: string
+                              type:
+                                type: integer
+                              core:
+                                type: integer
+              example:
+                resultCode: 0
+                notifications:
+                  - notificationId: 123
+                    title: Notification to managers
+                    description: This notification is sent periodically
+                    groups:
+                      - groupId: 456
+                        organizationId: 789
+                        name: Managers
+                        description: Managers receive critical information at all times of the day.
+                    bots:
+                      - appId: 2342
+                        bundle: ai.caredaily.MyBot
+                        name: My First App
+                        author: Your Company
+                        category: L,E
+                        description: This a bot
+                        type: 0
+                        core: 1
+
+    put:
+      summary: Update Notification Group Assignmets
+      operationId: Update Notification Assignmets
+      description: |-
+        Add or delete organization notification groups to or from notifications.
+        Configured notifications must be declared by bots, which are either approved for the organization or included to the organization's service plans.
+      tags:
+        - Notifications
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                groups:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      notificationId:
+                        type: integer
+                        description: Notification ID
+                      groupId:
+                        type: integer
+                        description: Group ID to add to or delete from the notification
+                      delete:
+                        type: boolean
+                        description: Delete it
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+              example:
+                resultCode: 0
+
+
+  /admin/json/organizations/{organizationId}/notifications:
+    post:
+      summary: Test Organization Notifications
+      operationId: Test notifications
+      description: |-
+        Request to generate possible common notifications including emails, SMS, push notifications.
+        The API will return all notification texts in a zip archive.
+      tags:
+        - Notifications
+      security:
+        - adminApiKey: []
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            example:
+              brand: default
+              template: account/user_registration.vm
+              language: en
+              model:
+                key0: value0
+                key1: value1
+            schema:
+              type: object
+              properties:
+                brand:
+                  type: string
+                  description: Brand to overwrite the organization's brand
+                template:
+                  type: string
+                  description: Test the specific notification template
+                language:
+                  type: string
+                  description: Generate notifications in specific language. Otherwise the user's language is used.
+                model:
+                  type: object
+                  additionalProperties:
+                    type: string
+                  description: Notification template parameters key/value string map
+      responses:
+        '200':
+          description: ZIP archive
+        '404':
+          description: Resource not found
 
 
   /admin/json/users:
@@ -1906,272 +2335,6 @@ paths:
                   description: Remove locations from the organization
               required:
                 - locationIds
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-              example:
-                resultCode: 0
-
-
-  /admin/json/organizations/{organizationId}/notificationGroups:
-    get:
-      summary: Get Notification Groups
-      operationId: Get Notification Groups
-      description: |-
-        Get Organization Notification Groups
-        
-        Optional organization notification categories for backward compatibility
-        
-        | Category | Description |
-        |:--------:|-------------|
-        | 1 | Manager |
-        | 2 | Technician |
-        | 3 | Organization Billing |
-        | 4 | Research |
-        | 5 | Provider |
-        | 6 | Reports |
-      tags:
-        - Users and Locations
-      security:
-        - adminApiKey: []
-      parameters:
-        - name: organizationId
-          in: path
-          description: Organization ID
-          required: true
-          schema:
-            type: integer
-        - name: groupId
-          in: query
-          description: Filter by group ID
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Notification Grops
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-                  groups:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        groupId:
-                          type: integer
-                          description: Group ID
-                        category:
-                          type: integer
-                          description: Optional notification category
-                        name:
-                          type: string
-                          description: Group name
-                        description:
-                          type: string
-                          description: Group description
-                        defaultGroup:
-                          type: boolean
-                          description: Default group for notifications
-                        locationTag:
-                          type: string
-                          description: Location tag filter
-                        users:
-                          type: array
-                          description: Group users
-                          items:
-                            type: object
-                            properties:
-                              id:
-                                type: integer
-                              userName:
-                                type: string
-                              altUsername:
-                                type: string
-                              firstName:
-                                type: string
-                              lastName:
-                                type: string
-                              email:
-                                type: object
-                                properties:
-                                  email:
-                                    type: string
-                                  verified:
-                                    type: boolean
-                                  status:
-                                    type: integer
-                              role:
-                                type: object
-                                properties:
-                                  id:
-                                    type: integer
-                                  name:
-                                    type: string
-                                  description:
-                                    type: string
-              example:
-                resultCode: 0
-                groups:
-                  - groupId: 123
-                    name: Managers
-                    defaultGroup: true
-                    users:
-                      - id: 123
-                        userName: john.smith@gmail.com
-                        altUsername: '1234567890'
-                        firstName: John
-                        lastName: Smith
-                        email:
-                          email: john.smith@gmail.com
-                          verified: true
-                          status: 0
-                        role:
-                          id: 5
-                          name: Organization administrator
-                          description: Role description
-
-    post:
-      summary: Create Notification Group
-      operationId: Create Notification Group
-      description: Create or update organization notification group
-      tags:
-        - Users and Locations
-      security:
-        - adminApiKey: []
-      parameters:
-        - name: organizationId
-          in: path
-          description: Organization ID
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                group:
-                  type: object
-                  properties:
-                    groupId:
-                      type: integer
-                      description: Optional group ID to update existing group
-                    category:
-                      type: integer
-                      description: Optional notification category
-                    name:
-                      type: string
-                      description: Group name
-                    description:
-                      type: string
-                      description: Optional group description
-                    defaultGroup:
-                      type: boolean
-                      description: Default group for notifications
-                    locationTag:
-                      type: string
-                      description: Location tag filter
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-                  groupId:
-                    type: integer
-                    description: Created or updated group ID
-              example:
-                resultCode: 0
-
-    delete:
-      summary: Delete Notification Group
-      operationId: Delete Notification Group
-      description: Delete organization notification group
-      tags:
-        - Users and Locations
-      security:
-        - adminApiKey: []
-      parameters:
-        - name: organizationId
-          in: path
-          description: Organization ID
-          required: true
-          schema:
-            type: integer
-        - name: groupId
-          in: query
-          description: Group ID to delete
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-              example:
-                resultCode: 0
-
-
-  /admin/json/organizations/{organizationId}/notificationUsers:
-    put:
-      summary: Update Notification Users
-      operationId: Update Notification Users
-      description: >-
-        This API allows to add and remove notification users to and from notification groups.
-      tags:
-        - Users and Locations
-      security:
-        - adminApiKey: []
-      parameters:
-        - name: organizationId
-          in: path
-          description: Organization ID
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                users:
-                  type: array
-                  description: Users to add to or delete from notification groups
-                  items:
-                    type: object
-                    properties:
-                      userId:
-                        type: integer
-                        description: User ID
-                      groupId:
-                        type: integer
-                        description: Group ID. If not set for the delete request, the user will be deleted from all groups in the organization.
-                      delete:
-                        type: boolean
-                        description: Delete the user from the group
       responses:
         '200':
           description: OK
@@ -4891,8 +5054,10 @@ paths:
                           description: Top level organization ID in the hierarchy, if the group is assigned to it.
                         notificationGroupId:
                           type: integer
-                          description: |-
-                            Organization [notification group ID](#tag/Users-and-Locations/operation/Get%20Notification%20Groups) to send emails about completed scheduled reports.
+                          description: Organization [notification group ID](#tag/Users-and-Locations/operation/Get%20Notification%20Groups) to send emails about completed scheduled reports.
+                        notificationGroupName:
+                          type: string
+                          description: Organization notification group name
               example:
                 resultCode: 0
                 groups:
@@ -4904,6 +5069,7 @@ paths:
                     analytic: true
                     organizationId: 123
                     notificationGroupId: 6
+                    notificationGroupName: Managers
 
     put:
       summary: Set Report Group Organization
@@ -4934,9 +5100,7 @@ paths:
             type: integer
         - name: notificationGroupId
           in: query
-          description: |-
-            Notification group ID.<br>
-            To clear the notification group ID set it to 0.
+          description: Notification group ID
           schema:
             type: integer
       responses:
@@ -5372,6 +5536,11 @@ paths:
           description: Organization ID. Required when collectionId is provided; optional for organizational report groups in report mode.
           schema:
             type: integer
+        - name: subOrgs
+          in: query
+          description: Select report executions for sub-organizations as well.
+          schema:
+            type: boolean
         - name: reportId
           in: query
           description: Report ID. Required together with reportGroupId if collectionId is not provided or used as a filter for collections.
@@ -5380,6 +5549,11 @@ paths:
         - name: reportGroupId
           in: query
           description: Report group ID. Required together with reportId if collectionId is not provided.
+          schema:
+            type: integer
+        - name: demandUserId
+          in: query
+          description: ID for the user, who requested the report execution.
           schema:
             type: integer
       responses:
@@ -5464,6 +5638,12 @@ paths:
                         scheduleDateMs:
                           type: integer
                           description: Scheduled report execution datetime, in milliseconds since the epoch
+                        onDemand:
+                          type: boolean
+                          description: Non-scheduled demanded report execution
+                        demandUserId:
+                          type: integer
+                          description: ID for the user, who requested the report execution
                         executionTime:
                           type: integer
                           description: Report execution duration, in milliseconds
@@ -5716,6 +5896,7 @@ paths:
                     description: Weekly activity reports for all locations
                     executionSchedule: 0 0 8 ? * MON
                     notificationGroupId: 1
+                    notificationGroupName: Managers
                     nextExecutionDate: '2025-01-20T08:00:00Z'
                     nextExecutionDateMs: 1737360000000
                     reports:
@@ -7212,6 +7393,9 @@ components:
         notificationGroupId:
           type: integer
           description: Notification group ID
+        notificationGroupName:
+          type: string
+          description: Notification group name
         lastExecutionDate:
           type: string
           description: Last execution date in ISO-8601 format
@@ -7260,11 +7444,15 @@ tags:
 
   - name: Administrators
     description: |-
-      The IoT Software Suite is a role-based access control system.
+      Care Daily platform is a role-based access control system.
 
       * A "System Administrator" is allowed access to manage the entire system.
       * An "Organization Administrator" can manage users within their own organization. They do not have access to users or data from other organizations.
       * A "User" can only manage and see their own account. If they belong to an organization, users can retrieve limited data about the organization to which they belong.
+
+  - name: Notifications
+    description: |-
+      Administrators can manage user groups to receive notifications from end-user and organizational services.
 
   - name: Users and Locations
     description: |-

@@ -348,14 +348,34 @@ class TestAnalytic(unittest.TestCase):
         self.assertEqual(result, {'resultCode': 0})
 
     def test_send_ai_request_success(self):
-        self.mock_adapter.post.return_value = {'resultCode': 0}
-        ai_data = {'text': 'Say hello'}
-        result = self.analytic.send_ai_request(model_name='my_model', ai_data=ai_data, key='req1')
+        self.mock_adapter.post.return_value = {'resultCode': 0, 'answer': 'Hello!'}
+        result = self.analytic.send_ai_request(message='Say me hello!')
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(kwargs['ep_params']['name'], 'my_model')
-        self.assertEqual(kwargs['ep_params']['key'], 'req1')
-        self.assertEqual(kwargs['ep_json'], ai_data)
+        self.assertEqual(args[0], '/espapi/analytic/ai')
+        self.assertIsNone(kwargs['ep_params'])
+        self.assertEqual(kwargs['ep_json'], {'message': 'Say me hello!'})
+        self.assertEqual(result, {'resultCode': 0, 'answer': 'Hello!'})
+
+    def test_send_ai_request_with_all_parameters(self):
+        self.mock_adapter.post.return_value = {'resultCode': 0}
+        result = self.analytic.send_ai_request(
+            message='Say me hello!',
+            conversation_id='conv1',
+            request_id='req1',
+            location_id=123,
+            timeout_ms=5000,
+        )
+        self.mock_adapter.post.assert_called_once()
+        args, kwargs = self.mock_adapter.post.call_args
+        self.assertEqual(args[0], '/espapi/analytic/ai')
+        self.assertEqual(kwargs['ep_params']['locationId'], 123)
+        self.assertEqual(kwargs['ep_params']['timeout'], 5000)
+        self.assertEqual(kwargs['ep_json'], {
+            'message': 'Say me hello!',
+            'conversationId': 'conv1',
+            'requestId': 'req1',
+        })
         self.assertEqual(result, {'resultCode': 0})
 
     def test_send_openai_request_success(self):

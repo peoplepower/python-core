@@ -55,39 +55,6 @@ class TestBotStore(unittest.TestCase):
         self.assertEqual(kwargs['ep_params']['bundle'], 'com.example.bot')
         self.assertEqual(result, {'organizations': []})
 
-    def test_get_bot_notifications(self):
-        self.mock_adapter.get.return_value = {'apps': []}
-        result = self.bot_store.get_bot_notifications(123)
-        self.mock_adapter.get.assert_called_once()
-        args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/appstore/botNotifications/123')
-        self.assertIsNone(kwargs['ep_params'])
-        self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
-        self.assertEqual(result, {'apps': []})
-
-    def test_get_bot_notifications_with_bundle(self):
-        self.mock_adapter.get.return_value = {'apps': []}
-        result = self.bot_store.get_bot_notifications(123, bundle='com.example.bot')
-        args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/espapi/cloud/appstore/botNotifications/123')
-        self.assertEqual(kwargs['ep_params']['bundle'], 'com.example.bot')
-        self.assertEqual(result, {'apps': []})
-
-    def test_update_bot_notifications(self):
-        self.mock_adapter.put.return_value = {'resultCode': 0}
-        groups = [
-            {'notificationId': 1, 'groupId': 456},
-            {'notificationId': 2, 'groupId': 789, 'delete': True},
-        ]
-        result = self.bot_store.update_bot_notifications(123, 'com.example.bot', groups)
-        self.mock_adapter.put.assert_called_once()
-        args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/espapi/cloud/appstore/botNotifications/123')
-        self.assertEqual(kwargs['ep_params']['bundle'], 'com.example.bot')
-        self.assertEqual(kwargs['ep_json'], {'groups': groups})
-        self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
-        self.assertEqual(result, {'resultCode': 0})
-
     def test_search_bots(self):
         self.mock_adapter.get.return_value = {'bots': []}
         result = self.bot_store.search_bots(

@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: 'Care Daily AI and IoT Platform: Application API'
-  version: '62'
+  version: '63'
   description: |-
     The Care Daily AI and IoT Platform is the most comprehensive carrier-grade software suite ever developed for the creation and deployment of family-centric smart home and building services.
     The Care Daily AI Platform supports an AI Marketplace for 24/7 assistive services built with IoT devices, including coordination and communications between families and professionals.
@@ -4353,7 +4353,14 @@ paths:
           in: query
           description: Publish narrative to subscribers, default is true
           schema:
-            type: integer
+            type: boolean
+        - name: store
+          in: query
+          description: |-
+            Store a new narrative in the database, default is true.<br>
+            Can be set to `false`, if it is only for publishing.
+          schema:
+            type: boolean
         - name: narrativeId
           in: query
           description: ID of narrative for update
@@ -5824,24 +5831,17 @@ paths:
             type: integer
         - name: keepOnAccount
           in: query
-          description: Send only the delete command to the gateway, but keep the device on the user account.
+          description: Send only a delete command to the gateway, but keep the device on the user's account.
           schema:
             type: boolean
         - name: keepSlave
           in: query
-          description: Delete only the gateway from the user account without removing slave devices.
+          description: On deleting only a gateway from the user's account, keep dependant slave devices.
           schema:
             type: boolean
         - name: keepSlaveOnGateway
           in: query
-          description: Delete slave devices from the account only, but not delete them on the gateway.
-          schema:
-            type: boolean
-        - name: clear
-          in: query
-          description: >-
-            <b>true</b> - Delete the device from all previous locations and clear its current parameter values, but don't delete its history.
-            <br><b>false</b> - Do not remove the device from previous locations and do not clear its current parameters when deleting it
+          description: On deleting a gateway, do not send delete commands for all dependant slave devices.
           schema:
             type: boolean
       responses:
@@ -6221,25 +6221,17 @@ paths:
             type: string
         - name: keepOnAccount
           in: query
-          description: Send only the delete command to the gateway, but keep the device on the user account.
+          description: Send only a delete command to the gateway, but keep the device on the user's account.
           schema:
             type: boolean
         - name: keepSlave
           in: query
-          description: Delete only the gateway from the user account without removing slave devices.
+          description: On deleting only a gateway from the user's account, keep dependant slave devices.
           schema:
             type: boolean
         - name: keepSlaveOnGateway
           in: query
-          description: Delete slave devices from the account only, but not delete them on the gateway.
-          schema:
-            type: boolean
-        - name: clear
-          in: query
-          description: >-
-            <b>true</b> - Delete the device from all previous locations and clear its current parameter values, but don't delete its history.
-            <br>
-            <b>false</b> - Do not remove the device from previous locations and do not clear its current parameters when deleting it.
+          description: On deleting a gateway, do not send delete commands for all dependant slave devices.
           schema:
             type: boolean
       responses:
@@ -6498,7 +6490,7 @@ paths:
       operationId: Get Device Activation Info
       description: >-
         Some devices require manual interaction to complete registration in the Care Daily AI Platform.
-        This API returns instructions how to do it and can send them to user's email address as well.
+        This API returns a device activation key.
       tags:
         - Devices
       security:
@@ -6512,15 +6504,10 @@ paths:
             type: integer
         - name: deviceType
           in: path
-          description: Device type ID for which instructions are requested
+          description: Device type ID
           required: true
           schema:
             type: integer
-        - name: sendEmail
-          in: query
-          description: Request instructions to be sent by email. False by default.
-          schema:
-            type: boolean
       responses:
         '200':
           description: OK
@@ -6533,40 +6520,9 @@ paths:
                     type: integer
                   deviceActivationKey:
                     type: string
-                  deviceActivationUrl:
-                    type: string
-                  message:
-                    type: string
-                  host:
-                    type: string
-                  port:
-                    type: integer
-                  uri:
-                    type: string
-                  ssl:
-                    type: string
               example:
                 resultCode: 0
                 deviceActivationKey: "3:20Q9mYSH14s0M4v5o"
-                deviceActivationUrl: https://esp.peoplepowerco.com/espapi/rest/activateted
-                message: "<p>Here are the steps to activate your TED device:</p>
-                  <br>
-                  <ol>
-                      <blockquote><li>Ensure your TED gateway has the latest firmware version.
-                      If not download and install it from: https://www.theenergydetective.com/firmwareupgrade</li></blockquote>
-                      <blockquote><li>Go to TED footprints from your local browser.
-                      Example: http://192.168.1.129/Footprints.html (Use your own network IP address.)</li></blockquote>
-                      <blockquote><li>Select edit> activate energy posting</li></blockquote>
-                      <blockquote><li>Copy the following values and paste them in their respective fields in footprints.
-                      Do NOT click on this URL:<br>ActivationURL=https://esp.peoplepowerco.com/espapi/rest/activateted<br>
-                      ActivationKey=123:20Q9mYSd14s0MWv5b</li></blockquote>
-                      <blockquote><li>Click \"activate energy posting.\"</li></blockquote>
-                      <blockquote><li>The \"activation successful\" message confirms your activation is complete.</li></blockquote>
-                  </ol>"
-                host: esp.peoplepowerco.com,
-                port: 80,
-                uri: /espapi/rest/activateted,
-                ssl: "0"
 
 
   /cloud/json/devices/{deviceId}/properties:
@@ -20249,6 +20205,9 @@ paths:
                         icon:
                           type: string
                           description: Icon file location
+                        oauth:
+                          type: boolean
+                          description: If OAuth 2 authorization process is available for this application
                       required:
                         - id
                         - name
@@ -20549,7 +20508,9 @@ paths:
             type: string
         - name: response_type
           in: query
-          description: OAuth 2.0 response type. The `code` response type is the only one supported.
+          description: |-
+            OAuth 2.0 response type.<br>
+            The `code` response type is the default and only one supported value.
           required: true
           schema:
             type: string
@@ -20560,7 +20521,7 @@ paths:
             type: string
       responses:
         '303':
-          description: Redirect to the branded web page to login to the Care Daily AI Platform
+          description: Redirect to the branded Care Daily sign in web page
           headers:
             Location:
               schema:
@@ -20626,7 +20587,7 @@ paths:
             Location:
               schema:
                 type: string
-                description: Redirect URL
+                description: Redirect URL with state, code or error parameters
 
 
   /espapi/oauth/token:

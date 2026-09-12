@@ -7,7 +7,7 @@ name = "caredaily"
 description = "CLI and API interface for CareDaily applications."
 keywords = ["caredaily", "smart-home", "iot", "api-client", "sdk", "cli", "home-automation", "caregiving", "monitoring", "devices"]
 readme = "README.md"
-version = "1.0.1"
+version = "1.0.2"
 requires-python = ">=3.10"
 license = "Apache-2.0"
 authors = [

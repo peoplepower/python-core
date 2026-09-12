@@ -7,7 +7,7 @@ CareDaily Python SDK
 Provides APIs, models, and utilities for interacting with the CareDaily platform.
 """
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 from .apis import (
     AdminDevices,

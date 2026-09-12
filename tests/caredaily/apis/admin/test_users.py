@@ -191,3 +191,26 @@ class TestUsers(unittest.TestCase):
         self.assertEqual(kwargs['ep_json'], {'users': users})
         self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
         self.assertEqual(result, 'update-notification-result')
+
+    def test_get_notification_assignments(self):
+        self.mock_adapter.get.return_value = 'notification-assignments-result'
+        result = self.users.get_notification_assignments(organization_id=1)
+        self.mock_adapter.get.assert_called_once()
+        args, kwargs = self.mock_adapter.get.call_args
+        self.assertEqual(args[0], '/espapi/admin/json/organizations/1/notificationAssignments')
+        self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
+        self.assertEqual(result, 'notification-assignments-result')
+
+    def test_update_notification_assignments(self):
+        self.mock_adapter.put.return_value = 'update-assignments-result'
+        groups = [
+            {'notificationId': 1, 'groupId': 456},
+            {'notificationId': 2, 'groupId': 789, 'delete': True},
+        ]
+        result = self.users.update_notification_assignments(organization_id=1, groups=groups)
+        self.mock_adapter.put.assert_called_once()
+        args, kwargs = self.mock_adapter.put.call_args
+        self.assertEqual(args[0], '/espapi/admin/json/organizations/1/notificationAssignments')
+        self.assertEqual(kwargs['ep_json'], {'groups': groups})
+        self.mock_adapter._get_headers.assert_called_once_with(api_key='admin_key', key_type=APIKeyType.USER)
+        self.assertEqual(result, 'update-assignments-result')

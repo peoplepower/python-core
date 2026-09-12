@@ -112,60 +112,6 @@ class BotStore(API):
             ep_params=params,
         )
 
-    def get_bot_notifications(self, organization_id: int, bundle: str = None):
-        """
-        Get bots approved for the organization with their notification settings.
-
-        Args:
-            organization_id: Organization ID
-            bundle: Optional bot bundle ID
-
-        Returns:
-            API response with bots and their notification settings
-
-        Reference:
-            https://app.peoplepowerco.com/cloud/apidocs/bots.html#tag/End-User-Bot-Shop-APIs/operation/Get%20Bot%20Notifications
-        """
-        params = {}
-        if bundle is not None:
-            params["bundle"] = bundle
-        return self.adapter.get(
-            f"/espapi/cloud/appstore/botNotifications/{organization_id}",
-            ep_params=params if params else None,
-            ep_headers=self.adapter._get_headers(
-                api_key=self.adapter._headers.get("ADMIN_KEY"),
-                key_type=APIKeyType.USER,
-            ),
-        )
-
-    def update_bot_notifications(self, organization_id: int, bundle: str, groups: List[Dict]):
-        """
-        Add or delete organization notification groups to or from bot's notifications.
-
-        Args:
-            organization_id: Organization ID
-            bundle: Bot bundle ID
-            groups: List of group operation dicts, each containing:
-                - notificationId: Bot notification ID
-                - groupId: Group ID to add to or delete from the bot notification
-                - delete: Delete it
-
-        Returns:
-            API response confirming the update
-
-        Reference:
-            https://app.peoplepowerco.com/cloud/apidocs/bots.html#tag/End-User-Bot-Shop-APIs/operation/Update%20Bot%20Notifications
-        """
-        return self.adapter.put(
-            f"/espapi/cloud/appstore/botNotifications/{organization_id}",
-            ep_params={"bundle": bundle},
-            ep_json={"groups": groups},
-            ep_headers=self.adapter._get_headers(
-                api_key=self.adapter._headers.get("ADMIN_KEY"),
-                key_type=APIKeyType.USER,
-            ),
-        )
-
     def search_bots(self, search_by: str = None, categories: List[str] = None, compatible: bool = None, lang: str = None, core: int = None, location_id: int = None, organization_id: int = None, object_names: List[str] = None, limit: int = None):
         """
         Search for bots in the app store.

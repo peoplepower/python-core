@@ -238,6 +238,8 @@ class Reports(API):
         end_date: str = None,
         organization_id: Optional[int] = None,
         collection_id: Optional[int] = None,
+        sub_orgs: Optional[bool] = None,
+        demand_user_id: Optional[int] = None,
     ) -> Result:
         """
         Get report executions history.
@@ -260,6 +262,8 @@ class Reports(API):
             end_date: End date
             organization_id: Organization ID, required in collection mode or for organizational report groups
             collection_id: Report collection ID (collection mode)
+            sub_orgs: Select report executions for sub-organizations as well
+            demand_user_id: ID for the user, who requested the report execution
 
         Returns:
             Result: API response with report executions data
@@ -274,6 +278,8 @@ class Reports(API):
             "endDate": end_date,
             "organizationId": organization_id,
             "collectionId": collection_id,
+            "subOrgs": sub_orgs,
+            "demandUserId": demand_user_id,
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(

@@ -276,7 +276,7 @@ class Users(API):
             Result: API response with notification groups and their users
 
         Reference:
-            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Users-and-Locations/operation/Get%20Notification%20Groups
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Notifications/operation/Get%20Notification%20Groups
         """
         params = {}
         if group_id is not None:
@@ -317,7 +317,7 @@ class Users(API):
             Result: API response with created or updated group ID
 
         Reference:
-            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Users-and-Locations/operation/Create%20Notification%20Group
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Notifications/operation/Create%20Notification%20Group
         """
         group = {
             "groupId": group_id,
@@ -354,7 +354,7 @@ class Users(API):
             Result: API response confirming deletion
 
         Reference:
-            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Users-and-Locations/operation/Delete%20Notification%20Group
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Notifications/operation/Delete%20Notification%20Group
         """
         result: Result = self.adapter.delete(
             f"/espapi/admin/json/organizations/{organization_id}/notificationGroups",
@@ -387,11 +387,76 @@ class Users(API):
             Result: API response confirming the update
 
         Reference:
-            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Users-and-Locations/operation/Update%20Notification%20Users
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Notifications/operation/Update%20Notification%20Users
         """
         result: Result = self.adapter.put(
             f"/espapi/admin/json/organizations/{organization_id}/notificationUsers",
             ep_json={"users": users},
+            ep_headers=self.adapter._get_headers(
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
+            ),
+        )
+        return result
+
+    def get_notification_assignments(
+        self,
+        organization_id: int,
+    ) -> Result:
+        """
+        Get notification group assignments.
+
+        Return all possible notifications declared by bots, which are approved
+        for the organization or included to the organization's service plans,
+        and assigned notification groups.
+
+        Args:
+            organization_id: Organization ID
+
+        Returns:
+            Result: API response with notifications, their assigned groups and bots
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Notifications/operation/Get%20Notification%20Assignments
+        """
+        result: Result = self.adapter.get(
+            f"/espapi/admin/json/organizations/{organization_id}/notificationAssignments",
+            ep_headers=self.adapter._get_headers(
+                api_key=self.adapter._headers.get("ADMIN_KEY"),
+                key_type=APIKeyType.USER
+            ),
+        )
+        return result
+
+    def update_notification_assignments(
+        self,
+        organization_id: int,
+        groups: list[dict],
+    ) -> Result:
+        """
+        Update notification group assignments.
+
+        Add or delete organization notification groups to or from notifications.
+        Configured notifications must be declared by bots, which are either
+        approved for the organization or included to the organization's
+        service plans.
+
+        Args:
+            organization_id: Organization ID
+            groups: Group operations. Each dict may contain:
+                - notificationId: Notification ID
+                - groupId: Group ID to add to or delete from the notification
+                - delete: Delete it
+
+        Returns:
+            Result: API response confirming the update
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/admin.html#tag/Notifications/operation/Update%20Notification%20Assignmets
+        """
+        result: Result = self.adapter.put(
+            f"/espapi/admin/json/organizations/{organization_id}/notificationAssignments",
+            ep_json={"groups": groups},
             ep_headers=self.adapter._get_headers(
                 api_key=self.adapter._headers.get("ADMIN_KEY"),
                 key_type=APIKeyType.USER

@@ -1102,40 +1102,48 @@ class Analytic(API):
 
     def send_ai_request(
         self,
-        model_name: str,
-        ai_data: Dict,
-        key: Optional[str] = None,
+        message: str,
+        conversation_id: Optional[str] = None,
+        request_id: Optional[str] = None,
+        location_id: Optional[int] = None,
+        timeout_ms: Optional[int] = None,
     ) -> Result:
         """
-        Send a request to a model.
+        Send a request to AI agents.
 
-        Send asynchronous request to an AI model to obtain a model response.
-        Bots can interact asynchronously with registered AI applications using this API.
+        Send a request to AI agents to obtain a model response.
+        Bots can interact asynchronously with registered AI agents using this API.
+        End-users can receive the response synchronously.
 
         Args:
-            model_name: Unique name of the model installed in the cloud (required)
-            ai_data: AI request data containing:
-                - text: Simple completion text (for LLama)
-                - chat: List of chat messages (for LLama chat completion)
-                - phrases: List of phrases for scoring (for SetFit)
-                - params: Optional parameters object (temperature, top_p, etc.)
-            key: A reference to the request that will be sent to the bot along with the response
+            message: Request text (required)
+            conversation_id: Previously initiated conversation ID
+            request_id: A reference to the request that will be sent to the bot
+                along with the answer from the agents
+            location_id: Location ID when requested by a user
+            timeout_ms: Optional timeout in milliseconds for user's request
 
         Returns:
-            Result: API response confirming request sent
+            Result: API response with conversationId, requestId and answer
 
         Reference:
-            https://app.peoplepowerco.com/cloud/apidocs/bots.html#tag/Bot-AI-APIs/operation/Send%20a%20request%20to%20a%20model
+            https://app.peoplepowerco.com/cloud/apidocs/bots.html#tag/Bot-AI-APIs/operation/Send%20AI%20request
         """
         params = {
-            "name": model_name,
+            "locationId": location_id,
+            "timeout": timeout_ms,
         }
-        if key is not None:
-            params["key"] = key
+        params = {k: v for k, v in params.items() if v is not None}
+        body = {
+            "message": message,
+            "conversationId": conversation_id,
+            "requestId": request_id,
+        }
+        body = {k: v for k, v in body.items() if v is not None}
         result: Result = self.adapter.post(
             "/espapi/analytic/ai",
-            ep_params=params,
-            ep_json=ai_data,
+            ep_params=params if params else None,
+            ep_json=body,
         )
         return result
 

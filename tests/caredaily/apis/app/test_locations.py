@@ -213,6 +213,16 @@ class TestLocations(unittest.TestCase):
         self.assertEqual(kwargs['ep_json'], json.dumps(narrative_data))
         self.assertEqual(kwargs['ep_params']['scope'], 2)
         self.assertEqual(kwargs['ep_params']['publish'], True)
+        self.assertNotIn('store', kwargs['ep_params'])
+        self.assertEqual(result, 'put-narrative-result')
+
+    def test_put_narrative_publish_only(self):
+        narrative_data = {'text': 'Test narrative'}
+        self.mock_adapter.put.return_value = 'put-narrative-result'
+        result = self.loc.put_narrative(location_id=1, scope=2, narrative=narrative_data, publish=True, store=False)
+        args, kwargs = self.mock_adapter.put.call_args
+        self.assertEqual(kwargs['ep_params']['publish'], True)
+        self.assertEqual(kwargs['ep_params']['store'], False)
         self.assertEqual(result, 'put-narrative-result')
 
     def test_put_narrative_with_analytic_key(self):

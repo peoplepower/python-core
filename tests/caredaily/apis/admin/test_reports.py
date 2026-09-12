@@ -141,6 +141,21 @@ class TestReports(unittest.TestCase):
         )
         args, kwargs = self.mock_adapter.get.call_args
         self.assertNotIn('organizationId', kwargs['ep_params'])
+        self.assertNotIn('subOrgs', kwargs['ep_params'])
+        self.assertNotIn('demandUserId', kwargs['ep_params'])
+
+    def test_get_report_executions_with_sub_orgs_and_demand_user(self):
+        self.mock_adapter.get.return_value = {'executions': []}
+        self.reports.get_report_executions(
+            report_id=1,
+            report_group_id=2,
+            organization_id=123,
+            sub_orgs=True,
+            demand_user_id=456,
+        )
+        args, kwargs = self.mock_adapter.get.call_args
+        self.assertEqual(kwargs['ep_params']['subOrgs'], True)
+        self.assertEqual(kwargs['ep_params']['demandUserId'], 456)
 
     def test_get_report_data_success(self):
         self.mock_adapter.get.return_value = {'data': 'report content'}

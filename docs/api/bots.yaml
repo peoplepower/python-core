@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: 'IoT Software Suite: Bot API'
-  version: '62'
+  version: '63'
   description: |-
     The Bot Server is a real-time data analytics framework that allows software developers to create new bots,
     features, and services on top of any Internet-connected product.
@@ -2086,182 +2086,6 @@ paths:
                     development: true
                     name: Care Daily
                     domainName: PPC
-
-
-  /cloud/appstore/botNotifications/{organizationId}:
-    get:
-      summary: Get Bot Notification Settings
-      operationId: Get Bot Notifications
-      description: Get bots approved for the organization with their notification settings.
-      tags:
-        - End-User Bot Shop APIs
-      security:
-        - adminApiKey: []
-      parameters:
-        - name: organizationId
-          in: path
-          description: Organization ID
-          required: true
-          schema:
-            type: integer
-        - name: bundle
-          in: query
-          description: Optional bot bundle ID
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Bot Notifications
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-                  apps:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        appId:
-                          type: integer
-                        bundle:
-                          type: string
-                        name:
-                          type: string
-                        author:
-                          type: string
-                        category:
-                          type: string
-                        description:
-                          type: string
-                        type:
-                          type: integer
-                        core:
-                          type: integer
-                        notifications:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              notificationId:
-                                type: integer
-                              title:
-                                type: object
-                                additionalProperties:
-                                  type: string
-                                description: Multilingual title string map
-                              description:
-                                type: object
-                                additionalProperties:
-                                  type: string
-                                description: Multilingual description string map
-                              serviceName:
-                                type: string
-                              exampleObjectName:
-                                type: string
-                              groups:
-                                type: array
-                                description: Assigned notification groups
-                                items:
-                                  type: object
-                                  properties:
-                                    groupId:
-                                      type: integer
-                                      description: Group ID
-                                    organizationId:
-                                      type: integer
-                                    name:
-                                      type: string
-                                      description: Group name
-                                    description:
-                                      type: string
-                                      description: Group description
-                      required:
-                        - appId
-                        - bundle
-                        - name
-                        - author
-                        - category
-                        - description
-                        - type
-                        - core
-                        - notifications
-              example:
-                resultCode: 0
-                apps:
-                  - appId: 2342
-                    bundle: ai.caredaily.MyBot
-                    name: My First App
-                    author: Your Company
-                    category: L,E
-                    description: This is an example of how to run bots
-                    type: 0
-                    core: 1
-                    notifications:
-                      - notificationId: 123
-                        title: Notification to managers
-                        description: This notification is sent periodically
-                        groups:
-                          - groupId: 456
-                            organizationId: 789
-                            name: Managers
-                            description: Managers receive critical information at all times of the day.
-
-    put:
-      summary: Update Bot Notification Settings
-      operationId: Update Bot Notifications
-      description: Add or delete organization notification groups to or from bot's notifications.
-      tags:
-        - End-User Bot Shop APIs
-      security:
-        - adminApiKey: []
-      parameters:
-        - name: organizationId
-          in: path
-          description: Organization ID
-          schema:
-            type: integer
-          required: true
-        - name: bundle
-          in: query
-          description: Bot bundle ID
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                groups:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      notificationId:
-                        type: integer
-                        description: Bot notification ID
-                      groupId:
-                        type: integer
-                        description: Group ID to add to or delete from the bot notification
-                      delete:
-                        type: boolean
-                        description: Delete it
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-              example:
-                resultCode: 0
 
 
   /cloud/appstore/search:
@@ -6516,106 +6340,50 @@ paths:
 
   /analytic/ai:
     post:
-      summary: Send a request to a model
-      operationId: Send a request to a model
+      summary: Send a request to AI agents
+      operationId: Send AI request
       description: |-
-        Send asynchronous request to an AI model to obtain a model response.
+        Send a request to AI agents to obtain a model response.
         
-        Bots can interact asynchronously with registered AI applications using this API.
-      
-        There are 2 types of AI applications:
-        * The first type uses the LLama model and provides simple text completion or chat completion.
-        * The second type uses the SetFit model and calculates phrase scoring (probabilities of scores 0,1,2).
+        Bots can interact asynchronously with registered AI agents using this API.
         
-        The type of AI application is determined automatically by its unique name.
-        
-        The response from AI application is delivered to the bot in a data stream message to the address "ai".
-        The data stream message looks like:
-        
-        *Below the "feed" object includes both the result of LLama ("text") and SetFit ("phrases") for brevity*
-        >
-            {
-                "address" : "ai",
-                "scope" : 1,
-                "feed" : {
-                    "text" : "This is a simple completion or chat completion",
-                    "phrases" : [
-                        {
-                            "text": "Emergency situation", 
-                            "scores": [0.06117, 0.04631, 0.89252]
-                        }
-                    ]
-                }
-            }
-        
-        
-        The request body and response body are different for the two types of AI applications.
-        
-        ***LLama***
-
-        There are 2 types of completions:
-
-        1. Simple completion
-        2. Chat completion
-        
-        For simple completion, enter a sentence in the "text" field of the request body.
-        
-        For chat completion, enter a list of messages into the "chat" object of the request body.
-        Each message must include 2 fields: 'role' ("system", "assistant", "user") and 'content'.
-        
-        Request body may include an optional 'params' object with such parameters as
-        
-        | Name              | Type  | Default Value | Description                                                                                                                                                               |
-        |:------------------|:-----:|:--------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-        | temperature       | float | 0.2           | The temperature to use for sampling.                                                                                                                                      |
-        | top_p             | float | 0.95          | The top-p value to use for nucleus sampling. Nucleus sampling described in academic paper "The Curious Case of Neural Text Degeneration" https://arxiv.org/abs/1904.09751 |
-        | min_p             | float | 0.05          | The min-p value to use for minimum p sampling. Minimum P sampling as described in https://github.com/ggerganov/llama.cpp/pull/3841                                        |
-        | typical_p         | float | 1.0           | The typical-p value to use for sampling. Locally Typical Sampling implementation described in the paper https://arxiv.org/abs/2202.00666.                                 |
-        | seed              |  int  | optional      | The seed to use for sampling.                                                                                                                                             |
-        | max_tokens        |  int  | 50            | The maximum number of tokens to generate. If max_tokens <= 0 or None, the maximum number of tokens to generate is unlimited and depends on n_ctx.                         |
-        | presence_penalty  | float | 0.0           | The penalty to apply to tokens based on their presence in the prompt.                                                                                                     |
-        | frequency_penalty | float | 0.0           | The penalty to apply to tokens based on their frequency in the prompt.                                                                                                    |
-        | repeat_penalty    | float | 1.1           | The penalty to apply to repeated tokens.                                                                                                                                  |
-        
-        
-        ***SetFit***
-        
-        The input data is a list of phrases (sentences).
-        The response from the AI application contains the scorings of each phrase.
+        End-user can receive the response synchronously.
       tags:
         - Bot AI APIs
       security:
         - botApiKey: []
+        - userApiKey: []
       parameters:
-        - name: name
+        - name: locationId
           in: query
-          description: Unique name of the model installed in the cloud.
-          required: true
+          description: Location ID when requested by a user
           schema:
             type: string
-        - name: key
+        - name: timeout
           in: query
-          description: A reference to the request that will be sent to the bot along with the response from the model.
+          description: Optional timeout in milliseconds for user's request
           schema:
-            type: string
+            type: integer
       requestBody:
         content:
           application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: Request text
+                conversationId:
+                  type: string
+                  description: Previously initiated conversation ID
+                requestId:
+                  type: string
+                  description: A reference to the request that will be sent to the bot along with the answer from the agents.
             example:
-              text: Say me hello!
-              chat:
-                - role: system
-                  content: You are an assistant who perfectly describes images.
-                - role: user
-                  content: Describe this image in detail please.
-              params:
-                max_tokens: 50
-                repeat_penalty: 1.1
-              phrases:
-                - Emergency situation
+              message: Say me hello!
       responses:
         '200':
-          description: OK
+          description: Response to end-user
           content:
             application/json:
               schema:
@@ -6623,6 +6391,15 @@ paths:
                 properties:
                   resultCode:
                     type: integer
+                  conversationId:
+                    type: string
+                    description: Conversation ID, which can be used as a refenrece in the next request
+                  requestId:
+                    type: string
+                    description: A reference to the request
+                  answer:
+                    type: string
+                    description: An answer from the agents
               example:
                 resultCode: 0
 

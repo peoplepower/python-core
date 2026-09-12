@@ -731,6 +731,7 @@ class Locations(API):
         scope: int,
         narrative: Dict,
         publish: bool = None,
+        store: bool = None,
         narrative_id: int = None,
         narrative_time_ms: int = None,
         analytic_key: str = None,
@@ -742,7 +743,9 @@ class Locations(API):
             location_id: Location ID to create/update narrative for
             scope: Narrative scope (user, location, organization)
             narrative: Dictionary containing narrative data
-            publish: Whether to publish the narrative
+            publish: Whether to publish the narrative to subscribers, default is true
+            store: Store a new narrative in the database, default is true.
+                Can be set to False if it is only for publishing.
             narrative_id: Optional narrative ID to update existing narrative
             narrative_time_ms: Narrative timestamp in milliseconds since epoch
             analytic_key: Optional analytic API key for bot access
@@ -758,6 +761,7 @@ class Locations(API):
             "narrativeId": narrative_id,
             "narrativeTime": narrative_time_ms,
             "publish": publish,
+            "store": store,
         }
         params = {k: v for k, v in params.items() if v is not None}
         headers = None
