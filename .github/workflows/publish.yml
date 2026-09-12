@@ -36,8 +36,6 @@ jobs:
     environment:
       name: pypi
       url: https://pypi.org/p/caredaily
-    permissions:
-      id-token: write  # required for PyPI Trusted Publishing (OIDC)
     steps:
       - uses: actions/download-artifact@v5
         with:
@@ -45,3 +43,5 @@ jobs:
           path: dist/
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
