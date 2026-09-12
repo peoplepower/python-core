@@ -106,10 +106,10 @@ ENV/
 .ropeproject
 
 .pytest_cache
-.github
 
 # Claude
 .claude
 
 # Cursor
 .cursor
+.github/agents/

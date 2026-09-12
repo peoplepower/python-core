@@ -39,9 +39,7 @@ websockets = [
     "websockets>=12.0",
 ]
 rsa = [
-    "cryptography", # Wrong username Option 1/2
-#    "pyjwt[crypto]", # Cannot decode Option 3
-#    "pycryptodome", # Wrong username Option 4
+    "cryptography",
 ]
 
 [project.urls]
@@ -50,9 +48,6 @@ documentation = "https://app.peoplepowerco.com/cloud/apidocs/cloud.html"
 
 [project.scripts]
 caredaily = "caredaily.cli.app:app"
-
-[tool.setuptools.dynamic]
-version = { attr = "src.caredaily.__version__" }
 
 [tool.isort]
 combine_as_imports = true
