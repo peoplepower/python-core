@@ -211,6 +211,7 @@ const DATA = JSON.parse(document.getElementById("okf-data").textContent);
 document.getElementById("bundle-name").textContent = DATA.bundle;
 document.getElementById("generated").textContent =
   "OKF v" + (DATA.okfVersion || "0.2") + " · " +
+  (DATA.multi ? DATA.bundles.length + " bundles · " : "") +
   DATA.stats.concepts + " concepts · generated " + DATA.generated;
 
 /* ---------------------------------------------------------------- tabs */
@@ -244,14 +245,28 @@ for (const e of edges) {
 }
 for (const n of nodes) n.r = 4 + Math.sqrt(n.in + n.out) * 2.2;
 
-function topDir(n) { return n.dir === "." ? "(root)" : n.dir.split("/")[0]; }
+function topDir(n) {
+  if (n.dir === ".") return "(root)";
+  const parts = n.dir.split("/");
+  // multi-bundle viz: ids are <bundle>/<path>, so group at the
+  // <bundle>/<top-subdirectory> level rather than by bundle alone
+  return DATA.multi ? parts.slice(0, 2).join("/") : parts[0];
+}
 function groupKey(n) {
+  if (colorMode === "bundle") return n.bundle || "(none)";
   if (colorMode === "type") return n.type || "(none)";
   if (colorMode === "trust") return n.trust || "unverified";
   if (colorMode === "status") return n.status || "stable";
   return topDir(n);
 }
-let colorMode = "type";
+let colorMode = DATA.multi ? "bundle" : "type";
+if (DATA.multi) {
+  const sel = document.getElementById("colorby");
+  const opt = document.createElement("option");
+  opt.value = "bundle"; opt.textContent = "Bundle";
+  sel.insertBefore(opt, sel.firstChild);
+  sel.value = "bundle";
+}
 let groupDirs = false;
 let groupColors = new Map();
 const dirNames = [...new Set(nodes.map(topDir))].sort();
@@ -635,8 +650,18 @@ mdcontent.addEventListener("click", e => {
 
 /* resolve a relative markdown link against the linking file's path */
 function resolveRel(fromId, href) {
+  const bm = href.match(/^bundle:\/\/([A-Za-z0-9._-]+)\/(.+)$/);
+  if (bm) { // cross-bundle links resolve only in a multi-bundle (registry) viz
+    if (!DATA.multi) return null;
+    const t = bm[1] + "/" + bm[2].split(/[?#]/)[0];
+    return byId.has(t) ? t : t + ".md";
+  }
   if (/^[a-z][a-z0-9+.-]*:/i.test(href) || href.startsWith("#")) return null;
-  const stack = href.startsWith("/") ? [] : fromId.split("/").slice(0, -1);
+  // in a multi-bundle viz, bundle-relative '/x' resolves inside the linking
+  // file's own bundle (the first id segment)
+  const stack = href.startsWith("/")
+    ? (DATA.multi ? [fromId.split("/")[0]] : [])
+    : fromId.split("/").slice(0, -1);
   for (const part of href.split(/[?#]/)[0].split("/")) {
     if (part === "" || part === ".") continue;
     if (part === "..") stack.pop(); else stack.push(part);
@@ -835,6 +860,7 @@ function renderHealth() {
       </section>
       <section><h3>Trust tiers</h3>${countTable(s.byTrust || {})}</section>
       <section><h3>Lifecycle status</h3>${countTable(s.byStatus || {})}</section>
+      ${DATA.multi ? `<section><h3>Concepts by bundle</h3>${countTable(s.byBundle || {})}</section>` : ""}
       <section><h3>Concepts by type</h3>${countTable(s.byType)}</section>
       <section><h3>Concepts by directory</h3>${countTable(s.byDir)}</section>
       <section><h3>Concepts by tag</h3>${countTable(s.byTag)}</section>

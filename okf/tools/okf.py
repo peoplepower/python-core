@@ -6,6 +6,8 @@ Subcommands:
   index     [BUNDLE_DIR]  Generate index.md files for progressive disclosure (§8).
   viz       [BUNDLE_DIR]  Generate a self-contained HTML visualization of the
                           bundle: knowledge graph plus health/coverage views.
+                          --registry renders every bundle in the registry
+                          into one combined graph with cross-bundle edges.
   freshness [BUNDLE_DIR]  Score every concept 0-100 for staleness from git
                           history, 'generated.at', 'stale_after' (§5.5), and
                           the declared 'sources' (§5.1).
@@ -28,8 +30,9 @@ import sys
 
 RESERVED = {"index.md", "log.md"}
 # Non-concept documentation the tool tolerates at any level (the spec itself,
-# a repo README). They are excluded from validation, indexing, and the graph.
-SKIP_FILES = {"SPEC.md", "README.md"}
+# a repo README, agent instructions). They are excluded from validation,
+# indexing, and the graph.
+SKIP_FILES = {"SPEC.md", "README.md", "CLAUDE.md", "AGENTS.md"}
 SKIP_DIRS = {".git", ".claude", "node_modules", "__pycache__", "tools"}
 
 OKF_VERSION = "0.2"
@@ -240,13 +243,56 @@ def source_entries(fm):
 
 # ------------------------------------------------------------------ discovery
 
+def _is_bundle_root(dirpath):
+    """A directory whose index.md carries okf_version frontmatter is a bundle
+    root (§12) — a nested one is a separate bundle, not part of this tree."""
+    idx = os.path.join(dirpath, "index.md")
+    if not os.path.isfile(idx):
+        return False
+    try:
+        with open(idx, encoding="utf-8") as f:
+            text = f.read()
+        if not text.startswith("---"):
+            return False
+        return "okf_version" in parse_frontmatter(split_frontmatter(text)[0])
+    except (FrontmatterError, OSError):
+        return False
+
+
+def _is_foreign_dir(sub):
+    """Nested git checkouts/submodules and nested bundle roots are foreign
+    trees; scanning them would misreport another project's files as this
+    bundle's concepts."""
+    return os.path.exists(os.path.join(sub, ".git")) or _is_bundle_root(sub)
+
+
 def walk_bundle(root):
     """Yield (dirpath, subdirs, md_files) for every directory, skipping
-    SKIP_DIRS and SKIP_FILES."""
+    SKIP_DIRS, SKIP_FILES, and foreign subtrees."""
     for dirpath, dirnames, filenames in os.walk(root):
-        dirnames[:] = sorted(d for d in dirnames if d not in SKIP_DIRS and not d.startswith("."))
+        dirnames[:] = sorted(d for d in dirnames
+                             if d not in SKIP_DIRS and not d.startswith(".")
+                             and not _is_foreign_dir(os.path.join(dirpath, d)))
         md = sorted(f for f in filenames if f.endswith(".md") and f not in SKIP_FILES)
         yield dirpath, list(dirnames), md
+
+
+def nested_bundle_roots(root):
+    """Bundle roots strictly below `root` — used to hint when the scanned
+    directory is not itself a bundle."""
+    hits = []
+    for dirpath, dirnames, _files in os.walk(root):
+        keep = []
+        for d in sorted(dirnames):
+            if d in SKIP_DIRS or d.startswith("."):
+                continue
+            sub = os.path.join(dirpath, d)
+            if _is_bundle_root(sub):
+                hits.append(os.path.relpath(sub, root))
+            elif not os.path.exists(os.path.join(sub, ".git")):
+                keep.append(d)
+        dirnames[:] = keep
+    return hits
 
 
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
@@ -337,9 +383,11 @@ def extract_links(root, path, body):
                 continue
             cand = os.path.join(other_root, sub)
             # Links may address the concept id (path minus .md) or the file.
-            exists = os.path.exists(cand) or os.path.exists(cand + ".md")
+            exists = os.path.exists(cand)
+            if not exists and os.path.exists(cand + ".md"):
+                exists, sub = True, sub + ".md"
             links.append({"raw": target, "resolved": None, "broken": not exists,
-                          "bundle": name})
+                          "bundle": name, "sub": sub})
             continue
         if SCHEME_RE.match(target) or target.startswith("#"):
             continue  # external URL or in-page anchor
@@ -569,6 +617,11 @@ def cmd_validate(root):
         print(f"ERROR   {rel(path)}: {msg}")
     for path, msg in report.warnings:
         print(f"warning {rel(path)}: {msg}")
+    if n_concepts == 0:
+        nested = nested_bundle_roots(root)
+        if nested:
+            print(f"note: no concepts here, but nested bundle root(s) found: "
+                  f"{', '.join(nested)} — run from a bundle root")
     status = "FAIL" if report.errors else "OK"
     print(f"{status}: {n_concepts} concept(s), "
           f"{len(report.errors)} error(s), {len(report.warnings)} warning(s)")
@@ -928,11 +981,13 @@ def cmd_freshness(root, repos_root, as_json, show_all, fail_under):
 
 # ------------------------------------------------------------------------ viz
 
-def collect_viz_data(root):
-    """Build the JSON payload embedded in the visualization HTML."""
+def _collect_bundle_graph(root, bundle_name, prefix="", cross_bundles=None):
+    """Nodes, edges, and health raw material for one bundle. Every id carries
+    `prefix` so several bundles can merge into one graph; bundle:// links
+    whose target bundle is in `cross_bundles` become real cross-bundle edges."""
     report, n_concepts = run_validation(root)
     now = datetime.datetime.now(datetime.timezone.utc).timestamp()
-    rel = lambda p: os.path.relpath(p, root).replace(os.sep, "/")
+    rel = lambda p: prefix + os.path.relpath(p, root).replace(os.sep, "/")
 
     issues_by_file = {}
     findings = []
@@ -964,12 +1019,19 @@ def collect_viz_data(root):
             except (FrontmatterError, OSError):
                 fm, body = {}, ""
             for link in extract_links(root, path, body):
+                if link.get("bundle") and not link["broken"]:
+                    if cross_bundles and link["bundle"] in cross_bundles:
+                        edges.append({"source": node_id,
+                                      "target": link["bundle"] + "/" + link["sub"],
+                                      "broken": False})
+                    continue
                 if link["broken"]:
                     broken_links.append({"from": node_id, "target": link["raw"]})
                     edges.append({"source": node_id, "target": link["raw"], "broken": True})
                 elif link["resolved"] and link["resolved"].endswith(".md") \
                         and os.path.basename(link["resolved"]) not in RESERVED:
-                    edges.append({"source": node_id, "target": link["resolved"], "broken": False})
+                    edges.append({"source": node_id,
+                                  "target": prefix + link["resolved"], "broken": False})
             dir_name = os.path.dirname(node_id) or "."
             tags = fm.get("tags")
             gen = fm.get("generated") if isinstance(fm.get("generated"), dict) else {}
@@ -980,6 +1042,7 @@ def collect_viz_data(root):
             nodes.append({
                 "id": node_id,
                 "dir": dir_name,
+                "bundle": bundle_name,
                 "type": fm.get("type") if isinstance(fm.get("type"), str) else None,
                 "title": str(fm.get("title") or os.path.splitext(name)[0]),
                 "description": str(fm.get("description") or ""),
@@ -1004,6 +1067,25 @@ def collect_viz_data(root):
                 "markdown": body,
             })
 
+    freshness = compute_freshness(root)
+    for row in freshness:
+        row["id"] = prefix + row["id"]
+    return {"nodes": nodes, "edges": edges, "brokenLinks": broken_links,
+            "findings": findings, "concepts": n_concepts,
+            "errors": len(report.errors), "warnings": len(report.warnings),
+            "freshness": freshness}
+
+
+def _assemble_viz(label, parts, multi=False, bundle_names=None):
+    """Merge one or more per-bundle graphs into the JSON payload embedded in
+    the visualization HTML."""
+    nodes = [n for p in parts for n in p["nodes"]]
+    edges = [e for p in parts for e in p["edges"]]
+    broken_links = [b for p in parts for b in p["brokenLinks"]]
+    findings = [f for p in parts for f in p["findings"]]
+    freshness = sorted((r for p in parts for r in p["freshness"]),
+                       key=lambda r: (r["score"], r["id"]))
+
     node_ids = {n["id"] for n in nodes}
     # Drop edges whose target is not a concept node (e.g. links to non-concept
     # files) unless broken.
@@ -1018,29 +1100,38 @@ def collect_viz_data(root):
         n["in"] = degree_in.get(n["id"], 0)
         n["out"] = degree_out.get(n["id"], 0)
 
-    by_type, by_dir, by_tag, by_trust, by_status = {}, {}, {}, {}, {}
+    by_type, by_dir, by_tag, by_trust, by_status, by_bundle = {}, {}, {}, {}, {}, {}
     for n in nodes:
         by_type[n["type"] or "(none)"] = by_type.get(n["type"] or "(none)", 0) + 1
-        top = n["dir"].split("/")[0] if n["dir"] != "." else "(root)"
+        if n["dir"] == ".":
+            top = "(root)"
+        else:
+            # multi-bundle ids are <bundle>/<path>: count directories at the
+            # <bundle>/<top-subdirectory> level rather than by bundle alone
+            depth = 2 if multi else 1
+            top = "/".join(n["dir"].split("/")[:depth])
         by_dir[top] = by_dir.get(top, 0) + 1
         for t in n["tags"]:
             by_tag[t] = by_tag.get(t, 0) + 1
         by_trust[n["trust"]] = by_trust.get(n["trust"], 0) + 1
         by_status[n["status"]] = by_status.get(n["status"], 0) + 1
+        by_bundle[n["bundle"]] = by_bundle.get(n["bundle"], 0) + 1
 
     return {
         "generated": datetime.datetime.now(datetime.timezone.utc)
                      .strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "bundle": os.path.basename(root),
+        "bundle": label,
+        "multi": multi,
+        "bundles": bundle_names or [label],
         "okfVersion": OKF_VERSION,
         "nodes": nodes,
         "edges": edges,
         "stats": {
-            "concepts": n_concepts,
-            "errors": len(report.errors),
-            "warnings": len(report.warnings),
+            "concepts": sum(p["concepts"] for p in parts),
+            "errors": sum(p["errors"] for p in parts),
+            "warnings": sum(p["warnings"] for p in parts),
             "byType": by_type, "byDir": by_dir, "byTag": by_tag,
-            "byTrust": by_trust, "byStatus": by_status,
+            "byTrust": by_trust, "byStatus": by_status, "byBundle": by_bundle,
         },
         "health": {
             "orphans": sorted(n["id"] for n in nodes if n["in"] == 0),
@@ -1050,13 +1141,45 @@ def collect_viz_data(root):
             "unverified": sorted(n["id"] for n in nodes if n["trust"] == "unverified"),
             "pastStale": sorted(n["id"] for n in nodes if n["stale"]),
             "findings": findings,
-            "freshness": compute_freshness(root),
+            "freshness": freshness,
         },
     }
 
 
-def cmd_viz(root, out_path):
-    data = collect_viz_data(root)
+def collect_viz_data(root):
+    """Build the JSON payload for a single bundle."""
+    name = os.path.basename(root) or "bundle"
+    return _assemble_viz(name, [_collect_bundle_graph(root, name)])
+
+
+def collect_registry_viz_data(root):
+    """Build one payload spanning every bundle in the registry
+    (~/.okf/registry.md or $OKF_REGISTRY). Node ids are namespaced
+    '<bundle>/<path>' so bundle:// cross-links render as real edges."""
+    registry = load_registry()
+    bundles = []
+    for name in sorted(registry):
+        path = os.path.abspath(os.path.expanduser(registry[name]))
+        if os.path.isdir(path):
+            bundles.append((name, path))
+        else:
+            print(f"warning: registry bundle {name!r} skipped, "
+                  f"not a directory: {registry[name]}", file=sys.stderr)
+    if not bundles:
+        print(f"warning: no usable bundles in the registry "
+              f"({os.environ.get('OKF_REGISTRY', REGISTRY_DEFAULT)}); "
+              f"rendering only the bundle at {root}", file=sys.stderr)
+        return collect_viz_data(root)
+    cross = {name for name, _ in bundles}
+    parts = [_collect_bundle_graph(path, name, prefix=name + "/",
+                                   cross_bundles=cross)
+             for name, path in bundles]
+    return _assemble_viz(f"OKF registry ({len(bundles)} bundles)", parts,
+                         multi=True, bundle_names=[name for name, _ in bundles])
+
+
+def cmd_viz(root, out_path, use_registry=False):
+    data = collect_registry_viz_data(root) if use_registry else collect_viz_data(root)
     template_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                  "viz_template.html")
     with open(template_path, encoding="utf-8") as f:
@@ -1065,9 +1188,15 @@ def cmd_viz(root, out_path):
     html = template.replace('"__OKF_DATA_JSON__"', payload)
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(html)
+    bundles_note = f"{len(data['bundles'])} bundle(s), " if data.get("multi") else ""
     print(f"wrote {os.path.relpath(out_path, root)} "
-          f"({len(data['nodes'])} nodes, {len(data['edges'])} edges, "
+          f"({bundles_note}{len(data['nodes'])} nodes, {len(data['edges'])} edges, "
           f"{data['stats']['errors']} errors, {data['stats']['warnings']} warnings)")
+    if data["stats"]["concepts"] == 0 and not use_registry:
+        nested = nested_bundle_roots(root)
+        if nested:
+            print(f"note: no concepts here, but nested bundle root(s) found: "
+                  f"{', '.join(nested)} — run from a bundle root (or use --registry)")
     return 0
 
 
@@ -1085,6 +1214,10 @@ def main():
     p.add_argument("bundle", nargs="?", default=".", help="bundle root (default: cwd)")
     p.add_argument("-o", "--output", default=None,
                    help="output file (default: <bundle>/okf-viz.html)")
+    p.add_argument("--registry", action="store_true",
+                   help="render every bundle in the OKF registry "
+                        "(~/.okf/registry.md or $OKF_REGISTRY) into one "
+                        "combined graph with cross-bundle edges")
     p = sub.add_parser("freshness", help="score concepts 0-100 for staleness")
     p.add_argument("bundle", nargs="?", default=".", help="bundle root (default: cwd)")
     p.add_argument("--repos-root", default=None,
@@ -1105,7 +1238,8 @@ def main():
         return cmd_index(root)
     if args.command == "freshness":
         return cmd_freshness(root, args.repos_root, args.json, args.all, args.fail_under)
-    return cmd_viz(root, args.output or os.path.join(root, "okf-viz.html"))
+    return cmd_viz(root, args.output or os.path.join(root, "okf-viz.html"),
+                   args.registry)
 
 
 if __name__ == "__main__":
