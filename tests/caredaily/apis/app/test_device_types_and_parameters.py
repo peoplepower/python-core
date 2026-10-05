@@ -21,13 +21,13 @@ class TestDeviceTypesAndParameters(unittest.TestCase):
             attribute_name='test_attr',
             attribute_value='test_value',
             own=True,
-            simple=False,
-            organization_id=123
         )
         args, kwargs = self.mock_adapter.get.call_args
         self.assertEqual(kwargs['ep_params']['deviceType'], 1)
         self.assertEqual(kwargs['ep_params']['attributeName'], 'test_attr')
-        self.assertEqual(kwargs['ep_params']['organizationId'], 123)
+        self.assertEqual(kwargs['ep_params']['own'], True)
+        self.assertNotIn('simple', kwargs['ep_params'])
+        self.assertNotIn('organizationId', kwargs['ep_params'])
 
     def test_get_device_type_attributes(self):
         device_type = 1
@@ -131,17 +131,20 @@ class TestDeviceTypesAndParameters(unittest.TestCase):
 
     def test_add_default_rule(self):
         self.mock_adapter.post.return_value = {'added': True}
-        result = self.dtp.add_default_rule(device_type=1, rule_id=10)
+        result = self.dtp.add_default_rule(device_type=1, rule_id=10, location_id=5)
         self.mock_adapter.post.assert_called_once()
         args, kwargs = self.mock_adapter.post.call_args
         self.assertEqual(args[0], '/cloud/json/deviceType/1/rules/10')
+        self.assertEqual(kwargs['ep_params'], {'locationId': 5})
         self.assertEqual(result, {'added': True})
 
     def test_add_default_rule_with_hidden(self):
         self.mock_adapter.post.return_value = {'added': True}
-        result = self.dtp.add_default_rule(device_type=1, rule_id=10, hidden=True)
+        result = self.dtp.add_default_rule(
+            device_type=1, rule_id=10, location_id=5, hidden=True
+        )
         args, kwargs = self.mock_adapter.post.call_args
-        self.assertEqual(kwargs['ep_params']['hidden'], True)
+        self.assertEqual(kwargs['ep_params'], {'locationId': 5, 'hidden': True})
 
     def test_delete_default_rule(self):
         self.mock_adapter.delete.return_value = {'deleted': True}

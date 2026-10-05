@@ -13,6 +13,8 @@ import os
 from configparser import ConfigParser
 from logging import Logger
 
+from dotenv import find_dotenv, load_dotenv
+
 from .apis import (
     AdminDevices,
     AdminLocations,
@@ -24,7 +26,6 @@ from .apis import (
     Billing,
     BotDeveloper,
     BotStore,
-    Challenges,
     CloudConnectivity,
     CloudsIntegration,
     DeveloperTeams,
@@ -50,12 +51,9 @@ from .apis import (
     UserCommunication,
     UserGroups,
     Users,
-    Weather,
     Websocket,
 )
 from .exceptions import CareDailyException
-
-from dotenv import load_dotenv, find_dotenv
 
 # Load environment variables from .env file (looks for .env in current or parent directories by default)
 env_filepath = find_dotenv()
@@ -198,8 +196,6 @@ class CareDaily:
             return ProfessionalMonitoring(self._config)
         if type == EnergyManagement:
             return EnergyManagement(self._config)
-        if type == Weather:
-            return Weather(self._config)
         if type == DeviceTypesAndParameters:
             return DeviceTypesAndParameters(self._config)
         if type == CloudsIntegration:
@@ -228,8 +224,6 @@ class CareDaily:
             return AdminDevices(self._config)
         if type == AdminLocations:
             return AdminLocations(self._config)
-        if type == Challenges:
-            return Challenges(self._config)
         if type == AdminTags:
             return AdminTags(self._config)
         if type == Narratives:

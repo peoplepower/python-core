@@ -203,6 +203,73 @@ class TestLocations(unittest.TestCase):
         self.mock_adapter._get_headers.assert_called_once_with('key', APIKeyType.ANALYTIC)
         self.assertEqual(result, 'narratives-result')
 
+    def test_get_narratives_by_escalation(self):
+        self.mock_adapter.get.return_value = 'narratives-result'
+        self.loc.get_narratives(location_id=1, row_count=10, escalation_id=456)
+        args, kwargs = self.mock_adapter.get.call_args
+        self.assertEqual(kwargs['ep_params']['escalationId'], 456)
+
+    def test_get_escalations(self):
+        self.mock_adapter.get.return_value = 'escalations-result'
+        result = self.loc.get_escalations(
+            location_id=1, start_date='2026-09-10T00:00:00Z', status=[1, 2]
+        )
+        args, kwargs = self.mock_adapter.get.call_args
+        self.assertEqual(args[0], '/cloud/json/escalations')
+        self.assertEqual(
+            kwargs['ep_params'],
+            {'locationId': 1, 'startDate': '2026-09-10T00:00:00Z', 'status': [1, 2]},
+        )
+        self.assertIsNone(kwargs['ep_headers'])
+        self.assertEqual(result, 'escalations-result')
+
+    def test_get_escalations_by_organization_with_analytic_key(self):
+        self.mock_adapter._get_headers.return_value = {'API_KEY': 'analytic_key'}
+        self.mock_adapter.get.return_value = 'result'
+        self.loc.get_escalations(
+            organization_id=7, escalation_id=456, escalation_type=1, priority=3,
+            end_date='2026-09-11', analytic_key='key',
+        )
+        args, kwargs = self.mock_adapter.get.call_args
+        self.assertEqual(
+            kwargs['ep_params'],
+            {'organizationId': 7, 'escalationId': 456, 'endDate': '2026-09-11',
+             'escalationType': 1, 'priority': 3},
+        )
+        self.mock_adapter._get_headers.assert_called_once_with('key', APIKeyType.ANALYTIC)
+        self.assertEqual(kwargs['ep_headers'], {'API_KEY': 'analytic_key'})
+
+    def test_create_escalation(self):
+        escalation = {'escalationType': 1, 'priority': 3, 'title': 'Fall'}
+        self.mock_adapter.post.return_value = 'create-result'
+        result = self.loc.create_escalation(location_id=1, escalation=escalation)
+        args, kwargs = self.mock_adapter.post.call_args
+        self.assertEqual(args[0], '/cloud/json/escalations')
+        self.assertEqual(kwargs['ep_params'], {'locationId': 1})
+        self.assertEqual(kwargs['ep_json'], {'escalation': escalation})
+        self.assertIsNone(kwargs['ep_headers'])
+        self.assertEqual(result, 'create-result')
+
+    def test_create_escalation_with_analytic_key(self):
+        self.mock_adapter._get_headers.return_value = {'API_KEY': 'analytic_key'}
+        self.loc.create_escalation(
+            location_id=1, escalation={'escalationType': 1, 'priority': 1},
+            analytic_key='key',
+        )
+        self.mock_adapter._get_headers.assert_called_once_with('key', APIKeyType.ANALYTIC)
+
+    def test_update_escalation(self):
+        escalation = {'status': 3, 'resolveUserId': 123}
+        self.mock_adapter.put.return_value = 'update-result'
+        result = self.loc.update_escalation(
+            location_id=1, escalation_id=456, escalation=escalation
+        )
+        args, kwargs = self.mock_adapter.put.call_args
+        self.assertEqual(args[0], '/cloud/json/escalations')
+        self.assertEqual(kwargs['ep_params'], {'locationId': 1, 'escalationId': 456})
+        self.assertEqual(kwargs['ep_json'], {'escalation': escalation})
+        self.assertEqual(result, 'update-result')
+
     def test_put_narrative(self):
         narrative_data = {'text': 'Test narrative'}
         self.mock_adapter.put.return_value = 'put-narrative-result'

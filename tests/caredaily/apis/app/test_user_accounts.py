@@ -208,49 +208,6 @@ class TestUserAccounts(unittest.TestCase):
         self.assertEqual(args[0], '/cloud/json/usertags/test_tag')
         self.assertEqual(result, 'delete-tag-result')
 
-    def test_put_user_code(self):
-        self.mock_adapter.put.return_value = 'code-result'
-        result = self.ua.put_user_code(
-            name='test_code',
-            code='1234',
-            location_id=1,
-            type=2
-        )
-        self.mock_adapter.put.assert_called_once()
-        args, kwargs = self.mock_adapter.put.call_args
-        self.assertEqual(args[0], '/cloud/json/userCodes')
-        self.assertEqual(kwargs['ep_params']['name'], 'test_code')
-        self.assertEqual(kwargs['ep_params']['code'], '1234')
-        self.assertEqual(kwargs['ep_params']['locationId'], 1)
-        self.assertEqual(kwargs['ep_params']['type'], 2)
-        self.assertEqual(result, 'code-result')
-
-    def test_get_user_codes(self):
-        self.mock_adapter.get.return_value = 'codes-result'
-        result = self.ua.get_user_codes()
-        self.mock_adapter.get.assert_called_once()
-        args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(args[0], '/cloud/json/userCodes')
-        self.assertEqual(result, 'codes-result')
-
-    def test_delete_user_code(self):
-        self.mock_adapter.delete.return_value = 'delete-code-result'
-        result = self.ua.delete_user_code(name='test_code', location_id=1)
-        self.mock_adapter.delete.assert_called_once()
-        args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(args[0], '/cloud/json/userCodes')
-        self.assertEqual(kwargs['ep_params']['name'], 'test_code')
-        self.assertEqual(kwargs['ep_params']['locationId'], 1)
-        self.assertEqual(result, 'delete-code-result')
-
-    def test_delete_user_code_no_location(self):
-        self.mock_adapter.delete.return_value = 'delete-code-result'
-        result = self.ua.delete_user_code(name='test_code')
-        args, kwargs = self.mock_adapter.delete.call_args
-        self.assertEqual(kwargs['ep_params']['name'], 'test_code')
-        self.assertNotIn('locationId', kwargs['ep_params'])
-        self.assertEqual(result, 'delete-code-result')
-
     def test_get_new_password(self):
         """Test Case ID: TC-UserAccounts-001
         Title: Get New Password (Recover Password)

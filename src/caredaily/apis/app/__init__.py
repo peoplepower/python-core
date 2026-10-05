@@ -9,8 +9,8 @@ from .cloud_connectivity import CloudConnectivity
 from .clouds_integration import CloudsIntegration
 from .device_files import DeviceFiles
 from .device_measurements import DeviceMeasurements
-from .devices import Devices
 from .device_types_and_parameters import DeviceTypesAndParameters
+from .devices import Devices
 from .energy_management import EnergyManagement
 from .locations import Locations
 from .paid_services import PaidServices
@@ -20,7 +20,6 @@ from .rules import Rules
 from .system_and_user_properties import SystemAndUserProperties
 from .user_accounts import UserAccounts
 from .user_communication import UserCommunication
-from .weather import Weather
 from .websocket import Websocket
 
 __all__ = [
@@ -42,6 +41,5 @@ __all__ = [
     "SystemAndUserProperties",
     "UserAccounts",
     "UserCommunication",
-    "Weather",
     "Websocket",
 ]

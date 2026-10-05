@@ -28,8 +28,6 @@ class DeviceTypesAndParameters(API):
         attribute_name: str = None,
         attribute_value: str = None,
         own: bool = None,
-        simple: bool = None,
-        organization_id: int = None,
     ) -> Result:
         """
         Get Device Types.
@@ -41,8 +39,6 @@ class DeviceTypesAndParameters(API):
             attribute_name: Filter by attribute name
             attribute_value: Filter by attribute value
             own: Filter by own device types
-            simple: Return simplified device type information
-            organization_id: Filter by organization ID
 
         Returns:
             Result: API response with device types list
@@ -55,8 +51,6 @@ class DeviceTypesAndParameters(API):
             "attributeName": attribute_name,
             "attributeValue": attribute_value,
             "own": own,
-            "simple": simple,
-            "organizationId": organization_id,
         }
         params = {k: v for k, v in params.items() if v is not None}
         result: Result = self.adapter.get(
@@ -304,6 +298,7 @@ class DeviceTypesAndParameters(API):
         self,
         device_type: int,
         rule_id: int,
+        location_id: int,
         hidden: bool = None,
     ) -> Result:
         """
@@ -318,6 +313,7 @@ class DeviceTypesAndParameters(API):
         Args:
             device_type: The device type ID
             rule_id: The rule ID
+            location_id: The rule's location ID
             hidden: true - A new generated rule will be hidden and a user will not see it.
                    false - A user will see this rule in the list, default
 
@@ -328,6 +324,7 @@ class DeviceTypesAndParameters(API):
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Products-Management/operation/Add%20Default%20Rule
         """
         params = {
+            "locationId": location_id,
             "hidden": hidden,
         }
         params = {k: v for k, v in params.items() if v is not None}

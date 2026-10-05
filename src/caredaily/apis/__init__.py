@@ -4,7 +4,6 @@
 
 from .admin import (
     Billing,
-    Challenges,
     Devices as AdminDevices,
     Firmware,
     Groups,
@@ -37,7 +36,6 @@ from .app import (
     SystemAndUserProperties,
     UserAccounts,
     UserCommunication,
-    Weather,
     Websocket,
 )
 from .bot import (
@@ -69,14 +67,12 @@ __all__ = [
     "SystemAndUserProperties",
     "UserAccounts",
     "UserCommunication",
-    "Weather",
     "Websocket",
     # Admin APIs
     "AdminDevices",
     "AdminLocations",
     "AdminTags",
     "Billing",
-    "Challenges",
     "Firmware",
     "Groups",
     "Narratives",

@@ -7,11 +7,10 @@
 
 from typing import Dict, List, Optional
 
-from ..api import API
-
 from ...models import (
     Result,
 )
+from ..api import API
 
 
 class Analytic(API):
@@ -510,6 +509,7 @@ class Analytic(API):
                 - questionWeight: Question weight
                 - responseType: Response type
                 - responseOptions: List of response option objects
+                - permissions: List of integer permission levels
 
         Returns:
             Result: API response with created questions
@@ -1447,46 +1447,5 @@ class Analytic(API):
             "/espapi/cli",
             ep_params=params,
             ep_json=cli_data,
-        )
-        return result
-
-    def get_challenge_participants(
-        self,
-        challenge_id: int,
-        status: Optional[int] = None,
-        location_id: Optional[int] = None,
-        get_devices: Optional[bool] = None,
-        device_category: Optional[int] = None,
-    ) -> Result:
-        """
-        Get Participants.
-
-        Return invitational challenge participants.
-
-        Args:
-            challenge_id: Challenge ID to obtain participants for (required)
-            status: Participation status filter
-            location_id: Filter the response by location ID
-            get_devices: Return devices as well
-            device_category: Filter devices by a type category
-
-        Returns:
-            Result: API response with challenge participants
-
-        Reference:
-            https://app.peoplepowerco.com/cloud/apidocs/bots.html#tag/Bot-Challenge-APIs/operation/Get%20Participants
-        """
-        params = {}
-        if status is not None:
-            params["status"] = status
-        if location_id is not None:
-            params["locationId"] = location_id
-        if get_devices is not None:
-            params["getDevices"] = get_devices
-        if device_category is not None:
-            params["deviceCategory"] = device_category
-        result: Result = self.adapter.get(
-            f"/espapi/analytic/admin/challenges/{challenge_id}/participants",
-            ep_params=params if params else None,
         )
         return result

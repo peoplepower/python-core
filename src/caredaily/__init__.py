@@ -7,7 +7,7 @@ CareDaily Python SDK
 Provides APIs, models, and utilities for interacting with the CareDaily platform.
 """
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 
 from .apis import (
     AdminDevices,
@@ -20,7 +20,6 @@ from .apis import (
     Billing,
     BotDeveloper,
     BotStore,
-    Challenges,
     CloudConnectivity,
     CloudsIntegration,
     DeveloperTeams,
@@ -46,14 +45,12 @@ from .apis import (
     UserCommunication,
     UserGroups,
     Users,
-    Weather,
     Websocket,
 )
 from .caredaily import CareDaily
 from .exceptions import CareDailyException
 from .models import (
     APIKeyType,
-    SignatureAlgorithm,
     Cloud,
     MQTT,
     PythonRuntime,
@@ -61,6 +58,7 @@ from .models import (
     ResultCode,
     Server,
     ServerType,
+    SignatureAlgorithm,
     TimeZone,
 )
 
@@ -97,14 +95,12 @@ __all__ = [
     "SystemAndUserProperties",
     "UserAccounts",
     "UserCommunication",
-    "Weather",
     "Websocket",
     # Admin APIs
     "AdminDevices",
     "AdminLocations",
     "AdminTags",
     "Billing",
-    "Challenges",
     "Firmware",
     "Groups",
     "Narratives",

@@ -9,13 +9,7 @@ import json
 from typing import Dict, List, Optional
 
 from ...models import (
-    APIKeyType,
-    Cloud,
-    MQTT,
     Result,
-    Server,
-    ServerType,
-    SignatureAlgorithm,
 )
 from ..api import API
 
@@ -1093,9 +1087,6 @@ class Devices(API):
         Reference:
             https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Devices/operation/Update%20Device
         """
-        params = {
-            "postId": location_id,  # Note: API spec shows postId but should be locationId
-        }
         result: Result = self.adapter.put(
             f"/cloud/json/locations/{location_id}/devices/{device_id}",
             ep_json=device_data,

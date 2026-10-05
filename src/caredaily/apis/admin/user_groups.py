@@ -7,12 +7,11 @@
 
 from typing import Dict
 
-from ..api import API
-
 from ...models import (
-    Result,
     APIKeyType,
+    Result,
 )
+from ..api import API
 
 
 class UserGroups(API):

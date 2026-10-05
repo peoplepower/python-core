@@ -77,7 +77,6 @@ class PaidServices(API):
         location_id: int,
         status: int = None,
         user_plan_id: int = None,
-        get_card: bool = None,
         user_id: int = None,
     ) -> Result:
         """
@@ -89,7 +88,6 @@ class PaidServices(API):
             location_id: Get plan on this location
             status: Service plan status filter
             user_plan_id: Get specific service plan by ID
-            get_card: Retrieve payment card information from the payment provider
             user_id: Get plan by this user. Used by organization administrators.
 
         Returns:
@@ -102,7 +100,6 @@ class PaidServices(API):
             "locationId": location_id,
             "status": status,
             "userPlanId": user_plan_id,
-            "getCard": get_card,
             "userId": user_id,
         }
         params = {k: v for k, v in params.items() if v is not None}
@@ -366,7 +363,8 @@ class PaidServices(API):
 
         Args:
             service_plan_id: The Service Plan ID to assign
-            assignment_data: Assignment data as JSON object with 'locations' array containing location and user IDs
+            assignment_data: Assignment data as JSON object with 'locations' array of
+                {'locationId': ..., 'userId': ...} entries (locationId required per entry)
             location_id: Location ID to assign the service plan (optional if in assignment_data)
             organization_id: Organization ID. Required if called by an organization administrator
             end_date: The end date of the service plan

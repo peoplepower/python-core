@@ -3,7 +3,6 @@
 # ///
 
 from .billing import Billing
-from .challenges import Challenges
 from .devices import Devices
 from .firmware import Firmware
 from .groups import Groups
@@ -18,7 +17,6 @@ from .users import Users
 
 __all__ = [
     "Billing",
-    "Challenges",
     "Devices",
     "Firmware",
     "Groups",

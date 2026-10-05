@@ -5,12 +5,11 @@
 # ]
 # ///
 
-from ..api import API
-
 from ...models import (
-    Result,
     APIKeyType,
+    Result,
 )
+from ..api import API
 
 
 class Users(API):

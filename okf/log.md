@@ -1,5 +1,9 @@
 # Log
 
+## 2026-10-05
+
+* **Update**: Server API spec v63 → v65. Removed the `Weather` (app) and `Challenges` (admin) API classes and their factory entries, user codes methods on `UserAccounts`, and bot `Analytic.get_challenge_participants`; added escalations (`get/create/update_escalation`) on `Locations`. Updated the api-surface concept.
+
 ## 2026-09-11
 
 * **Update**: Recorded the new Claude Code project skill `.claude/skills/caredaily/SKILL.md` (SDK/CLI usage guide: factories, auth flows including TOTP/RSA signature, gotchas) in the repo-layout concept, along with the `.gitignore` change (`.claude/*` + `!.claude/skills/`) that makes skills the only tracked part of `.claude/`. Merged to main in peoplepower/python-core (commit 558a508).

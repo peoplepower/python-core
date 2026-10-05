@@ -5,17 +5,17 @@ description: Every API class by subpackage (app / admin / bot), the factory that
 resource: peoplepower/python-core:src/caredaily/apis
 tags: [python-core, apis, reference]
 status: draft
-generated: { by: claude_code/claude-fable-5, at: 2026-09-11T00:00:00Z }
+generated: { by: claude_code/claude-opus-5-5, at: 2026-10-05T00:00:00Z }
 stale_after: 2027-03-11T00:00:00Z
 sources:
   - id: apis-init
     resource: peoplepower/python-core:src/caredaily/apis/__init__.py
     title: apis package exports
-    last_modified: 2026-07-10T23:03:51-07:00
+    last_modified: 2026-10-05T00:00:00-07:00
   - id: caredaily
     resource: peoplepower/python-core:src/caredaily/caredaily.py
     title: Factory if-chains
-    last_modified: 2026-07-10T23:03:51-07:00
+    last_modified: 2026-10-05T00:00:00-07:00
 ---
 
 All classes inherit from `API` and are served by the matching
@@ -28,7 +28,11 @@ endpoint docs: <https://app.peoplepowerco.com/cloud/apidocs/cloud.html>.
 `Locations`, `Devices`, `DeviceMeasurements`, `DeviceTypesAndParameters`,
 `DeviceFiles`, `AppFiles`, `UserCommunication`, `SystemAndUserProperties`,
 `Rules`, `PaidServices`, `ProfessionalMonitoring`, `EnergyManagement`,
-`Weather`, `CloudConnectivity`, `CloudsIntegration`, `RAG`, `AI`, `Websocket`.
+`CloudConnectivity`, `CloudsIntegration`, `RAG`, `AI`, `Websocket`.
+
+`Weather` (app) and `Challenges` (admin) were removed in SDK 1.0.3 when the
+server dropped those endpoints in API spec v65. Escalations (spec v65,
+`/cloud/json/escalations`) live on `Locations` alongside narratives.
 
 App APIs migrated from legacy `/espapi/cloud/json/` to `/cloud/json/` on
 2026-07-07 — the espapi route cannot validate EdDSA JWT API keys
@@ -42,7 +46,7 @@ adapter: it fetches the websocket URL via REST, then provides an async client
 # Admin APIs — `cd.admin_api(...)`, `/admin/json/...`
 
 `apis/admin/`: `System`, `Organizations`, `Groups`, `Users`, `UserGroups`,
-`AdminDevices`, `AdminLocations`, `AdminTags`, `Challenges`, `Narratives`,
+`AdminDevices`, `AdminLocations`, `AdminTags`, `Narratives`,
 `Billing`, `Firmware`, `Reports`.
 
 A few admin APIs (narratives, tags, groups) still use legacy

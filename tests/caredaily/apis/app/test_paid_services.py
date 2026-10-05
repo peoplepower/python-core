@@ -94,13 +94,12 @@ class TestPaidServices(unittest.TestCase):
             location_id=123,
             status=1,
             user_plan_id=10,
-            get_card=True,
             user_id=456
         )
         args, kwargs = self.mock_adapter.get.call_args
         self.assertEqual(kwargs['ep_params']['status'], 1)
         self.assertEqual(kwargs['ep_params']['userPlanId'], 10)
-        self.assertEqual(kwargs['ep_params']['getCard'], True)
+        self.assertNotIn('getCard', kwargs['ep_params'])
         self.assertEqual(kwargs['ep_params']['userId'], 456)
 
     def test_post_an_apple_purchase_receipt_with_params(self):

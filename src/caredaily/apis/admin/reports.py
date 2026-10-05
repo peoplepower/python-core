@@ -5,14 +5,13 @@
 # ]
 # ///
 
-from typing import Dict, Optional
-
-from ..api import API
+from typing import Optional
 
 from ...models import (
-    Result,
     APIKeyType,
+    Result,
 )
+from ..api import API
 
 
 class Reports(API):

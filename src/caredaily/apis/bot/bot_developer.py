@@ -8,8 +8,8 @@
 import json
 from typing import Dict, List
 
-
 from ..api import API
+
 
 # TODO: Finish (see docs/api/bots.yaml)
 class BotDeveloper(API):
