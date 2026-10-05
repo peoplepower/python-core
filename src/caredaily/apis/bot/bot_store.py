@@ -14,6 +14,7 @@ from ...models import (
 )
 from ..api import API
 
+
 #TODO: Finish (see docs/api/bots.yaml)
 class BotStore(API):
     """

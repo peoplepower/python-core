@@ -7,11 +7,10 @@
 
 from typing import Dict, List, Optional
 
-from ..api import API
-
 from ...models import (
     Result,
 )
+from ..api import API
 
 
 class Analytic(API):

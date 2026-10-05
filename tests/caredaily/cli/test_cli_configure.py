@@ -1,3 +1,4 @@
+import importlib
 import os
 import tempfile
 import unittest
@@ -9,6 +10,11 @@ from click.testing import CliRunner
 from caredaily import CareDaily, CloudConnectivity, Authentication, APIKeyType, CareDailyException
 from caredaily.cli.app import app
 from caredaily.cli.configure import configure, init, interactive, list, list_profiles
+
+# `caredaily.cli` re-exports the `configure` click group under the same name as
+# the module, so the dotted path "caredaily.cli.configure" resolves to the group
+# on Python 3.10. Patch the module object directly instead.
+configure_module = importlib.import_module("caredaily.cli.configure")
 
 
 class TestCliConfigure(unittest.TestCase):
@@ -60,7 +66,7 @@ class TestCliConfigure(unittest.TestCase):
         self.assertIn("init", result.output)
 
     @patch.dict(os.environ, {"HOME": ""}, clear=True)
-    @patch("caredaily.cli.configure.CareDaily")
+    @patch.object(configure_module, "CareDaily")
     def test_init_new_config_without_signin(self, mock_caredaily_class):
         """Test init command creating new configuration without sign in"""
         os.environ["HOME"] = self.temp_dir
@@ -87,7 +93,7 @@ class TestCliConfigure(unittest.TestCase):
         self.assertTrue(os.path.exists(self.credentials_path))
 
     @patch.dict(os.environ, {"HOME": ""}, clear=True)
-    @patch("caredaily.cli.configure.CareDaily")
+    @patch.object(configure_module, "CareDaily")
     def test_init_existing_config(self, mock_caredaily_class):
         """Test init command with existing configuration"""
         os.environ["HOME"] = self.temp_dir
@@ -188,7 +194,7 @@ class TestCliConfigure(unittest.TestCase):
         self.assertIn("testprofile", result.output)
 
     @patch.dict(os.environ, {"HOME": ""}, clear=True)
-    @patch("caredaily.cli.configure.CareDaily")
+    @patch.object(configure_module, "CareDaily")
     def test_init_availability_check_failure(self, mock_caredaily_class):
         """Test init command when availability check fails"""
         os.environ["HOME"] = self.temp_dir
@@ -211,7 +217,7 @@ class TestCliConfigure(unittest.TestCase):
         self.assertIn("Error checking availability", result.output)
 
     @patch.dict(os.environ, {"HOME": ""}, clear=True)
-    @patch("caredaily.cli.configure.CareDaily")
+    @patch.object(configure_module, "CareDaily")
     def test_list_default_profile(self, mock_caredaily_class):
         """Test list command with default profile"""
         os.environ["HOME"] = self.temp_dir
@@ -227,7 +233,7 @@ class TestCliConfigure(unittest.TestCase):
         self.assertIn("key", result.output)
 
     @patch.dict(os.environ, {"HOME": ""}, clear=True)
-    @patch("caredaily.cli.configure.CareDaily")
+    @patch.object(configure_module, "CareDaily")
     def test_list_specific_profile(self, mock_caredaily_class):
         """Test list command with specific profile"""
         os.environ["HOME"] = self.temp_dir
@@ -259,7 +265,7 @@ class TestCliConfigure(unittest.TestCase):
         self.assertIn("profile.example.com", result.output)
 
     @patch.dict(os.environ, {"HOME": ""}, clear=True)
-    @patch("caredaily.cli.configure.CareDaily")
+    @patch.object(configure_module, "CareDaily")
     def test_list_nonexistent_profile(self, mock_caredaily_class):
         """Test list command with non-existent profile"""
         os.environ["HOME"] = self.temp_dir
@@ -272,7 +278,7 @@ class TestCliConfigure(unittest.TestCase):
         self.assertIn("not found", result.output)
 
     @patch.dict(os.environ, {"HOME": ""}, clear=True)
-    @patch("caredaily.cli.configure.CareDaily")
+    @patch.object(configure_module, "CareDaily")
     def test_list_obfuscates_api_key(self, mock_caredaily_class):
         """Test list command obfuscates API key"""
         os.environ["HOME"] = self.temp_dir
@@ -288,7 +294,7 @@ class TestCliConfigure(unittest.TestCase):
         self.assertNotIn("test_api_key", result.output)
 
     @patch.dict(os.environ, {"HOME": ""}, clear=True)
-    @patch("caredaily.cli.configure.CareDaily")
+    @patch.object(configure_module, "CareDaily")
     def test_list_profiles(self, mock_caredaily_class):
         """Test list-profiles command"""
         os.environ["HOME"] = self.temp_dir
@@ -311,7 +317,7 @@ class TestCliConfigure(unittest.TestCase):
         self.assertIn("profile2", result.output)
 
     @patch.dict(os.environ, {"HOME": ""}, clear=True)
-    @patch("caredaily.cli.configure.CareDaily")
+    @patch.object(configure_module, "CareDaily")
     def test_interactive_without_profile(self, mock_caredaily_class):
         """Test interactive command without profile specified"""
         os.environ["HOME"] = self.temp_dir
@@ -522,7 +528,7 @@ class TestCliConfigure(unittest.TestCase):
         self.assertIn("Configured 'test' successfully", result.output)
 
     @patch.dict(os.environ, {"HOME": ""}, clear=True)
-    @patch("caredaily.cli.configure.CareDaily")
+    @patch.object(configure_module, "CareDaily")
     def test_interactive_not_initialized(self, mock_caredaily_class):
         """Test interactive command when config is not initialized"""
         os.environ["HOME"] = self.temp_dir
@@ -542,7 +548,7 @@ class TestCliConfigure(unittest.TestCase):
         self.assertIn("Configuration not initialized", result.output)
 
     @patch.dict(os.environ, {"HOME": ""}, clear=True)
-    @patch("caredaily.cli.configure.CareDaily")
+    @patch.object(configure_module, "CareDaily")
     def test_interactive_availability_check_failure(self, mock_caredaily_class):
         """Test interactive command when availability check fails"""
         os.environ["HOME"] = self.temp_dir

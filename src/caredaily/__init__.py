@@ -51,7 +51,6 @@ from .caredaily import CareDaily
 from .exceptions import CareDailyException
 from .models import (
     APIKeyType,
-    SignatureAlgorithm,
     Cloud,
     MQTT,
     PythonRuntime,
@@ -59,6 +58,7 @@ from .models import (
     ResultCode,
     Server,
     ServerType,
+    SignatureAlgorithm,
     TimeZone,
 )
 

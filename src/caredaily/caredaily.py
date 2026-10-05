@@ -13,6 +13,8 @@ import os
 from configparser import ConfigParser
 from logging import Logger
 
+from dotenv import find_dotenv, load_dotenv
+
 from .apis import (
     AdminDevices,
     AdminLocations,
@@ -52,8 +54,6 @@ from .apis import (
     Websocket,
 )
 from .exceptions import CareDailyException
-
-from dotenv import load_dotenv, find_dotenv
 
 # Load environment variables from .env file (looks for .env in current or parent directories by default)
 env_filepath = find_dotenv()
