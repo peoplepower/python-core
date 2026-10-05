@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: 'IoT Software Suite: Bot API'
-  version: '63'
+  version: '65'
   description: |-
     The Bot Server is a real-time data analytics framework that allows software developers to create new bots,
     features, and services on top of any Internet-connected product.
@@ -4024,7 +4024,6 @@ paths:
                           type: integer
                       required:
                         - name
-                        - index
                         - value
                         - time
               example:
@@ -5557,6 +5556,10 @@ paths:
                         type: string
                       editable:
                         type: boolean
+                      permissions:
+                        type: array
+                        items:
+                          type: integer
                       question:
                         type: object
                         additionalProperties:
@@ -5723,6 +5726,10 @@ paths:
                           type: string
                         locationId:
                           type: integer
+                        permissions:
+                          type: array
+                          items:
+                            type: integer
                         creationDateMs:
                           type: integer
                         responseType:
@@ -6404,154 +6411,6 @@ paths:
                 resultCode: 0
 
 
-  /analytic/admin/challenges/{challengeId}/participants:
-    get:
-      summary: Get Participants
-      operationId: Get Participants
-      description: |-
-        Return invitational challenge participants.
-
-        Participation statuses:
-
-        | Status | Name          |
-        |:------:|:--------------|
-        |   1    | Not responded | 
-        |   2    | Opt-In        | 
-        |   3    | Opt-Out       |
-      tags:
-        - Bot Challenge APIs
-      security:
-        - botApiKey: []
-      parameters:
-        - name: challengeId
-          in: path
-          description: Challenge ID to obtain winners for
-          required: true
-          schema:
-            type: integer
-        - name: status
-          in: query
-          description: Participation status filter
-          schema:
-            type: integer
-        - name: locationId
-          in: query
-          description: Filter the response by location ID
-          schema:
-            type: integer
-        - name: getDevices
-          in: query
-          description: Return devices as well
-          schema:
-            type: boolean
-        - name: deviceCategory
-          in: query
-          description: Filter devices by a type category
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Challenge participants
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-                  locations:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        event:
-                          type: string
-                        id:
-                          type: integer
-                        timezone:
-                          type: object
-                          properties:
-                            dst:
-                              type: boolean
-                            id:
-                              type: string
-                            name:
-                              type: string
-                            offset:
-                              type: integer
-                        participationStatus:
-                          type: integer
-                        participationUpdateDate:
-                          type: string
-                        participationUpdateDateMs:
-                          type: integer
-                      required:
-                        - event
-                        - id
-                        - timezone
-                        - participationStatus
-                        - participationUpdateDate
-                        - participationUpdateDateMs
-              example:
-                resultCode: 0
-                locations:
-                  - event: HOME
-                    id: 1681
-                    timezone:
-                      dst: true
-                      id: America/Los_Angeles
-                      name: Pacific Standard Time
-                      offset: -480
-                    participationStatus: 2
-                    participationUpdateDate: '2017-05-06T03:29:26Z'
-                    participationUpdateDateMs: 1494041366000
-                  - event: VACATION
-                    id: 235379
-                    timezone:
-                      dst: true
-                      id: America/Adak
-                      name: Hawaii Standard Time
-                      offset: -600
-                    participationStatus: 2
-                    participationUpdateDate: '2017-05-06T03:29:26Z'
-                    participationUpdateDateMs: 1494041366000
-                  - event: HOME
-                    id: 235455
-                    timezone:
-                      dst: false
-                      id: Europe/Moscow
-                      name: Moscow Standard Time
-                      offset: 180
-                    participationStatus: 2
-                    participationUpdateDate: '2017-05-06T03:29:26Z'
-                    participationUpdateDateMs: 1494041366000
-                  - event: HOME
-                    id: 235681
-                    participationStatus: 2
-                    participationUpdateDate: '2017-05-06T03:29:26Z'
-                    participationUpdateDateMs: 1494041366000
-                  - event: HOME
-                    id: 236250
-                    timezone:
-                      dst: true
-                      id: America/New_York
-                      name: Eastern Standard Time
-                      offset: -300
-                    participationStatus: 2
-                    participationUpdateDate: '2017-05-06T03:29:26Z'
-                    participationUpdateDateMs: 1494041366000
-                  - event: HOME
-                    id: 236520
-                    timezone:
-                      dst: true
-                      id: America/Los_Angeles
-                      name: Pacific Standard Time
-                      offset: -480
-                    participationStatus: 2
-                    participationUpdateDate: '2017-05-06T03:29:26Z'
-                    participationUpdateDateMs: 1494041366000
-
-
   /deviceio/analytic:
     get:
       summary: Local Execution on a Computer
@@ -6859,8 +6718,30 @@ paths:
                                   type: integer
                                 proxyId:
                                   type: string
-                                modelId:
-                                  type: string
+                                model:
+                                  type: object
+                                  properties:
+                                    modelId:
+                                      type: string
+                                    manufacturer:
+                                      type: object
+                                    displayInfo:
+                                      type: object
+                                    brands:
+                                      type: array
+                                      items:
+                                        type: object
+                                        properties:
+                                          brand:
+                                            type: string
+                                          name:
+                                            type: object
+                                          description:
+                                            type: object
+                                          parentId:
+                                            type: string
+                                          template:
+                                            type: string
                                 connected:
                                   type: boolean
                                 connectionStatus:
@@ -6969,10 +6850,29 @@ paths:
                           required:
                             - deviceId
                             - name
-                            - index
                             - value
                             - time
                             - updated
+                      params:
+                        type: array
+                        description: Definitions of device parameters included to the measures
+                        items:
+                          type: object
+                          properties:
+                            paramName:
+                              type: string
+                            configured:
+                              type: boolean
+                            valueType:
+                              type: integer
+                            systemUnit:
+                              type: string
+                            systemMultiplier:
+                              type: string
+                            description:
+                              type: string
+                            displayInfo:
+                              type: object
                       alerts:
                         type: array
                         description: Device alerts
@@ -6981,8 +6881,6 @@ paths:
                           properties:
                             deviceId:
                               type: string
-                            alertId:
-                              type: integer
                             alertType:
                               type: string
                             params:
@@ -7190,6 +7088,53 @@ paths:
                                   type: string
                                 sliderUnit:
                                   type: string
+                      escalation:
+                        type: object
+                        properties:
+                          escalationId:
+                            type: integer
+                          escalationType:
+                            type: integer
+                          status:
+                            type: integer
+                          title:
+                            type: string
+                          description:
+                            type: string
+                          creationDateMs:
+                            type: integer
+                          expiryDateMs:
+                            type: integer
+                          eventDateMs:
+                            type: integer
+                          userId:
+                            type: integer
+                            description: Related event user ID
+                          deviceId:
+                            type: string
+                            description: Triggering event device ID
+                          eventSourceType:
+                            type: integer
+                            description: Triggering event source type
+                          eventData:
+                            type: object
+                            description: Triggering event data except the device ID in flexible format
+                          createBotService:
+                            type: string
+                            description: Bot service name, creating the excalation
+                          confirmationDateMs:
+                            type: integer
+                          confirmUserId:
+                            type: integer
+                            description: User confirmed the event
+                          resolutionDateMs:
+                            type: integer
+                          resolveUserId:
+                            type: integer
+                            description: User resolved the event
+                          resolveSourceType:
+                            type: integer
+                            description: Data source type causing the exaclation resolution
                     required:
                       - time
                       - trigger
@@ -7246,7 +7191,14 @@ paths:
                         deviceId: POWERSTRIP
                         deviceType: 6
                         proxyId: GATEWAY_ID
-                        modelId: PowerStrip
+                        model:
+                          modelId: PowerStrip
+                          manufacturer:
+                            en: Care Daily
+                            brands:
+                              - brand: default
+                                name:
+                                  en: Power Strip
                         connected: true
                         description: Living room
                         goalId: 20
@@ -7303,7 +7255,14 @@ paths:
                         deviceId: POWERSTRIP
                         deviceType: 6
                         proxyId: GATEWAY_ID
-                        modelId: PowerStrip
+                        model:
+                          modelId: PowerStrip
+                          manufacturer:
+                            en: Care Daily
+                            brands:
+                              - brand: default
+                                name:
+                                  en: Power Strip
                         connected: true
                         description: Living room
                         goalId: 20
@@ -7397,7 +7356,14 @@ paths:
                         deviceId: POWERSTRIP
                         deviceType: 6
                         proxyId: GATEWAY_ID
-                        modelId: PowerStrip
+                        model:
+                          modelId: PowerStrip
+                          manufacturer:
+                            en: Care Daily
+                            brands:
+                              - brand: default
+                                name:
+                                  en: Power Strip
                         connected: true
                         description: Living room
                         goalId: 20
@@ -7451,7 +7417,14 @@ paths:
                         deviceId: POWERSTRIP
                         deviceType: 6
                         proxyId: GATEWAY_ID
-                        modelId: PowerStrip
+                        model:
+                          modelId: PowerStrip
+                          manufacturer:
+                            en: Care Daily
+                            brands:
+                              - brand: default
+                                name:
+                                  en: Power Strip
                         connected: true
                         description: Living room
                         goalId: 20
@@ -7702,22 +7675,23 @@ tags:
 
       A bot trigger is a bit mask, where each bit is related to specific functionality:
 
-      |  Hex  |  Dec | Bit | Description            | Details |
-      |:-----:|-----:|:---:|:-----------------------|:------- |
-      | 0x000 |    0 |     | Reset                  | Execute the bot when a new instance created or it was inactive and then activated. |
-      | 0x001 |    1 |  0  | Schedule               | Execute the bot based on a 'schedule'. |
-      | 0x002 |    2 |  1  | Location event         | Execute the bot when the Location changes state, such as 'HOME', 'AWAY', etc.<br>The bot has to subscribe on this trigger value. |
-      | 0x004 |    4 |  2  | Device Alert           | Execute the bot when the specified device sends an alert.<br>The bot has to subscribe on this trigger value. |
-      | 0x008 |    8 |  3  | Device Measurements    | Execute the bot when the specified device receives a new measurement. You can optionally include a paramNameTrigger, and separately you can optionally include comma-separated parameter values to trigger on.<br>The bot has to subscribe on this trigger value. |
-      | 0x010 |   16 |  4  | Question answer        | Execute the bot when a user answers a question. |
-      | 0x020 |   32 |  5  | Device Files           | Execute the bot when a new file is uploaded by the device.<br>The bot has to subscribe on this trigger value. |
-      | 0x040 |   64 |  6  | Countdown Timer        | The countdown timer can be requested by the bot to be executed in N seconds or at specified time. The bot must not specify it in own definition, but it will receive this trigger value in input data to indicate how it was triggered. |
-      | 0x080 |  128 |  7  | Device Configuration   | Execute the bot when a device added, removed or configured.<br>The bot has to subscribe on this trigger value. |
-      | 0x100 |  256 |  8  | Data Stream            | Bots, rules and other applications can send data to data stream.<br>The bot has to subscribe on specific data stream channel. |
-      | 0x200 |  512 |  9  | Survey Answers         | An organization survey has been answered. |
-      | 0x400 | 1024 | 10  | Location Configuration | Execute the bot when a user or a space added or removed on a location.<br>The bot has to subscribe on this trigger value. |
-      | 0x800 | 2048 | 11  | Data request           | Execute the bot when a data request completed. |
-      | 0x1000| 4096 | 12  | Messages               | New messages created on a location or needs to be rescheduled. |
+      |  Hex  |  Dec  | Bit | Description            | Details |
+      |:-----:|------:|:---:|:-----------------------|:------- |
+      | 0x000 |     0 |     | Reset                  | Execute the bot when a new instance created or it was inactive and then activated. |
+      | 0x001 |     1 |  0  | Schedule               | Execute the bot based on a 'schedule'. |
+      | 0x002 |     2 |  1  | Location event         | Execute the bot when the Location changes state, such as 'HOME', 'AWAY', etc.<br>The bot has to subscribe on this trigger value. |
+      | 0x004 |     4 |  2  | Device Alert           | Execute the bot when the specified device sends an alert.<br>The bot has to subscribe on this trigger value. |
+      | 0x008 |     8 |  3  | Device Measurements    | Execute the bot when the specified device receives a new measurement. You can optionally include a paramNameTrigger, and separately you can optionally include comma-separated parameter values to trigger on.<br>The bot has to subscribe on this trigger value. |
+      | 0x010 |    16 |  4  | Question answer        | Execute the bot when a user answers a question. |
+      | 0x020 |    32 |  5  | Device Files           | Execute the bot when a new file is uploaded by the device.<br>The bot has to subscribe on this trigger value. |
+      | 0x040 |    64 |  6  | Countdown Timer        | The countdown timer can be requested by the bot to be executed in N seconds or at specified time. The bot must not specify it in own definition, but it will receive this trigger value in input data to indicate how it was triggered. |
+      | 0x080 |   128 |  7  | Device Configuration   | Execute the bot when a device added, removed or configured.<br>The bot has to subscribe on this trigger value. |
+      | 0x100 |   256 |  8  | Data Stream            | Bots, rules and other applications can send data to data stream.<br>The bot has to subscribe on specific data stream channel. |
+      | 0x200 |   512 |  9  | Survey Answers         | An organization survey has been answered. |
+      | 0x400 |  1024 | 10  | Location Configuration | Execute the bot when a user or a space added or removed on a location.<br>The bot has to subscribe on this trigger value. |
+      | 0x800 |  2048 | 11  | Data request           | Execute the bot when a data request completed. |
+      | 0x1000|  4096 | 12  | Messages               | New messages created on a location or needs to be rescheduled. |
+      | 0x4000| 16384 | 14  | Escalation             | Updated escalation. |
 
       ### Access Resources
 
@@ -7727,7 +7701,6 @@ tags:
       |        2        | Device files                        |
       |        3        | Professional monitoring call center |
       |        4        | Devices (in device types)           |
-      |        5        | Challenges                          |
       |        6        | Rules                               |
 
       ### Communications
@@ -7784,7 +7757,6 @@ tags:
       * [Delete Organization Object](admin.html#tag/Organizations/operation/Delete%20Object)
       * [Get Organization Users](admin.html#tag/Users-and-Locations/operation/Get%20Users)
       * [Get Organization Devices](admin.html#tag/Devices/operation/Get%20Devices)
-      * [Create a Challenge](admin.html#tag/Challenges/operation/Create%20a%20Challenge)
 
   - name: Bot Server APIs
     description: |-

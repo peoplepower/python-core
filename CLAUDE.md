@@ -70,7 +70,7 @@ auth = cd.app_api(Authentication)   # also: cd.admin_api(...), cd.bot_api(...)
 Each factory (`app_api`, `admin_api`, `bot_api`) is an explicit if-chain over known classes and returns `None` for unknown types. **When adding a new API class**, you must (1) create it under the right `apis/` subpackage, (2) export it from `apis/__init__.py`, and (3) add it to the matching factory chain in `caredaily.py`.
 
 API subpackages:
-- `apis/app/` — user-facing APIs (Authentication, Locations, Devices, DeviceMeasurements, Rules, Weather, RAG, Websocket, ...)
+- `apis/app/` — user-facing APIs (Authentication, Locations, Devices, DeviceMeasurements, Rules, RAG, Websocket, ...)
 - `apis/admin/` — administrative APIs (System, Organizations, Users, Billing, Firmware, Reports, ...)
 - `apis/bot/` — bot developer APIs (BotDeveloper, BotStore, DeveloperTeams, Analytic, Execution)
 

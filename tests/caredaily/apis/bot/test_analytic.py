@@ -453,20 +453,6 @@ class TestAnalytic(unittest.TestCase):
         self.assertEqual(kwargs['ep_params']['initialize'], 'true')
         self.assertEqual(result, {'resultCode': 0})
 
-    def test_get_challenge_participants_success(self):
-        self.mock_adapter.get.return_value = {'locations': []}
-        result = self.analytic.get_challenge_participants(challenge_id=1)
-        self.mock_adapter.get.assert_called_once()
-        self.assertEqual(result, {'locations': []})
-
-    def test_get_challenge_participants_with_filters(self):
-        self.mock_adapter.get.return_value = {'locations': []}
-        self.analytic.get_challenge_participants(challenge_id=1, status=2, location_id=123, get_devices=True)
-        args, kwargs = self.mock_adapter.get.call_args
-        self.assertEqual(kwargs['ep_params']['status'], 2)
-        self.assertEqual(kwargs['ep_params']['locationId'], 123)
-        self.assertEqual(kwargs['ep_params']['getDevices'], True)
-
     def test_get_device_parameters_with_historical(self):
         """Test Case ID: TC-Analytic-001
         Title: Get Device Parameters with Historical Query Parameters

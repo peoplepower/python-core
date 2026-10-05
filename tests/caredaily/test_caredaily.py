@@ -15,7 +15,6 @@ from caredaily.apis import (
     Billing,
     BotDeveloper,
     BotStore,
-    Challenges,
     CloudConnectivity,
     CloudsIntegration,
     DeveloperTeams,
@@ -41,7 +40,6 @@ from caredaily.apis import (
     UserCommunication,
     UserGroups,
     Users,
-    Weather,
     Websocket,
 )
 from caredaily.caredaily import CareDaily
@@ -372,7 +370,6 @@ class TestCareDaily(unittest.TestCase):
             (PaidServices, PaidServices),
             (ProfessionalMonitoring, ProfessionalMonitoring),
             (EnergyManagement, EnergyManagement),
-            (Weather, Weather),
             (DeviceTypesAndParameters, DeviceTypesAndParameters),
             (CloudsIntegration, CloudsIntegration),
             (RAG, RAG),
@@ -407,7 +404,6 @@ class TestCareDaily(unittest.TestCase):
             (UserGroups, UserGroups),
             (AdminDevices, AdminDevices),
             (AdminLocations, AdminLocations),
-            (Challenges, Challenges),
             (AdminTags, AdminTags),
             (Narratives, Narratives),
             (Billing, Billing),

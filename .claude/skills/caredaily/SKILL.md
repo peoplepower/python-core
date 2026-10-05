@@ -117,8 +117,8 @@ Import from `caredaily.apis` (or the subpackage):
   CloudConnectivity, CloudsIntegration, DeviceFiles, DeviceMeasurements,
   Devices, DeviceTypesAndParameters, EnergyManagement, Locations, PaidServices,
   ProfessionalMonitoring, RAG, Rules, SystemAndUserProperties, UserAccounts,
-  UserCommunication, Weather, Websocket
-- **`admin_api`** (`caredaily.apis.admin`): Billing, Challenges, AdminDevices,
+  UserCommunication, Websocket
+- **`admin_api`** (`caredaily.apis.admin`): Billing, AdminDevices,
   Firmware, Groups, AdminLocations, Narratives, Organizations, Reports, System,
   AdminTags, UserGroups, Users
 - **`bot_api`** (`caredaily.apis.bot`): Analytic, BotDeveloper, BotStore,

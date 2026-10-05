@@ -37,7 +37,6 @@ Application-level APIs for standard user operations:
 - **SystemAndUserProperties** - System and user property management
 - **UserAccounts** - User account management
 - **UserCommunication** - User messaging and communication
-- **Weather** - Weather data integration
 - **Websocket** - WebSocket connections and real-time updates
 
 ### Administrative APIs (`admin/`)
@@ -45,7 +44,6 @@ Application-level APIs for standard user operations:
 Administrative APIs requiring admin privileges:
 
 - **Billing** - Billing and subscription management
-- **Challenges** - Challenge management
 - **Devices** (AdminDevices) - Administrative device management
 - **Firmware** - Firmware management and updates
 - **Groups** - Organization group management

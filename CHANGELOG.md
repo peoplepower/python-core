@@ -5,6 +5,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-10-05
+
+### Added
+- Locations: `get_escalations`, `create_escalation`, and `update_escalation`
+  for the new `/cloud/json/escalations` endpoints
+- Locations: `escalation_id` filter on `get_narratives`; narratives can carry an
+  `escalationId` in `put_narrative`
+
+### Changed
+- API specs (cloud, admin, bots) updated to server API v65
+- DeviceTypesAndParameters: `add_default_rule` now requires `location_id`
+  (breaking)
+
+### Removed
+- Weather API class (all `/cloud/json/weather/...` endpoints removed from the spec)
+- Admin Challenges API class (`/admin/json/organizations/{organizationId}/challenges...`)
+- Bot Analytic: `get_challenge_participants` (`/analytic/admin/challenges/{challengeId}/participants`)
+- UserAccounts: `put_user_code`, `get_user_codes`, `delete_user_code` (`/cloud/json/userCodes`)
+- DeviceTypesAndParameters: `simple` and `organization_id` on `get_device_types`
+- PaidServices: `get_card` on `get_location_service_plans`
+
 ## [1.0.2] - 2026-09-11
 
 ### Added

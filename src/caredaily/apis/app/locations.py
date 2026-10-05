@@ -672,6 +672,7 @@ class Locations(API):
         end_date_ms: int = None,
         page_marker: str = None,
         analytic_key: str = None,
+        escalation_id: int = None,
     ):
         """
         Get narratives for a location.
@@ -692,6 +693,7 @@ class Locations(API):
             end_date_ms: End date in milliseconds since epoch
             page_marker: Page marker for pagination
             analytic_key: Optional analytic API key for bot access
+            escalation_id: Only return narratives referencing this escalation
 
         Returns:
             Result: API response containing list of narratives
@@ -713,6 +715,7 @@ class Locations(API):
             "startDate": start_date_ms,
             "endDate": end_date_ms,
             "pageMarker": page_marker,
+            "escalationId": escalation_id,
         }
         params = {k: v for k, v in params.items() if v is not None}
         headers = None
@@ -742,7 +745,8 @@ class Locations(API):
         Args:
             location_id: Location ID to create/update narrative for
             scope: Narrative scope (user, location, organization)
-            narrative: Dictionary containing narrative data
+            narrative: Dictionary containing narrative data. May include an
+                ``escalationId`` to link the narrative to an escalation.
             publish: Whether to publish the narrative to subscribers, default is true
             store: Store a new narrative in the database, default is true.
                 Can be set to False if it is only for publishing.
@@ -820,7 +824,139 @@ class Locations(API):
             ep_headers=headers,
         )
         return result
-    
+
+    def get_escalations(
+        self,
+        location_id: int = None,
+        organization_id: int = None,
+        escalation_id: int = None,
+        start_date: str = None,
+        end_date: str = None,
+        status: int | List[int] = None,
+        escalation_type: int | List[int] = None,
+        priority: int | List[int] = None,
+        analytic_key: str = None,
+    ):
+        """
+        Get escalations matching the search parameters.
+
+        Escalations are significant events (a fall, a call for help, a device
+        outage, ...) created by bots and referenced by narratives, notifications
+        and tickets.
+
+        Args:
+            location_id: Location ID. Required for end users, or if
+                ``organization_id`` is not provided.
+            organization_id: Organization ID (admins only). Required if
+                ``location_id`` is not provided.
+            escalation_id: Return only this escalation
+            start_date: Search start date and time. Required if
+                ``escalation_id`` is not provided.
+            end_date: Search end date and time
+            status: Escalation status(es): 1=Open, 2=Confirmed, 3=Resolved,
+                4=Cancelled, 5=Expired
+            escalation_type: Escalation type(s), e.g. 1=Fall detected,
+                3=Call for help, 16=Device offline
+            priority: Priority(ies): 1=Normal, 2=High, 3=Urgent
+            analytic_key: Optional analytic API key for bot access
+
+        Returns:
+            Result: API response containing the list of escalations
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Location-Events/operation/Get%20Escalations
+        """
+        params = {
+            "locationId": location_id,
+            "organizationId": organization_id,
+            "escalationId": escalation_id,
+            "startDate": start_date,
+            "endDate": end_date,
+            "status": status,
+            "escalationType": escalation_type,
+            "priority": priority,
+        }
+        params = {k: v for k, v in params.items() if v is not None}
+        headers = None
+        if analytic_key:
+            headers = self.adapter._get_headers(analytic_key, APIKeyType.ANALYTIC)
+        result: Result = self.adapter.get(
+            "/cloud/json/escalations",
+            ep_params=params,
+            ep_headers=headers,
+        )
+        return result
+
+    def create_escalation(
+        self,
+        location_id: int,
+        escalation: Dict,
+        analytic_key: str = None,
+    ):
+        """
+        Create an escalation. Bot API key only.
+
+        Args:
+            location_id: Location ID
+            escalation: Escalation fields; ``escalationType`` and ``priority``
+                are required. Optional: title, description, icon, expiryDate,
+                eventDate, userId, deviceId, eventSourceType, eventData,
+                createBotService.
+            analytic_key: Optional analytic API key for bot access
+
+        Returns:
+            Result: API response containing the new ``escalationId``
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Location-Events/operation/Create%20Escalation
+        """
+        headers = None
+        if analytic_key:
+            headers = self.adapter._get_headers(analytic_key, APIKeyType.ANALYTIC)
+        result: Result = self.adapter.post(
+            "/cloud/json/escalations",
+            ep_params={"locationId": location_id},
+            ep_json={"escalation": escalation},
+            ep_headers=headers,
+        )
+        return result
+
+    def update_escalation(
+        self,
+        location_id: int,
+        escalation_id: int,
+        escalation: Dict,
+        analytic_key: str = None,
+    ):
+        """
+        Update an escalation's status and related fields.
+
+        Args:
+            location_id: Location ID
+            escalation_id: Escalation ID to update
+            escalation: Fields to update: status, confirmationDate,
+                confirmUserId, resolutionDate, resolveUserId, resolveSourceType.
+                Confirmation/resolution dates default to now for the
+                corresponding statuses.
+            analytic_key: Optional analytic API key for bot access
+
+        Returns:
+            Result: API response confirming the update
+
+        Reference:
+            https://app.peoplepowerco.com/cloud/apidocs/cloud.html#tag/Location-Events/operation/Update%20Escalation
+        """
+        headers = None
+        if analytic_key:
+            headers = self.adapter._get_headers(analytic_key, APIKeyType.ANALYTIC)
+        result: Result = self.adapter.put(
+            "/cloud/json/escalations",
+            ep_params={"locationId": location_id, "escalationId": escalation_id},
+            ep_json={"escalation": escalation},
+            ep_headers=headers,
+        )
+        return result
+
     def stream_message(
         self,
         scope: str,

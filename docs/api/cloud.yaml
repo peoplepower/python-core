@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: 'Care Daily AI and IoT Platform: Application API'
-  version: '63'
+  version: '65'
   description: |-
     The Care Daily AI and IoT Platform is the most comprehensive carrier-grade software suite ever developed for the creation and deployment of family-centric smart home and building services.
     The Care Daily AI Platform supports an AI Marketplace for 24/7 assistive services built with IoT devices, including coordination and communications between families and professionals.
@@ -1436,7 +1436,6 @@ paths:
                 phoneType: 1
                 appName: Care
                 language: en
-                medicalRecordNumber: '12345'
                 pronounId: 1
                 accessibility: 7
                 birthDate: 1950-12-31
@@ -1506,9 +1505,6 @@ paths:
                     language:
                       type: string
                       description: Preferred language
-                    medicalRecordNumber:
-                      type: string
-                      description: Medical Record Number
                     pronounId:
                       type: integer
                       description: Pronoun ID. See the get pronouns API.
@@ -1753,9 +1749,6 @@ paths:
                       language:
                         type: string
                         description: User's preferred language. For example en - English, fr - French, ru - Russian, cn - Chinese, etc.
-                      medicalRecordNumber:
-                        type: string
-                        description: Medical Record Number
                       pronounId:
                         type: integer
                         description: User's pronoun ID. See the get pronouns API.
@@ -1860,6 +1853,22 @@ paths:
                           type: string
                         externalId:
                           type: string
+                          description: Single partner's location ID
+                        externalLocations:
+                          type: array
+                          description: Partner location identifiers
+                          items:
+                            type: object
+                            properties:
+                              applicationId:
+                                type: integer
+                                description: Partner cloud ID
+                              locationType:
+                                type: integer
+                                description: 0 - default, 1 - apartment
+                              externalLocationId:
+                                type: string
+                                description: Partner's ID
                         locationUser:
                           type: object
                           properties:
@@ -1957,8 +1966,6 @@ paths:
                           type: string
                         priorityDateMs:
                           type: integer
-                        codeType:
-                          type: integer
                         event:
                           type: string
                         startDate:
@@ -2012,8 +2019,6 @@ paths:
                                 type: string
                               amount:
                                 type: integer
-                              resourceType:
-                                type: integer
                               startDate:
                                 type: string
                               startDateMs:
@@ -2026,7 +2031,6 @@ paths:
                               - name
                               - desc
                               - amount
-                              - resourceType
                               - startDate
                               - startDateMs
                               - endDate
@@ -2129,7 +2133,6 @@ paths:
                     priorityComment: Short note here
                     priorityDate: '2019-01-29T02:45:30Z'
                     priorityDateMs: 1548747995000
-                    codeType: 1
                     event: HOME
                     size:
                       unit: ft2
@@ -2162,7 +2165,6 @@ paths:
                       - name: Family
                         desc: Care Daily Family service
                         amount: 1
-                        resourceType: 1
                         startDate: '2014-05-01T12:00:00Z'
                         startDateMs: 1398945600000
                         endDate: '2014-06-01T12:00:00Z'
@@ -2170,7 +2172,6 @@ paths:
                       - name: DeviceFileSpace
                         desc: Files storage space
                         amount: 7
-                        resourceType: 1
                         startDate: '2014-05-01T12:00:00Z'
                         startDateMs: 1398945600000
                         endDate: '2014-06-01T12:00:00Z'
@@ -2245,9 +2246,6 @@ paths:
                       type: integer
                     language:
                       type: string
-                    medicalRecordNumber:
-                      type: string
-                      description: Medical Record Number
                     pronounId:
                       type: integer
                     accessibility:
@@ -2717,138 +2715,6 @@ paths:
                 resultCode: 0
 
 
-  /cloud/json/userCodes:
-    put:
-      summary: Put User Code
-      operationId: Put User Code
-      description: |-
-        This API allows to add a new or overwrite an existing user's code or update a shared code on the location.
-        A user's code can be set by either providing the actual code value or by initiating a process entering the code on the device.
-        If the user's code is set by the device (type 4), process expiry time in seconds can be provided in the `setExpiry` field.
-        
-        | Type | Description |
-        | :--: | ----------- |
-        | 1 | Manual |
-        | 2 | Card |
-        | 3 | Combined |
-        | 4 | From device |
-      tags:
-        - User Accounts
-      security:
-        - userApiKey: []
-      parameters:
-        - name: name
-          in: query
-          description: Code name required for user codes
-          schema:
-            type: string
-        - name: locationId
-          in: query
-          description: Location ID for the location's code
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            example:
-              type: 1
-              code: '123456'
-              deviceId: ABC123
-              setExpiry: 60
-              verify: true
-            schema:
-              type: object
-              properties:
-                type:
-                  type: integer
-                code:
-                  type: string
-                deviceId:
-                  type: string
-                setExpiry:
-                  type: integer
-                verify:
-                  type: boolean
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-              example:
-                resultCode: 0
-
-    delete:
-      summary: Delete User Code
-      operationId: Delete User Code
-      tags:
-        - User Accounts
-      security:
-        - userApiKey: []
-      parameters:
-        - name: name
-          in: query
-          description: Code name required for user codes
-          schema:
-            type: string
-        - name: locationId
-          in: query
-          description: Location ID for the location's code
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-              example:
-                resultCode: 0
-
-    get:
-      summary: Get User Codes
-      operationId: Get User Codes
-      tags:
-        - User Accounts
-      security:
-        - userApiKey: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-                  codes:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        type:
-                          type: integer
-                        verified:
-                          type: boolean
-                        name:
-                          type: string
-              example:
-                resultCode: 0
-                codes:
-                  - type: 1
-                    verified: true
-                    name: My code
-
-
   /cloud/json/location:
     post:
       summary: Create Location
@@ -3116,148 +2982,6 @@ paths:
                     type: integer
               example:
                 resultCode: 0
-
-
-  /cloud/json/location/{locationId}/event/{eventName}:
-    post:
-      summary: Change the Scene at a Location
-      operationId: Change the Scene at a Location
-      description: >-
-        By changing the scene at a location, you may cause AI logic to execute such as "When I am home do something" or "When I am going to sleep turn off the TV".
-      tags:
-        - Locations
-      security:
-        - userApiKey: []
-        - botApiKey: []
-      parameters:
-        - name: locationId
-          in: path
-          description: The Location ID for which to trigger an event
-          required: true
-          schema:
-            type: integer
-        - name: eventName
-          in: path
-          description: >-
-            Developer-defined name of the scene. For example, 'HOME', 'AWAY', 'SLEEP', 'VACATION', 'FOOSBALL'.
-            You can define any name you want.
-            The name represents some state, and can be fed into Rules and other areas of the app.
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            example:
-              comment: Optional, why this event sent
-            schema:
-              type: object
-              properties:
-                comment:
-                  type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-              example:
-                resultCode: 0
-
-
-  /cloud/json/location/{locationId}/events:
-    get:
-      summary: Location Scenes History
-      operationId: Location Scenes History
-      description: |-
-        Return location change schemes history in backward order (latest first).
-
-        Source types:
-
-        | Type | Description |
-        | :--: | ----------- |
-        | 0 | User app |
-        | 1 | Rule |
-        | 2 | Bot |
-        | 9 | Third-party OAuth client |
-      tags:
-        - Locations
-      security:
-        - userApiKey: []
-      parameters:
-        - name: locationId
-          in: path
-          description: The Location ID
-          required: true
-          schema:
-            type: integer
-        - name: startDate
-          in: query
-          description: Start date to begin receiving data
-          schema:
-            type: string
-        - name: endDate
-          in: query
-          description: End date to stop receiving data. Default is the current date.
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Location Scenes
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-                  events:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        event:
-                          type: string
-                          description: Scene value
-                        eventDate:
-                          type: string
-                          description: Scene date
-                        eventDateMs:
-                          type: integer
-                        sourceType:
-                          type: integer
-                          description: Client's type which set the scene
-                        sourceAgent:
-                          type: string
-                          description: HTTP User-Agent header value
-                        comment:
-                          type: string
-                      required:
-                        - event
-                        - eventDate
-                        - eventDateMs
-              example:
-                resultCode: 0
-                events:
-                  - event: HOME
-                    eventDate: '2015-10-01T18:00:00Z'
-                    eventDateMs: 1443722400000
-                    sourceType: 0
-                    sourceAgent: Care/4.0.19 (iPhone; iOS 10.3.3; Scale/2.00)
-                  - event: AWAY
-                    eventDate: '2015-09-15T18:00:00Z'
-                    eventDateMs: 1442340000000
-                    sourceType: 1
-                    comment: Did not detect motions for one hour
-                  - event: HOME
-                    eventDate: '2015-09-01T18:00:00Z'
-                    eventDateMs: 1441130400000
-                    sourceType: 2
-                    comment: Recognized a tenant
 
 
   /cloud/json/location/{locationId}/priorities:
@@ -3721,9 +3445,6 @@ paths:
                           description: System user's role
                         language:
                           type: string
-                        medicalRecordNumber:
-                          type: string
-                          description: Medical Record Number
                         accessibility:
                           type: integer
                         birthDate:
@@ -4128,8 +3849,6 @@ paths:
                               type: string
                             priorityDateMs:
                               type: integer
-                            codeType:
-                              type: integer
                             event:
                               type: string
                             test:
@@ -4295,6 +4014,1133 @@ paths:
                 resultCode: 0
   
   
+  /cloud/json/locationTotals:
+    get:
+      summary: Get Totals
+      operationId: Get Totals
+      description: >-
+        For the location landing page we are displaying the location's total files, devices and rules.
+        This is a single API to request total numbers.
+      tags:
+        - Locations
+      security:
+        - userApiKey: []
+      parameters:
+        - name: locationId
+          in: query
+          description: Location ID
+          required: true
+          schema:
+            type: integer
+        - name: devices
+          in: query
+          description: Return total devices number
+          schema:
+            type: boolean
+        - name: files
+          in: query
+          description: Return total files number
+          schema:
+            type: boolean
+        - name: rules
+          in: query
+          description: Return total rules number
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  devicesTotal:
+                    type: integer
+                  filesTotal:
+                    type: integer
+                  rulesTotal:
+                    type: integer
+              example:
+                resultCode: 0
+                devicesTotal: 3
+                filesTotal: 50
+                rulesTotal: 10
+
+
+  /cloud/appstore/summary:
+    get:
+      summary: Get Summary
+      operationId: Get Summary
+      description: Returns a list of microservices and data stream addresses for a specified location or bots running within an organization.
+      tags:
+        - Location Events
+      security:
+        - userApiKey: []
+      parameters:
+        - name: locationId
+          in: query
+          description: Location ID
+          schema:
+            type: integer
+        - name: organizationId
+          in: query
+          description: Organization ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  dataStreams:
+                    type: array
+                    items:
+                      type: string
+                  microServices:
+                    type: array
+                    items:
+                      type: string
+              example:
+                resultCode: 0
+                dataStreams:
+                  - address1
+                  - address2
+                microServices:
+                  - sms_invite
+                  - email_invite
+                  - in_app_invite
+
+
+  /cloud/appstore/stream:
+    post:
+      summary: Stream message
+      operationId: Stream message
+      description: |-
+        Applications can send data messages to bots. These messages are transient.
+        They're not stored or logged, but bots can choose to record them in the history by using Narratives.
+        
+        The message can be sent to bots that are subscribed on the specific data stream address, or bots of specific instance ID's.
+        
+        End users can send messages to bots that only purchased by them, or organizational bots that operate above their location.
+        
+        Organization administrators can send messages to organizational bots in the same organization, and to non-organization and individual bots of users within this organization.
+        
+        The end user IDs and the bot IDs (appInstanceId) are specified in the request body.
+      tags:
+        - Location Events
+      security:
+        - userApiKey: []
+      parameters:
+        - name: scope
+          in: query
+          description: |-
+            Bitmask to feed organizational and location bots:
+            <br>1 - individual
+            <br>2 - organizational
+          required: true
+          schema:
+            type: integer
+        - name: address
+          in: query
+          description: Data stream address
+          required: true
+          schema:
+            type: string
+        - name: locationId
+          in: query
+          description: Send data to bots of this location. Mandatory for end users.
+          schema:
+            type: integer
+        - name: organizationId
+          in: query
+          description: Send data to bots of users of the specific organization, used by an administrator
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            example:
+              locations:
+                - 34122
+                - 15689
+              bots:
+                - 567
+                - 893
+              feed:
+                key0: value0
+                key1: value1
+            schema:
+              type: object
+              properties:
+                locations:
+                  type: array
+                  items:
+                    type: integer
+                bots:
+                  type: array
+                  items:
+                    type: integer
+                feed:
+                  type: object
+                  description: Flexible structure object
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+              example:
+                resultCode: 0
+
+
+  /cloud/json/locations/{locationId}/state:
+    put:
+      summary: Set Location State
+      operationId: Set Location State
+      description: |-
+        Location states are a way for bots and users to set named location states with flexible object structure.
+  
+        The location state value can be an any valid JSON node.
+        It can be a single value node (string, integer, etc.) or an array or an object node `{}`.
+        If the value is an object node, the API will read the current state value and try to update only changed fields.
+  
+        To remove a state, set the value to `null`.
+        To delete a field from the current value set it to `null`.
+      tags:
+        - Location Events
+      security:
+        - userApiKey: []
+        - botApiKey: []
+      parameters:
+        - name: locationId
+          in: path
+          description: Location ID
+          required: true
+          schema:
+            type: integer
+        - name: name
+          in: query
+          description: State name
+          required: true
+          schema:
+            type: string
+        - name: overwrite
+          in: query
+          description: Overwrite the entire state with completely new content
+          schema:
+            type: boolean
+        - name: publish
+          in: query
+          description: Publish state to subscribers, default is true
+          schema:
+            type: boolean
+        - name: upd
+          in: query
+          description: >-
+            Array of updated or added top level properties of the state.
+            <br>Used with overwrite=true to inform a partner's cloud.
+          schema:
+            type: string
+        - name: del
+          in: query
+          description: >-
+            Array of deleted top level properties of the state.
+            <br>Used to inform a partner's cloud.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            example:
+              value:
+                field0: 123
+                field1:
+                  ids:
+                    - 1234
+                    - 2366
+                  key: value
+                fieldToDelete: null
+            schema:
+              type: object
+              properties:
+                value:
+                  type: object
+                  description: Flexible structure object
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+              example:
+                resultCode: 0
+
+    get:
+      summary: Get Location State
+      operationId: Get Location State
+      tags:
+        - Location Events
+      security:
+        - userApiKey: []
+        - botApiKey: []
+      parameters:
+        - name: locationId
+          in: path
+          description: Location ID
+          required: true
+          schema:
+            type: integer
+        - name: name
+          in: query
+          description: State name(s), multiple values supported
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: State(s)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  stateDate:
+                    type: string
+                  stateDateMs:
+                    type: integer
+                  value:
+                    type: object
+                    description: Value of the requested single state
+                  states:
+                    type: array
+                    description: Array of states
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: State's name
+                        stateDate:
+                          type: string
+                        stateDateMs:
+                          type: integer
+                        value:
+                          type: object
+                          description: State's value
+              example:
+                resultCode: 0
+                value:
+                  field0: 123
+                  field1:
+                    ids:
+                      - 1234
+                      - 2366
+                    key: value
+                states:
+                  - name: stateName
+                    value:
+                      field0: 123
+                      field1: AAA
+
+    delete:
+      summary: Delete All Location States
+      operationId: Delete All Location States
+      description: Delete all states on the location
+      tags:
+        - Location Events
+      security:
+        - userApiKey: []
+      parameters:
+        - name: locationId
+          in: path
+          description: Location ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+              example:
+                resultCode: 0
+
+
+  /cloud/json/locations/{locationId}/timeStates:
+    put:
+      summary: Set Location Time-series State
+      operationId: Set Location Time-series State
+      description: |-
+        Time-series location states are a way for bots and users to capture time-series addressable state information with flexible object structure.
+        The state value can be an any valid JSON node.
+        It can be a single value node (string, integer, etc.) or an array or an object node `{}`.
+        If the value is an object node, the API will read the current state value and try to update only changed fields.
+
+        To delete a location state set the value to `null`.
+        To delete a field from the current value, set it to `null`.
+      tags:
+        - Location Events
+      security:
+        - userApiKey: []
+        - botApiKey: []
+      parameters:
+        - name: locationId
+          in: path
+          description: Location ID
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          description: State date or time value
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: State name
+          required: true
+          schema:
+            type: string
+        - name: overwrite
+          in: query
+          description: Overwrite the entire state with completely new content
+          schema:
+            type: boolean
+        - name: upd
+          in: query
+          description: >-
+            Array of updated or added top level properties of the state.
+            <br>Used with overwrite=true to inform a partner's cloud.
+          schema:
+            type: string
+        - name: del
+          in: query
+          description: >-
+            Array of deleted top level properties of the state.
+            <br>Used to inform a partner's cloud.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            example:
+              value:
+                field0: 123
+                field1:
+                  ids:
+                    - 1234
+                    - 2366
+                  key: value
+                fieldToDelete: null
+            schema:
+              type: object
+              properties:
+                value:
+                  type: object
+                  description: Flexible structure object
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+              example:
+                resultCode: 0
+
+    get:
+      summary: Get Location Time-series States
+      operationId: Get Location Time-series States
+      tags:
+        - Location Events
+      security:
+        - userApiKey: []
+        - botApiKey: []
+      parameters:
+        - name: locationId
+          in: path
+          description: Location ID
+          required: true
+          schema:
+            type: integer
+        - name: startDate
+          in: query
+          description: Return states with dates greater than or equal to this value
+          required: true
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          description: >-
+            Return states with dates less than this value.
+            If not set, only states with dates exactly equal to startDate will be returned.
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: State name(s), multiple values supported
+          schema:
+            type: string
+        - name: field
+          in: query
+          description: State field to get or filter by. Multiple values are required for deeper object level.
+          schema:
+            type: string
+        - name: keepParent
+          in: query
+          description: Use the field parameter only for filtering.
+          schema:
+            type: boolean
+        - name: aggregation
+          in: query
+          description: Aggregate field values by 1 = hour, 2 = day, 3 = month, 4 = week
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Time-series States
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  states:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: State's name
+                        stateDate:
+                          type: string
+                          description: State's date
+                        stateDateMs:
+                          type: integer
+                        value:
+                          type: object
+                          description: State's value
+                        avg:
+                          type: object
+                          description: Field values aggregation
+                          properties:
+                            value:
+                              type: integer
+                            count:
+                              type: integer
+                      required:
+                        - stateDate
+                        - stateDateMs
+              example:
+                resultCode: 0
+                states:
+                  - name: stateName
+                    stateDate: '2018-10-01T03:05:07'
+                    stateDateMs: 1537692964000
+                    value:
+                      field0: 123
+                      field1: AAA
+                  - stateDate: '2018-10-01'
+                    stateDateMs: 1537692964000
+                    avg:
+                      value: 1.23
+                      count: 10
+
+
+  /cloud/json/escalations:
+    post:
+      summary: Create Escalation
+      operationId: Create Escalation
+      description: |-
+        Escalations are significant events captured inside Care Daily platform and created by bots.
+        For examples, a fall, an emergency request, a device outage, "not back home".
+        Escalations can be reactions to device parameters change or captured from external data-streaming resources.
+        
+        An escalation can be referenced in following narratives, notifications, tickets.
+        
+        **Escalation Statuses**
+
+        | Status | Name |
+        | :----: | ---- |
+        | 1 | Open |
+        | 2 | Confirmed |
+        | 3 | Resolved |
+        | 4 | Cancelled (including false positive) |
+        | 5 | Expired |
+        
+        **Escalation Types**
+        
+        | Type | Description |
+        | :--: | ----------- |
+        |    | ***Care*** |
+        |  1 | Fall detected |
+        |  2 | Fall risk |
+        |  3 | Call for help |
+        |  4 | Did not wake up |
+        |  5 | Inactivity |
+        |  6 | Sleep interruption |
+        |  7 | Not back home |
+        |  8 | Wandering |
+        |  9 | Health alert |
+        | 19 | Out of bed too long |
+        | 20 | Didn't come to bed |
+        | 21 | Bed Exit |
+        |    | ***Security and hazards*** |
+        | 10 | Security alarm |
+        | 11 | Duress |
+        | 12 | Smoke |
+        | 13 | Water leak |
+        | 14 | Stove hazard |
+        |    | ***Technical*** |
+        | 15 | Proxy/gateway offline |
+        | 16 | Device offline |
+        | 17 | Low battery |
+        | 18 | Unstable connection |
+        
+        **Priorities**
+        
+        | Priority | Description |
+        | :------: | ----------- |
+        | 1 | Normal |
+        | 2 | High |
+        | 3 | Urgent |
+        
+        **Possible Source Types**
+        
+        | Source | Description |
+        | :----: | ----------- |
+        |  0 | End User |
+        |  2 | Bot Logic |
+        |  6 | System Logic |
+        |  7 | External Application |
+        |  8 | Device Data |
+        | 10 | Staff |
+        | 11 | Administrator |
+      tags:
+        - Location Events
+      security:
+        - botApiKey: []
+      parameters:
+        - name: locationId
+          in: query
+          description: Location ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                escalation:
+                  type: object
+                  properties:
+                    escalationType:
+                      type: integer
+                    title:
+                      type: string
+                    description:
+                      type: string
+                    priority:
+                      type: integer
+                    icon:
+                      type: string
+                    expiryDate:
+                      type: string
+                      description: Excalation expiry date
+                    eventDate:
+                      type: string
+                      description: Triggering event date and time
+                    userId:
+                      type: integer
+                      description: Related event user ID
+                    deviceId:
+                      type: string
+                      description: Triggering event device ID
+                    eventSourceType:
+                      type: integer
+                      description: Triggering event source type
+                    eventData:
+                      type: object
+                      description: Triggering event data except the device ID in flexible format
+                    createBotService:
+                      type: string
+                      description: Bot service name, creating the excalation
+                  required:
+                    - escalationType
+                    - priority
+            example:
+              escalation:
+                escalationType: 1
+                userId: 123
+                title: Fall
+                description: Resident fall detected
+                eventDate: 2026-09-10T14:05:23Z
+                deviceId: abc123
+                eventSourceType: 1
+                createBotService: fall.service
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  escalationId:
+                    type: integer
+              example:
+                resultCode: 0
+                escalationId: 456
+
+    put:
+      summary: Update Escalation
+      operationId: Update Escalation
+      description: |-
+        Update an escalation status and related fields
+      tags:
+        - Location Events
+      security:
+        - botApiKey: []
+        - userApiKey: []
+      parameters:
+        - name: locationId
+          in: query
+          description: Location ID
+          required: true
+          schema:
+            type: integer
+        - name: escalationId
+          in: query
+          description: Escalation ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                escalation:
+                  type: object
+                  properties:
+                    status:
+                      type: integer
+                    confirmationDate:
+                      type: string
+                      description: When an event has been confirmed. Will be set to the current time by default for the confirmation status.
+                    confirmUserId:
+                      type: integer
+                      description: User confirmed the event
+                    resolutionDate:
+                      type: string
+                      description: When an exaclation resolved. Will be set to the current time by default for closing statuses.
+                    resolveUserId:
+                      type: integer
+                      description: User resolved the event
+                    resolveSourceType:
+                      type: integer
+                      description: Data source type causing the exaclation resolution
+            example:
+              escalation:
+                status: 3
+                resolutionDate: 2026-09-10T14:05:23Z
+                resolveUserId: 123
+                resolveSourceType: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+              example:
+                resultCode: 0
+
+    get:
+      summary: Get Escalations
+      operationId: Get Escalations
+      description: |-
+        Select escalations by search parameters
+      tags:
+        - Location Events
+      security:
+        - botApiKey: []
+        - userApiKey: []
+      parameters:
+        - name: locationId
+          in: query
+          description: Location ID. Required for end-users or if the `organizationId` parameter not provided.
+          schema:
+            type: integer
+        - name: organizationId
+          in: query
+          description: Organization ID. For admins only. Required if the `locationId` parameter not provided.
+          schema:
+            type: integer
+        - name: escalationId
+          in: query
+          description: Escalation ID
+          schema:
+            type: integer
+        - name: startDate
+          in: query
+          description: Search start date and time. Required if the `escalationId` parameter not provided.
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          description: Search end date and time
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Escalation statuses. Multiple values supported.
+          schema:
+            type: integer
+        - name: escalationType
+          in: query
+          description: Escalation types. Multiple values supported.
+          schema:
+            type: integer
+        - name: priority
+          in: query
+          description: Priorities. Multiple values supported.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Escalations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  escalations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        escalationId:
+                          type: integer
+                        locationId:
+                          type: integer
+                        escalationType:
+                          type: integer
+                        status:
+                          type: integer
+                        title:
+                          type: string
+                        description:
+                          type: string
+                        priority:
+                          type: integer
+                        icon:
+                          type: string
+                        creationDate:
+                          type: string
+                        creationDateMs:
+                          type: integer
+                        expiryDate:
+                          type: string
+                          description: Excalation expiry date
+                        expiryDateMs:
+                          type: integer
+                        eventDate:
+                          type: string
+                          description: Triggering event date and time
+                        eventDateMs:
+                          type: integer
+                        userId:
+                          type: integer
+                          description: Related event user ID
+                        deviceId:
+                          type: string
+                          description: Triggering event device ID
+                        device:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: Device ID
+                            type:
+                              type: integer
+                              description: Device Type
+                            goalId:
+                              type: integer
+                              description: Device usage goal ID
+                            locationId:
+                              type: integer
+                              description: Device location ID
+                            userId:
+                              type: integer
+                              description: Device user ID
+                            desc:
+                              type: string
+                              description: Device name or description
+                            connected:
+                              type: boolean
+                              description: Device connection status
+                            modelId:
+                              type: string
+                              description: Device model ID
+                            lastDataReceivedDate:
+                              type: string
+                              description: Last time, when any data received for this device
+                            lastDataReceivedDateMs:
+                              type: integer
+                            lastMeasureDate:
+                              type: string
+                              description: Last time, when device measurements received
+                            lastMeasureDateMs:
+                              type: integer
+                            proxyId:
+                              type: string
+                              description: Device proxy or hub ID
+                            zoneId:
+                              type: string
+                              description: Device zone ID
+                            applicationId:
+                              type: integer
+                              description: Device integration cloud ID
+                            authId:
+                              type: string
+                              description: Device integration authentication ID
+                        eventSourceType:
+                          type: integer
+                          description: Triggering event source type
+                        eventData:
+                          type: object
+                          description: Triggering event data except the device ID in flexible format
+                        createBotInstanceId:
+                          type: integer
+                          description: Bot instance created the escalation
+                        createBotService:
+                          type: string
+                          description: Bot service name, creating the excalation
+                        confirmationDate:
+                          type: string
+                          description: When an event has been confirmed. Will be set to the current time by default for the confirmation status.
+                        confirmationDateMs:
+                          type: integer
+                        confirmUserId:
+                          type: integer
+                          description: User confirmed the event
+                        resolutionDate:
+                          type: string
+                          description: When an exaclation resolved. Will be set to the current time by default for closing statuses.
+                        resolutionDateMs:
+                          type: integer
+                        resolveUserId:
+                          type: integer
+                          description: User resolved the event
+                        resolveSourceType:
+                          type: integer
+                          description: Data source type causing the exaclation resolution
+              example:
+                resultCode: 0
+                escalations:
+                  - escalationId: 456
+                    locationId: 123
+                    escalationType: 1
+                    status: 3
+                    title: Fall
+                    description: Resident fall detected
+                    creationDate: '2026-09-10T10:05:23-04:00'
+                    creationDateMs: 1757513123000
+                    eventDate: '2026-09-10T10:05:23-04:00'
+                    eventDateMs: 1757513123000
+                    userId: 123
+                    deviceId: abc123
+                    eventSourceType: 1
+                    createBotInstanceId: 789
+                    createBotService: fall.service
+                    resolutionDate: '2026-09-10T10:15:00-04:00'
+                    resolutionDateMs: 1757513700000
+                    resolveUserId: 123
+                    resolveSourceType: 1
+
+
+  /cloud/json/location/{locationId}/event/{eventName}:
+    post:
+      summary: Change the Scene at a Location
+      operationId: Change the Scene at a Location
+      description: >-
+        By changing the scene at a location, you may cause AI logic to execute such as "When I am home do something" or "When I am going to sleep turn off the TV".
+      tags:
+        - Location Events
+      security:
+        - userApiKey: []
+        - botApiKey: []
+      parameters:
+        - name: locationId
+          in: path
+          description: The Location ID for which to trigger an event
+          required: true
+          schema:
+            type: integer
+        - name: eventName
+          in: path
+          description: >-
+            Developer-defined name of the scene. For example, 'HOME', 'AWAY', 'SLEEP', 'VACATION', 'FOOSBALL'.
+            You can define any name you want.
+            The name represents some state, and can be fed into Rules and other areas of the app.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            example:
+              comment: Optional, why this event sent
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+              example:
+                resultCode: 0
+
+
+  /cloud/json/location/{locationId}/events:
+    get:
+      summary: Location Scenes History
+      operationId: Location Scenes History
+      description: |-
+        Return location change schemes history in backward order (latest first).
+
+        Source types:
+
+        | Type | Description |
+        | :--: | ----------- |
+        | 0 | User app |
+        | 1 | Rule |
+        | 2 | Bot |
+        | 9 | Third-party OAuth client |
+      tags:
+        - Location Events
+      security:
+        - userApiKey: []
+      parameters:
+        - name: locationId
+          in: path
+          description: The Location ID
+          required: true
+          schema:
+            type: integer
+        - name: startDate
+          in: query
+          description: Start date to begin receiving data
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          description: End date to stop receiving data. Default is the current date.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Location Scenes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultCode:
+                    type: integer
+                  events:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        event:
+                          type: string
+                          description: Scene value
+                        eventDate:
+                          type: string
+                          description: Scene date
+                        eventDateMs:
+                          type: integer
+                        sourceType:
+                          type: integer
+                          description: Client's type which set the scene
+                        sourceAgent:
+                          type: string
+                          description: HTTP User-Agent header value
+                        comment:
+                          type: string
+                      required:
+                        - event
+                        - eventDate
+                        - eventDateMs
+              example:
+                resultCode: 0
+                events:
+                  - event: HOME
+                    eventDate: '2015-10-01T18:00:00Z'
+                    eventDateMs: 1443722400000
+                    sourceType: 0
+                    sourceAgent: Care/4.0.19 (iPhone; iOS 10.3.3; Scale/2.00)
+                  - event: AWAY
+                    eventDate: '2015-09-15T18:00:00Z'
+                    eventDateMs: 1442340000000
+                    sourceType: 1
+                    comment: Did not detect motions for one hour
+                  - event: HOME
+                    eventDate: '2015-09-01T18:00:00Z'
+                    eventDateMs: 1441130400000
+                    sourceType: 2
+                    comment: Recognized a tenant
+
+
   /cloud/json/locations/{locationId}/narratives:
     put:
       summary: Create or Update a Narrative
@@ -4331,7 +5177,7 @@ paths:
         To update an existing narrative record both `narrativeId` and `narrativeTime` query parameters must be provided.
         The new value of `narrativeTime` in milliseconds will be returned, if it has been changed.
       tags:
-        - Locations
+        - Location Events
       security:
         - userApiKey: []
         - botApiKey: []
@@ -4399,6 +5245,9 @@ paths:
                     narrativeTime:
                       type: integer
                       description: Narrative time in milliseconds for a new record
+                    escalationId:
+                      type: integer
+                      description: Escalation ID
                     parentId:
                       type: integer
                       description: Parent narrative ID
@@ -4455,7 +5304,7 @@ paths:
         The result may include the `nextMarker` property - this means that there are more pages for the current search criteria. 
         To get the next page, the value of `nextMarker` must be passed to the `pageMarker` parameter on the next API call.
       tags:
-        - Locations
+        - Location Events
       security:
         - userApiKey: []
         - botApiKey: []
@@ -4479,6 +5328,11 @@ paths:
         - name: narrativeTime
           in: query
           description: Specific narrative time
+          schema:
+            type: integer
+        - name: escalationId
+          in: query
+          description: Escalation ID
           schema:
             type: integer
         - name: parentId
@@ -4638,7 +5492,7 @@ paths:
       operationId: Delete a Narrative
       description: ''
       tags:
-        - Locations
+        - Location Events
       security:
         - botApiKey: []
       parameters:
@@ -4691,571 +5545,6 @@ paths:
                 resultCode: 0
 
 
-  /cloud/json/locationTotals:
-    get:
-      summary: Get Totals
-      operationId: Get Totals
-      description: >-
-        For the location landing page we are displaying the location's total files, devices and rules.
-        This is a single API to request total numbers.
-      tags:
-        - Locations
-      security:
-        - userApiKey: []
-      parameters:
-        - name: locationId
-          in: query
-          description: Location ID
-          required: true
-          schema:
-            type: integer
-        - name: devices
-          in: query
-          description: Return total devices number
-          schema:
-            type: boolean
-        - name: files
-          in: query
-          description: Return total files number
-          schema:
-            type: boolean
-        - name: rules
-          in: query
-          description: Return total rules number
-          schema:
-            type: boolean
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-                  devicesTotal:
-                    type: integer
-                  filesTotal:
-                    type: integer
-                  rulesTotal:
-                    type: integer
-              example:
-                resultCode: 0
-                devicesTotal: 3
-                filesTotal: 50
-                rulesTotal: 10
-
-
-  /cloud/appstore/stream:
-    post:
-      summary: Stream message
-      operationId: Stream message
-      description: |-
-        Applications can send data messages to bots. These messages are transient.
-        They're not stored or logged, but bots can choose to record them in the history by using Narratives.
-        
-        The message can be sent to bots that are subscribed on the specific data stream address, or bots of specific instance ID's.
-        
-        End users can send messages to bots that only purchased by them, or organizational bots that operate above their location.
-        
-        Organization administrators can send messages to organizational bots in the same organization, and to non-organization and individual bots of users within this organization.
-        
-        The end user IDs and the bot IDs (appInstanceId) are specified in the request body.
-      tags:
-        - Synthetic APIs
-      security:
-        - userApiKey: []
-      parameters:
-        - name: scope
-          in: query
-          description: |-
-            Bitmask to feed organizational and location bots:
-            <br>1 - individual
-            <br>2 - organizational
-          required: true
-          schema:
-            type: integer
-        - name: address
-          in: query
-          description: Data stream address
-          required: true
-          schema:
-            type: string
-        - name: locationId
-          in: query
-          description: Send data to bots of this location. Mandatory for end users.
-          schema:
-            type: integer
-        - name: organizationId
-          in: query
-          description: Send data to bots of users of the specific organization, used by an administrator
-          schema:
-            type: integer
-      requestBody:
-        content:
-          application/json:
-            example:
-              locations:
-                - 34122
-                - 15689
-              bots:
-                - 567
-                - 893
-              feed:
-                key0: value0
-                key1: value1
-            schema:
-              type: object
-              properties:
-                locations:
-                  type: array
-                  items:
-                    type: integer
-                bots:
-                  type: array
-                  items:
-                    type: integer
-                feed:
-                  type: object
-                  description: Flexible structure object
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-              example:
-                resultCode: 0
-
-
-  /cloud/appstore/summary:
-    get:
-      summary: Get Summary
-      operationId: Get Summary
-      description: Returns a list of microservices and data stream addresses for a specified location or bots running within an organization.
-      tags:
-        - Synthetic APIs
-      security:
-        - userApiKey: []
-      parameters:
-        - name: locationId
-          in: query
-          description: Location ID
-          schema:
-            type: integer
-        - name: organizationId
-          in: query
-          description: Organization ID
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Summary
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-                  dataStreams:
-                    type: array
-                    items:
-                      type: string
-                  microServices:
-                    type: array
-                    items:
-                      type: string
-              example:
-                resultCode: 0
-                dataStreams:
-                  - address1
-                  - address2
-                microServices:
-                  - sms_invite
-                  - email_invite
-                  - in_app_invite
-
-
-  /cloud/json/locations/{locationId}/state:
-    put:
-      summary: Set Location State
-      operationId: Set Location State
-      description: |-
-        Location state variables are a way for bots and users to set named location states with flexible object structure.
-  
-        The location state value can be an any valid JSON node.
-        When a state variable is saved by a bot, its contents will persist in the location beyond the lifetime of the bot.
-        It can be a single value node (string, integer, etc.) or an array or an object node `{}`.
-  
-        If the value is an object node, the API will read the current state value and try to update only changed fields.
-  
-        To remove a state, set the value to `null`.
-        To delete a field from the current value set it to `null`.
-      tags:
-        - Synthetic APIs
-      security:
-        - userApiKey: []
-        - botApiKey: []
-      parameters:
-        - name: locationId
-          in: path
-          description: Location ID
-          required: true
-          schema:
-            type: integer
-        - name: name
-          in: query
-          description: State name
-          required: true
-          schema:
-            type: string
-        - name: overwrite
-          in: query
-          description: Overwrite the entire state with completely new content
-          schema:
-            type: boolean
-        - name: publish
-          in: query
-          description: Publish state to subscribers, default is true
-          schema:
-            type: boolean
-        - name: upd
-          in: query
-          description: >-
-            Array of updated or added top level properties of the state.
-            <br>Used with overwrite=true to inform a partner's cloud.
-          schema:
-            type: string
-        - name: del
-          in: query
-          description: >-
-            Array of deleted top level properties of the state.
-            <br>Used to inform a partner's cloud.
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            example:
-              value:
-                field0: 123
-                field1:
-                  ids:
-                    - 1234
-                    - 2366
-                  key: value
-                fieldToDelete: null
-            schema:
-              type: object
-              properties:
-                value:
-                  type: object
-                  description: Flexible structure object
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-              example:
-                resultCode: 0
-
-    get:
-      summary: Get Location State
-      operationId: Get Location State
-      tags:
-        - Synthetic APIs
-      security:
-        - userApiKey: []
-        - botApiKey: []
-      parameters:
-        - name: locationId
-          in: path
-          description: Location ID
-          required: true
-          schema:
-            type: integer
-        - name: name
-          in: query
-          description: State name(s), multiple values supported
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: State(s)
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-                  stateDate:
-                    type: string
-                  stateDateMs:
-                    type: integer
-                  value:
-                    type: object
-                    description: Value of the requested single state
-                  states:
-                    type: array
-                    description: Array of states
-                    items:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                          description: State's name
-                        stateDate:
-                          type: string
-                        stateDateMs:
-                          type: integer
-                        value:
-                          type: object
-                          description: State's value
-              example:
-                resultCode: 0
-                value:
-                  field0: 123
-                  field1:
-                    ids:
-                      - 1234
-                      - 2366
-                    key: value
-                states:
-                  - name: stateName
-                    value:
-                      field0: 123
-                      field1: AAA
-
-    delete:
-      summary: Delete All Location States
-      operationId: Delete All Location States
-      description: Delete all states on the location
-      tags:
-        - Synthetic APIs
-      security:
-        - userApiKey: []
-      parameters:
-        - name: locationId
-          in: path
-          description: Location ID
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-              example:
-                resultCode: 0
-
-
-  /cloud/json/locations/{locationId}/timeStates:
-    put:
-      summary: Set Location Time-series State
-      operationId: Set Location Time-series State
-      description: |-
-        Time-series location states are a way for bots and users to capture time-series addressable state information with flexible object structure.
-        The state value can be an any valid JSON node.
-        It can be a single value node (string, integer, etc.) or an array or an object node `{}`.
-
-        If the value is an object node, the API will read the current state value and try to update only changed fields.
-
-        To delete a location state set the value to `null`.
-        To delete a field from the current value, set it to `null`.
-      tags:
-        - Synthetic APIs
-      security:
-        - userApiKey: []
-        - botApiKey: []
-      parameters:
-        - name: locationId
-          in: path
-          description: Location ID
-          required: true
-          schema:
-            type: integer
-        - name: date
-          in: query
-          description: State date or time value
-          required: true
-          schema:
-            type: string
-        - name: name
-          in: query
-          description: State name
-          required: true
-          schema:
-            type: string
-        - name: overwrite
-          in: query
-          description: Overwrite the entire state with completely new content
-          schema:
-            type: boolean
-        - name: upd
-          in: query
-          description: >-
-            Array of updated or added top level properties of the state.
-            <br>Used with overwrite=true to inform a partner's cloud.
-          schema:
-            type: string
-        - name: del
-          in: query
-          description: >-
-            Array of deleted top level properties of the state.
-            <br>Used to inform a partner's cloud.
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            example:
-              value:
-                field0: 123
-                field1:
-                  ids:
-                    - 1234
-                    - 2366
-                  key: value
-                fieldToDelete: null
-            schema:
-              type: object
-              properties:
-                value:
-                  type: object
-                  description: Flexible structure object
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-              example:
-                resultCode: 0
-
-    get:
-      summary: Get Location Time-series States
-      operationId: Get Location Time-series States
-      tags:
-        - Synthetic APIs
-      security:
-        - userApiKey: []
-        - botApiKey: []
-      parameters:
-        - name: locationId
-          in: path
-          description: Location ID
-          required: true
-          schema:
-            type: integer
-        - name: startDate
-          in: query
-          description: Return states with dates greater than or equal to this value
-          required: true
-          schema:
-            type: string
-        - name: endDate
-          in: query
-          description: >-
-            Return states with dates less than this value.
-            If not set, only states with dates exactly equal to startDate will be returned.
-          schema:
-            type: string
-        - name: name
-          in: query
-          description: State name(s), multiple values supported
-          schema:
-            type: string
-        - name: field
-          in: query
-          description: State field to get or filter by. Multiple values are required for deeper object level.
-          schema:
-            type: string
-        - name: keepParent
-          in: query
-          description: Use the field parameter only for filtering.
-          schema:
-            type: boolean
-        - name: aggregation
-          in: query
-          description: Aggregate field values by 1 = hour, 2 = day, 3 = month, 4 = week
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Time-series States
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-                  states:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                          description: State's name
-                        stateDate:
-                          type: string
-                          description: State's date
-                        stateDateMs:
-                          type: integer
-                        value:
-                          type: object
-                          description: State's value
-                        avg:
-                          type: object
-                          description: Field values aggregation
-                          properties:
-                            value:
-                              type: integer
-                            count:
-                              type: integer
-                      required:
-                        - stateDate
-                        - stateDateMs
-              example:
-                resultCode: 0
-                states:
-                  - name: stateName
-                    stateDate: '2018-10-01T03:05:07'
-                    stateDateMs: 1537692964000
-                    value:
-                      field0: 123
-                      field1: AAA
-                  - stateDate: '2018-10-01'
-                    stateDateMs: 1537692964000
-                    avg:
-                      value: 1.23
-                      count: 10
-
-
   /clouse/json/openai:
     post:
       summary: Send a request to OpenAI
@@ -5288,7 +5577,7 @@ paths:
                 }
             }
       tags:
-        - Synthetic APIs
+        - Location Events
       security:
         - userApiKey: []
       parameters:
@@ -5347,7 +5636,7 @@ paths:
       description: |-
         Send a synchronous request to OpenAI API to retrieve an ephemeral token.
       tags:
-        - Synthetic APIs
+        - Location Events
       security:
         - userApiKey: []
       parameters:
@@ -5385,30 +5674,6 @@ paths:
       operationId: Register a Device
       description: |-
         Registration response will describe how the device should connect to the cloud server instance.
-
-        <table>
-        <tr><th>Name</th><th>Description</th><th>Details</th></tr>
-        <tr>
-          <td>deviceId</td><td>string</td>
-          <td>Device IDs are globally unique, must be 50 or less characters long, and must not contain '/', '%', '#', or '+' characters.</td>
-        </tr>
-        <tr>
-          <td>authToken</td>
-          <td>boolean</td><td>Standard SSL only supports one-way authentication.
-          The Care Daily AI Platform takes security a leap forward by allowing the use of an optional cryptographic authentication token to be used for bi-directional authentication of a device.
-          If requested, your device will be responsible for securely storing the generated authentication token and including it in all future HTTP requests to the Care Daily AI Platform.<br>
-          <b>true</b> - Request an authentication token<br>
-          <b>false</b> - Do not use an authentication token</td>
-        </tr>
-        <tr>
-          <td>startDate</td><td>In milliseconds or ISO 8601</td>
-          <td>The absolute date timestamp when the device is registered to the user's account.
-          The Care Daily AI Platform will not store any data from a device before its registration time.
-          For example, if you have historical data from this device that you want associated with the user's account,
-          then the registration time should be set in the past to be able to store all that historical data.
-          The default start time is the current time on the server.</td>
-        </tr>
-        </table>
       tags:
         - Devices
       security:
@@ -5416,7 +5681,7 @@ paths:
       parameters:
         - name: deviceId
           in: query
-          description: Globally unique device identifier for this device. Must not include '/', '%', '#', or '+' characters.
+          description: Globally unique device identifier for this device. Must be 50 or less characters long, and must not contain '/', '%', '#', or '+' characters.
           schema:
             type: string
         - name: locationId
@@ -5437,14 +5702,16 @@ paths:
         - name: authToken
           in: query
           description: |-
-            <b>true</b> - Request an authentication token
+            The Care Daily AI Platform takes security a leap forward by allowing the use of an optional cryptographic authentication token to be used for bi-directional authentication of a device.
+            If requested, your device will be responsible for securely storing the generated authentication token and including it in all future HTTP requests to the Care Daily AI Platform.
+            <br><b>true</b> - Request an authentication token
             <br><b>false</b> - No authentication token necessary
           schema:
             type: boolean
         - name: startDate
           in: query
           description: |-
-            Timestamp at which to register this device.
+            Timestamp at which to register this device in milliseconds or ISO 8601.
             <br>The Care Daily AI Platform will ignore inbound measurements with a timestamp before the registration time.
             <br>Default is the current time.
           schema:
@@ -5522,11 +5789,13 @@ paths:
                     type: integer
                   exist:
                     type: boolean
+                    description: <b>true</b> if the device exists on the location already
                   config:
                     type: object
                     description: Flexible structure object depending on the device type for device provisioning and initial configuration
                   host:
                     type: string
+                    description: Connection settings for Care Daily device IO connected devices
                   port:
                     type: integer
                   useSSL:
@@ -14992,12 +15261,9 @@ paths:
                                 type: string
                               amount:
                                 type: integer
-                              resourceType:
-                                type: integer
                             required:
                               - name
                               - amount
-                              - resourceType
                         bots:
                           type: array
                           description: Bots included to this plan with resource types
@@ -15006,8 +15272,6 @@ paths:
                             properties:
                               bundle:
                                 type: string
-                              resourceType:
-                                type: integer
                         prices:
                           type: array
                           items:
@@ -15153,13 +15417,10 @@ paths:
                     services:
                       - name: ProVideo
                         amount: 1
-                        resourceType: 1
                       - name: DeviceFileSpace
                         amount: 5368709120
-                        resourceType: 1
                     bots:
                       - bundle: com.ppc.security
-                        resourceType: 1
                     prices:
                       - id: 1
                         type: 1
@@ -15239,7 +15500,6 @@ paths:
                     services:
                       - name: DeviceFileSpace
                         amount: 5368709120
-                        resourceType: 1
                     prices:
                       - id: 11
                         type: 3
@@ -15285,11 +15545,6 @@ paths:
           description: Get specific service plan by ID
           schema:
             type: integer
-        - name: getCard
-          in: query
-          description: Retrieve payment card information from the payment provider. It can be slow!
-          schema:
-            type: boolean
         - name: userId
           in: query
           description: Get plan by this user. Used by organization administrators.
@@ -15367,13 +15622,6 @@ paths:
                           type: string
                         sandbox:
                           type: boolean
-                        appName:
-                          type: string
-                        cardMaskedNumber:
-                          type: string
-                          description: Masked payment card number
-                        cardExpirationDate:
-                          type: string
                         services:
                           type: array
                           items:
@@ -15383,12 +15631,9 @@ paths:
                                 type: string
                               amount:
                                 type: integer
-                              resourceType:
-                                type: integer
                             required:
                               - name
                               - amount
-                              - resourceType
                         upgradableTo:
                           type: array
                           items:
@@ -15455,7 +15700,6 @@ paths:
                     services:
                       - name: DeviceFileSpace
                         amount: 7
-                        resourceType: 1
                     upgradableTo:
                       - 5
                   - userPlanId: 12345
@@ -15483,7 +15727,6 @@ paths:
                     services:
                       - name: Family
                         amount: 1
-                        resourceType: 1
 
 
   /cloud/json/userServicePlans/{servicePlanId}:
@@ -15519,7 +15762,7 @@ paths:
             type: string
         - name: locationId
           in: query
-          description: Location ID to assign the service plan
+          description: Location ID to assign the service plan by an end-user
           schema:
             type: integer
       requestBody:
@@ -15530,7 +15773,7 @@ paths:
               properties:
                 locations:
                   type: array
-                  description: Location and user IDs to assign the service plan
+                  description: Location and user IDs to assign the service plan by an administrator
                   items:
                     type: object
                     properties:
@@ -15538,6 +15781,8 @@ paths:
                         type: integer
                       userId:
                         type: integer
+                    required:
+                      - locationId
             example:
               locations:
                 - locationId: 123
@@ -16642,1142 +16887,6 @@ paths:
                         value: '0.0500'
 
 
-  /cloud/json/weather/forecast/geocode/{latitude}/{longitude}:
-    get:
-      summary: Get Forecast by Geocode
-      operationId: Get Forecast by Geocode
-      description: Retrieve weather forecust at certain point by latitude and longitude.
-      tags:
-        - Weather
-      security:
-        - userApiKey: []
-        - botApiKey: []
-      parameters:
-        - name: latitude
-          in: path
-          description: Latitude
-          required: true
-          schema:
-            type: string
-        - name: longitude
-          in: path
-          description: Longitude
-          required: true
-          schema:
-            type: string
-        - name: units
-          in: query
-          description: |-
-            Units for measurements, default value is "Metric".
-            <br>Available values are:
-            <br>e = English units,
-            <br>m = Metric units,
-            <br>h = Hybrid units (UK),
-            <br>s = Metric SI units (not available for all APIs)
-          schema:
-            type: string
-        - name: hours
-          in: query
-          description: |-
-            Forecast depth in hours.
-            <br>Available values are: 6, 12, 24,48.
-            <br>Default value is 24.
-          schema:
-            type: integer
-        - name: organizationId
-          in: query
-          description: For specific organization. Used by administrator only.
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Forecast
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-                  weather:
-                    type: object
-                    properties:
-                      metadata:
-                        type: object
-                        properties:
-                          language:
-                            type: string
-                          transaction_id:
-                            type: string
-                          version:
-                            type: string
-                          latitude:
-                            type: integer
-                          longitude:
-                            type: integer
-                          units:
-                            type: string
-                          expire_time_gmt:
-                            type: integer
-                          status_code:
-                            type: integer
-                      forecasts:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            class:
-                              type: string
-                            expire_time_gmt:
-                              type: integer
-                            fcst_valid:
-                              type: integer
-                            fcst_valid_local:
-                              type: string
-                            num:
-                              type: integer
-                            day_ind:
-                              type: string
-                            temp:
-                              type: integer
-                            dewpt:
-                              type: integer
-                            hi:
-                              type: integer
-                            wc:
-                              type: integer
-                            feels_like:
-                              type: integer
-                            icon_extd:
-                              type: integer
-                            wxman:
-                              type: string
-                            icon_code:
-                              type: integer
-                            dow:
-                              type: string
-                            phrase_12char:
-                              type: string
-                            phrase_22char:
-                              type: string
-                            phrase_32char:
-                              type: string
-                            subphrase_pt1:
-                              type: string
-                            subphrase_pt2:
-                              type: string
-                            subphrase_pt3:
-                              type: string
-                            pop:
-                              type: integer
-                            precip_type:
-                              type: string
-                            qpf:
-                              type: integer
-                            snow_qpf:
-                              type: integer
-                            rh:
-                              type: integer
-                            wspd:
-                              type: integer
-                            wdir:
-                              type: integer
-                            wdir_cardinal:
-                              type: string
-                            gust:
-                              type: integer
-                            clds:
-                              type: integer
-                            vis:
-                              type: integer
-                            mslp:
-                              type: integer
-                            uv_index_raw:
-                              type: integer
-                            uv_index:
-                              type: integer
-                            uv_warning:
-                              type: integer
-                            uv_desc:
-                              type: string
-                            golf_index:
-                              type: integer
-                            golf_category:
-                              type: string
-                            severity:
-                              type: integer
-                          required:
-                            - class
-                            - expire_time_gmt
-                            - fcst_valid
-                            - fcst_valid_local
-                            - num
-                            - day_ind
-                            - temp
-                            - dewpt
-                            - hi
-                            - wc
-                            - feels_like
-                            - icon_extd
-                            - wxman
-                            - icon_code
-                            - dow
-                            - phrase_12char
-                            - phrase_22char
-                            - phrase_32char
-                            - subphrase_pt1
-                            - subphrase_pt2
-                            - subphrase_pt3
-                            - pop
-                            - precip_type
-                            - qpf
-                            - snow_qpf
-                            - rh
-                            - wspd
-                            - wdir
-                            - wdir_cardinal
-                            - gust
-                            - clds
-                            - vis
-                            - mslp
-                            - uv_index_raw
-                            - uv_index
-                            - uv_warning
-                            - uv_desc
-                            - golf_index
-                            - golf_category
-                            - severity
-              example:
-                resultCode: 0
-                weather:
-                  metadata:
-                    language: en-US
-                    transaction_id: 1493118110823:-2023430256
-                    version: '1'
-                    latitude: 30
-                    longitude: 40
-                    units: m
-                    expire_time_gmt: 1493118710
-                    status_code: 200
-                  forecasts:
-                    - class: fod_short_range_hourly
-                      expire_time_gmt: 1493118710
-                      fcst_valid: 1493121600
-                      fcst_valid_local: 2017-04-25T15:00:00+0300
-                      num: 1
-                      day_ind: D
-                      temp: 28
-                      dewpt: 1
-                      hi: 28
-                      wc: 28
-                      feels_like: 28
-                      icon_extd: 3200
-                      wxman: wx1000
-                      icon_code: 32
-                      dow: Tuesday
-                      phrase_12char: Sunny
-                      phrase_22char: Sunny
-                      phrase_32char: Sunny
-                      subphrase_pt1: Sunny
-                      subphrase_pt2: ''
-                      subphrase_pt3: ''
-                      pop: 0
-                      precip_type: rain
-                      qpf: 0
-                      snow_qpf: 0
-                      rh: 17
-                      wspd: 19
-                      wdir: 67
-                      wdir_cardinal: ENE
-                      gust: null
-                      clds: 0
-                      vis: 16
-                      mslp: 1013.2
-                      uv_index_raw: 5.47
-                      uv_index: 5
-                      uv_warning: 0
-                      uv_desc: Moderate
-                      golf_index: 9
-                      golf_category: Very Good
-                      severity: 1
-                    - class: fod_long_range_hourly
-                      expire_time_gmt: 1493119910
-                      fcst_valid: 1493204400
-                      fcst_valid_local: 2017-04-26T14:00:00+0300
-                      num: 24
-                      day_ind: D
-                      temp: 29
-                      dewpt: -1
-                      hi: 29
-                      wc: 29
-                      feels_like: 29
-                      icon_extd: 3200
-                      wxman: wx1000
-                      icon_code: 32
-                      dow: Wednesday
-                      phrase_12char: Sunny
-                      phrase_22char: Sunny
-                      phrase_32char: Sunny
-                      subphrase_pt1: Sunny
-                      subphrase_pt2: ''
-                      subphrase_pt3: ''
-                      pop: 0
-                      precip_type: rain
-                      qpf: 0
-                      snow_qpf: 0
-                      rh: 13
-                      wspd: 28
-                      wdir: 86
-                      wdir_cardinal: E
-                      gust: null
-                      clds: 9
-                      vis: 16
-                      mslp: 1013.8
-                      uv_index_raw: 8.04
-                      uv_index: 8
-                      uv_warning: 0
-                      uv_desc: Very High
-                      golf_index: 9
-                      golf_category: Very Good
-                      severity: 1
-
-
-  /cloud/json/weather/forecast/location/{locationId}:
-    get:
-      summary: Get Forecast by Location
-      operationId: Get Forecast by Location
-      description: Retrieve weather forecast by the location address.
-      tags:
-        - Weather
-      security:
-        - userApiKey: []
-        - botApiKey: []
-      parameters:
-        - name: locationId
-          in: path
-          description: ID of location
-          required: true
-          schema:
-            type: integer
-        - name: units
-          in: query
-          description: |-
-            Units for measurements, default value is "Metric".
-            <br>Available values are:
-            <br>e = English units,
-            <br>m = Metric units,
-            <br>h = Hybrid units (UK),
-            <br>s = Metric SI units (not available for all APIs)
-          schema:
-            type: string
-        - name: hours
-          in: query
-          description: |-
-            Forecast depth in hours.
-            <br>Available values are: 6, 12, 24,48.
-            <br>Default value is 24.
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Forecast
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-                  weather:
-                    type: object
-                    properties:
-                      metadata:
-                        type: object
-                        properties:
-                          language:
-                            type: string
-                          transaction_id:
-                            type: string
-                          version:
-                            type: string
-                          latitude:
-                            type: integer
-                          longitude:
-                            type: integer
-                          units:
-                            type: string
-                          expire_time_gmt:
-                            type: integer
-                          status_code:
-                            type: integer
-                      forecasts:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            class:
-                              type: string
-                            expire_time_gmt:
-                              type: integer
-                            fcst_valid:
-                              type: integer
-                            fcst_valid_local:
-                              type: string
-                            num:
-                              type: integer
-                            day_ind:
-                              type: string
-                            temp:
-                              type: integer
-                            dewpt:
-                              type: integer
-                            hi:
-                              type: integer
-                            wc:
-                              type: integer
-                            feels_like:
-                              type: integer
-                            icon_extd:
-                              type: integer
-                            wxman:
-                              type: string
-                            icon_code:
-                              type: integer
-                            dow:
-                              type: string
-                            phrase_12char:
-                              type: string
-                            phrase_22char:
-                              type: string
-                            phrase_32char:
-                              type: string
-                            subphrase_pt1:
-                              type: string
-                            subphrase_pt2:
-                              type: string
-                            subphrase_pt3:
-                              type: string
-                            pop:
-                              type: integer
-                            precip_type:
-                              type: string
-                            qpf:
-                              type: integer
-                            snow_qpf:
-                              type: integer
-                            rh:
-                              type: integer
-                            wspd:
-                              type: integer
-                            wdir:
-                              type: integer
-                            wdir_cardinal:
-                              type: string
-                            gust:
-                              type: integer
-                            clds:
-                              type: integer
-                            vis:
-                              type: integer
-                            mslp:
-                              type: integer
-                            uv_index_raw:
-                              type: integer
-                            uv_index:
-                              type: integer
-                            uv_warning:
-                              type: integer
-                            uv_desc:
-                              type: string
-                            golf_index:
-                              type: integer
-                            golf_category:
-                              type: string
-                            severity:
-                              type: integer
-                          required:
-                            - class
-                            - expire_time_gmt
-                            - fcst_valid
-                            - fcst_valid_local
-                            - num
-                            - day_ind
-                            - temp
-                            - dewpt
-                            - hi
-                            - wc
-                            - feels_like
-                            - icon_extd
-                            - wxman
-                            - icon_code
-                            - dow
-                            - phrase_12char
-                            - phrase_22char
-                            - phrase_32char
-                            - subphrase_pt1
-                            - subphrase_pt2
-                            - subphrase_pt3
-                            - pop
-                            - precip_type
-                            - qpf
-                            - snow_qpf
-                            - rh
-                            - wspd
-                            - wdir
-                            - wdir_cardinal
-                            - gust
-                            - clds
-                            - vis
-                            - mslp
-                            - uv_index_raw
-                            - uv_index
-                            - uv_warning
-                            - uv_desc
-                            - golf_index
-                            - golf_category
-                            - severity
-              example:
-                resultCode: 0
-                weather:
-                  metadata:
-                    language: en-US
-                    transaction_id: 1493118110823:-2023430256
-                    version: '1'
-                    latitude: 30
-                    longitude: 40
-                    units: m
-                    expire_time_gmt: 1493118710
-                    status_code: 200
-                  forecasts:
-                    - class: fod_short_range_hourly
-                      expire_time_gmt: 1493118710
-                      fcst_valid: 1493121600
-                      fcst_valid_local: 2017-04-25T15:00:00+0300
-                      num: 1
-                      day_ind: D
-                      temp: 28
-                      dewpt: 1
-                      hi: 28
-                      wc: 28
-                      feels_like: 28
-                      icon_extd: 3200
-                      wxman: wx1000
-                      icon_code: 32
-                      dow: Tuesday
-                      phrase_12char: Sunny
-                      phrase_22char: Sunny
-                      phrase_32char: Sunny
-                      subphrase_pt1: Sunny
-                      subphrase_pt2: ''
-                      subphrase_pt3: ''
-                      pop: 0
-                      precip_type: rain
-                      qpf: 0
-                      snow_qpf: 0
-                      rh: 17
-                      wspd: 19
-                      wdir: 67
-                      wdir_cardinal: ENE
-                      gust: null
-                      clds: 0
-                      vis: 16
-                      mslp: 1013.2
-                      uv_index_raw: 5.47
-                      uv_index: 5
-                      uv_warning: 0
-                      uv_desc: Moderate
-                      golf_index: 9
-                      golf_category: Very Good
-                      severity: 1
-                    - class: fod_long_range_hourly
-                      expire_time_gmt: 1493119910
-                      fcst_valid: 1493204400
-                      fcst_valid_local: 2017-04-26T14:00:00+0300
-                      num: 24
-                      day_ind: D
-                      temp: 29
-                      dewpt: -1
-                      hi: 29
-                      wc: 29
-                      feels_like: 29
-                      icon_extd: 3200
-                      wxman: wx1000
-                      icon_code: 32
-                      dow: Wednesday
-                      phrase_12char: Sunny
-                      phrase_22char: Sunny
-                      phrase_32char: Sunny
-                      subphrase_pt1: Sunny
-                      subphrase_pt2: ''
-                      subphrase_pt3: ''
-                      pop: 0
-                      precip_type: rain
-                      qpf: 0
-                      snow_qpf: 0
-                      rh: 13
-                      wspd: 28
-                      wdir: 86
-                      wdir_cardinal: E
-                      gust: null
-                      clds: 9
-                      vis: 16
-                      mslp: 1013.8
-                      uv_index_raw: 8.04
-                      uv_index: 8
-                      uv_warning: 0
-                      uv_desc: Very High
-                      golf_index: 9
-                      golf_category: Very Good
-                      severity: 1
-
-
-  /cloud/json/weather/current/geocode/{latitude}/{longitude}:
-    get:
-      summary: Get Current Weather by Geocode
-      operationId: Get Current Weather by Geocode
-      description: Retrieve current weather at certain point by latitude and longitude.
-      tags:
-        - Weather
-      security:
-        - userApiKey: []
-        - botApiKey: []
-      parameters:
-        - name: latitude
-          in: path
-          description: Latitude
-          required: true
-          schema:
-            type: string
-        - name: longitude
-          in: path
-          description: Longitude
-          required: true
-          schema:
-            type: string
-        - name: units
-          in: query
-          description: |-
-            Units for measurements, default value is "Metric".
-            <br>Available values are:
-            <br>e = English units,
-            <br>m = Metric units,
-            <br>h = Hybrid units (UK),
-            <br>s = Metric SI units (not available for all APIs)
-          schema:
-            type: string
-        - name: organizationId
-          in: query
-          description: For specific organization. Used by administrator only.
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Current Weather
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-                  weather:
-                    type: object
-                    properties:
-                      metadata:
-                        type: object
-                        properties:
-                          language:
-                            type: string
-                          transaction_id:
-                            type: string
-                          version:
-                            type: string
-                          latitude:
-                            type: integer
-                          longitude:
-                            type: integer
-                          units:
-                            type: string
-                          expire_time_gmt:
-                            type: integer
-                          status_code:
-                            type: integer
-                      observation:
-                        type: object
-                        properties:
-                          class:
-                            type: string
-                          expire_time_gmt:
-                            type: integer
-                          obs_time:
-                            type: integer
-                          obs_time_local:
-                            type: string
-                          wdir:
-                            type: integer
-                          icon_code:
-                            type: integer
-                          icon_extd:
-                            type: integer
-                          sunrise:
-                            type: string
-                          sunset:
-                            type: string
-                          day_ind:
-                            type: string
-                          uv_index:
-                            type: integer
-                          uv_warning:
-                            type: integer
-                          wxman:
-                            type: string
-                          obs_qualifier_code:
-                            type: integer
-                          ptend_code:
-                            type: integer
-                          dow:
-                            type: string
-                          wdir_cardinal:
-                            type: string
-                          uv_desc:
-                            type: string
-                          phrase_12char:
-                            type: string
-                          phrase_22char:
-                            type: string
-                          phrase_32char:
-                            type: string
-                          ptend_desc:
-                            type: string
-                          sky_cover:
-                            type: string
-                          clds:
-                            type: string
-                          obs_qualifier_severity:
-                            type: integer
-                          vocal_key:
-                            type: string
-                          metric:
-                            type: object
-                            properties:
-                              wspd:
-                                type: integer
-                              gust:
-                                type: integer
-                              vis:
-                                type: integer
-                              mslp:
-                                type: integer
-                              altimeter:
-                                type: integer
-                              temp:
-                                type: integer
-                              dewpt:
-                                type: integer
-                              rh:
-                                type: integer
-                              wc:
-                                type: integer
-                              hi:
-                                type: integer
-                              temp_change_24hour:
-                                type: integer
-                              temp_max_24hour:
-                                type: integer
-                              temp_min_24hour:
-                                type: integer
-                              pchange:
-                                type: integer
-                              feels_like:
-                                type: integer
-                              snow_1hour:
-                                type: integer
-                              snow_6hour:
-                                type: integer
-                              snow_24hour:
-                                type: integer
-                              snow_mtd:
-                                type: integer
-                              snow_season:
-                                type: integer
-                              snow_ytd:
-                                type: integer
-                              snow_2day:
-                                type: integer
-                              snow_3day:
-                                type: integer
-                              snow_7day:
-                                type: integer
-                              ceiling:
-                                type: integer
-                              precip_1hour:
-                                type: integer
-                              precip_6hour:
-                                type: integer
-                              precip_24hour:
-                                type: integer
-                              precip_mtd:
-                                type: integer
-                              precip_ytd:
-                                type: integer
-                              precip_2day:
-                                type: integer
-                              precip_3day:
-                                type: integer
-                              precip_7day:
-                                type: integer
-                              obs_qualifier_100char:
-                                type: integer
-                              obs_qualifier_50char:
-                                type: integer
-                              obs_qualifier_32char:
-                                type: integer
-              example:
-                resultCode: 0
-                weather:
-                  metadata:
-                    language: en-US
-                    transaction_id: 1493117273822:-620374915
-                    version: '1'
-                    latitude: 30
-                    longitude: 40
-                    units: m
-                    expire_time_gmt: 1493117873
-                    status_code: 200
-                  observation:
-                    class: observation
-                    expire_time_gmt: 1493117873
-                    obs_time: 1493117273
-                    obs_time_local: 2017-04-25T13:47:53+0300
-                    wdir: 60
-                    icon_code: 32
-                    icon_extd: 3200
-                    sunrise: 2017-04-25T05:42:39+0300
-                    sunset: 2017-04-25T18:53:41+0300
-                    day_ind: D
-                    uv_index: 8
-                    uv_warning: 0
-                    wxman: wx1000
-                    obs_qualifier_code: null
-                    ptend_code: 2
-                    dow: Tuesday
-                    wdir_cardinal: ENE
-                    uv_desc: Very High
-                    phrase_12char: Sunny
-                    phrase_22char: Sunny
-                    phrase_32char: Sunny
-                    ptend_desc: Falling
-                    sky_cover: Clear
-                    clds: CLR
-                    obs_qualifier_severity: null
-                    vocal_key: OT81:OX3200
-                    metric:
-                      wspd: 21
-                      gust: null
-                      vis: 14.48
-                      mslp: 1014.6
-                      altimeter: 1014.22
-                      temp: 27
-                      dewpt: 0
-                      rh: 17
-                      wc: 27
-                      hi: 27
-                      temp_change_24hour: -18
-                      temp_max_24hour: 29
-                      temp_min_24hour: 17
-                      pchange: -2.03
-                      feels_like: 27
-                      snow_1hour: 0
-                      snow_6hour: 0
-                      snow_24hour: 0
-                      snow_mtd: null
-                      snow_season: null
-                      snow_ytd: null
-                      snow_2day: null
-                      snow_3day: null
-                      snow_7day: null
-                      ceiling: null
-                      precip_1hour: 0
-                      precip_6hour: 0
-                      precip_24hour: 0
-                      precip_mtd: null
-                      precip_ytd: null
-                      precip_2day: null
-                      precip_3day: null
-                      precip_7day: null
-                      obs_qualifier_100char: null
-                      obs_qualifier_50char: null
-                      obs_qualifier_32char: null
-
-
-  /cloud/json/weather/current/location/{locationId}:
-    get:
-      summary: Get Current Weather by Location
-      operationId: Get Current Weather by Location
-      description: Retrieve current weather at the specific location.
-      tags:
-        - Weather
-      security:
-        - userApiKey: []
-        - botApiKey: []
-      parameters:
-        - name: locationId
-          in: path
-          description: ID of location
-          required: true
-          schema:
-            type: integer
-        - name: units
-          in: query
-          description: |-
-            Units for measurements, default value is "Metric".
-            <br>Available values are:
-            <br>e = English units,
-            <br>m = Metric units,
-            <br>h = Hybrid units (UK),
-            <br>s = Metric SI units (not available for all APIs)
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Current Weather
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  resultCode:
-                    type: integer
-                  weather:
-                    type: object
-                    properties:
-                      metadata:
-                        type: object
-                        properties:
-                          language:
-                            type: string
-                          transaction_id:
-                            type: string
-                          version:
-                            type: string
-                          latitude:
-                            type: integer
-                          longitude:
-                            type: integer
-                          units:
-                            type: string
-                          expire_time_gmt:
-                            type: integer
-                          status_code:
-                            type: integer
-                      observation:
-                        type: object
-                        properties:
-                          class:
-                            type: string
-                          expire_time_gmt:
-                            type: integer
-                          obs_time:
-                            type: integer
-                          obs_time_local:
-                            type: string
-                          wdir:
-                            type: integer
-                          icon_code:
-                            type: integer
-                          icon_extd:
-                            type: integer
-                          sunrise:
-                            type: string
-                          sunset:
-                            type: string
-                          day_ind:
-                            type: string
-                          uv_index:
-                            type: integer
-                          uv_warning:
-                            type: integer
-                          wxman:
-                            type: string
-                          obs_qualifier_code:
-                            type: integer
-                          ptend_code:
-                            type: integer
-                          dow:
-                            type: string
-                          wdir_cardinal:
-                            type: string
-                          uv_desc:
-                            type: string
-                          phrase_12char:
-                            type: string
-                          phrase_22char:
-                            type: string
-                          phrase_32char:
-                            type: string
-                          ptend_desc:
-                            type: string
-                          sky_cover:
-                            type: string
-                          clds:
-                            type: string
-                          obs_qualifier_severity:
-                            type: integer
-                          vocal_key:
-                            type: string
-                          metric:
-                            type: object
-                            properties:
-                              wspd:
-                                type: integer
-                              gust:
-                                type: integer
-                              vis:
-                                type: integer
-                              mslp:
-                                type: integer
-                              altimeter:
-                                type: integer
-                              temp:
-                                type: integer
-                              dewpt:
-                                type: integer
-                              rh:
-                                type: integer
-                              wc:
-                                type: integer
-                              hi:
-                                type: integer
-                              temp_change_24hour:
-                                type: integer
-                              temp_max_24hour:
-                                type: integer
-                              temp_min_24hour:
-                                type: integer
-                              pchange:
-                                type: integer
-                              feels_like:
-                                type: integer
-                              snow_1hour:
-                                type: integer
-                              snow_6hour:
-                                type: integer
-                              snow_24hour:
-                                type: integer
-                              snow_mtd:
-                                type: integer
-                              snow_season:
-                                type: integer
-                              snow_ytd:
-                                type: integer
-                              snow_2day:
-                                type: integer
-                              snow_3day:
-                                type: integer
-                              snow_7day:
-                                type: integer
-                              ceiling:
-                                type: integer
-                              precip_1hour:
-                                type: integer
-                              precip_6hour:
-                                type: integer
-                              precip_24hour:
-                                type: integer
-                              precip_mtd:
-                                type: integer
-                              precip_ytd:
-                                type: integer
-                              precip_2day:
-                                type: integer
-                              precip_3day:
-                                type: integer
-                              precip_7day:
-                                type: integer
-                              obs_qualifier_100char:
-                                type: integer
-                              obs_qualifier_50char:
-                                type: integer
-                              obs_qualifier_32char:
-                                type: integer
-              example:
-                resultCode: 0
-                weather:
-                  metadata:
-                    language: en-US
-                    transaction_id: 1493117273822:-620374915
-                    version: '1'
-                    latitude: 30
-                    longitude: 40
-                    units: m
-                    expire_time_gmt: 1493117873
-                    status_code: 200
-                  observation:
-                    class: observation
-                    expire_time_gmt: 1493117873
-                    obs_time: 1493117273
-                    obs_time_local: 2017-04-25T13:47:53+0300
-                    wdir: 60
-                    icon_code: 32
-                    icon_extd: 3200
-                    sunrise: 2017-04-25T05:42:39+0300
-                    sunset: 2017-04-25T18:53:41+0300
-                    day_ind: D
-                    uv_index: 8
-                    uv_warning: 0
-                    wxman: wx1000
-                    obs_qualifier_code: null
-                    ptend_code: 2
-                    dow: Tuesday
-                    wdir_cardinal: ENE
-                    uv_desc: Very High
-                    phrase_12char: Sunny
-                    phrase_22char: Sunny
-                    phrase_32char: Sunny
-                    ptend_desc: Falling
-                    sky_cover: Clear
-                    clds: CLR
-                    obs_qualifier_severity: null
-                    vocal_key: OT81:OX3200
-                    metric:
-                      wspd: 21
-                      gust: null
-                      vis: 14.48
-                      mslp: 1014.6
-                      altimeter: 1014.22
-                      temp: 27
-                      dewpt: 0
-                      rh: 17
-                      wc: 27
-                      hi: 27
-                      temp_change_24hour: -18
-                      temp_max_24hour: 29
-                      temp_min_24hour: 17
-                      pchange: -2.03
-                      feels_like: 27
-                      snow_1hour: 0
-                      snow_6hour: 0
-                      snow_24hour: 0
-                      snow_mtd: null
-                      snow_season: null
-                      snow_ytd: null
-                      snow_2day: null
-                      snow_3day: null
-                      snow_7day: null
-                      ceiling: null
-                      precip_1hour: 0
-                      precip_6hour: 0
-                      precip_24hour: 0
-                      precip_mtd: null
-                      precip_ytd: null
-                      precip_2day: null
-                      precip_3day: null
-                      precip_7day: null
-                      obs_qualifier_100char: null
-                      obs_qualifier_50char: null
-                      obs_qualifier_32char: null
-
-
   /cloud/json/deviceTypes:
     get:
       summary: Get Supported Device Types
@@ -17808,16 +16917,6 @@ paths:
           description: Return only device types created by this user
           schema:
             type: boolean
-        - name: simple
-          in: query
-          description: Return only device type fields without user and attributes information
-          schema:
-            type: boolean
-        - name: organizationId
-          in: query
-          description: Return only device types related to the specific organization
-          schema:
-            type: integer
       responses:
         '200':
           description: Device Types
@@ -17859,16 +16958,13 @@ paths:
                               properties:
                                 email:
                                   type: string
-                                verified:
-                                  type: boolean
-                                status:
-                                  type: integer
                         creationDate:
                           type: string
                         creationDateMs:
                           type: integer
                         attributes:
                           type: array
+                          description: Device type attributes
                           items:
                             type: object
                             properties:
@@ -17879,6 +16975,25 @@ paths:
                             required:
                               - name
                               - value
+                        deviceParams:
+                          type: array
+                          description: Device type specific parameters
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                                description: Parameter name
+                              getable:
+                                type: boolean
+                                description: Can be retrieved by sending a get command to the device
+                              setable:
+                                type: boolean
+                                description: Can be updated on the device by sending a set command to the device
+                            required:
+                              - name
+                              - getable
+                              - setable
                       required:
                         - id
                         - name
@@ -17896,8 +17011,6 @@ paths:
                       lastName: Smith
                       email:
                         email: john@smith.com
-                        verified: true
-                        status: 0
                     creationDate: '2015-02-27T15:30:21Z'
                     creationDateMs: 1425051021000
                     attributes:
@@ -18816,6 +17929,12 @@ paths:
         - name: ruleId
           in: path
           description: The rule ID
+          required: true
+          schema:
+            type: integer
+        - name: locationId
+          in: query
+          description: The rule's location ID
           required: true
           schema:
             type: integer
@@ -20895,7 +20014,6 @@ tags:
           ru - Russian<br>
           etc</td>
       </tr>
-      <tr><td>medicalRecordNumber</td><td>string</td><td>Medical Record Number</td></tr>
       <tr><td>pronounId</td><td>integer</td><td>User's pronoun ID. See the get pronouns API.</td></tr>
       <tr><td>avatarFileId</td><td>integer</td><td>Avatar app file ID</td></tr>
       <tr><td>phone</td><td>string</td><td>Phone number</td></tr>
@@ -20942,7 +20060,7 @@ tags:
       When creating or updating location information in a user's account, all fields are optional:
 
       <table>
-      <tr><th>Request</th><th>Description</th><th>Details</th></tr>
+      <tr><th>Request</th><th>Type</th><th>Description</th></tr>
       <tr><td>name</td><td>string</td><td>Name of the location (i.e. "My House" or "Upstairs Bedroom")</td></tr>
       <tr><td>type</td><td>numeric</td><td>
           10 - Residence<br>
@@ -20975,7 +20093,8 @@ tags:
           See the <a href="#section/Date-and-Time-Formats">Date and Time Formats</a> for more details.</td></tr>
       <tr><td>appName</td><td>string</td><td>App name used to create this location</td></tr>
       <tr><td>language</td><td>string</td><td>Preferred language for location states and narratives</td></tr>
-      <tr><td>externalId</td><td>string</td><td>Location's ID in partner's cloud</td></tr>
+      <tr><td>externalId</td><td>string</td><td>Single location's ID in partner's cloud</td></tr>
+      <tr><td>externalLocations</td><td>array</td><td>Array of partner identifiers of this location.</td></tr>
       <tr><td>locationUser</td><td>object</td><td>User properties on the location</td></tr>
       <tr><td>fileUploadPolicy</td><td>integer</td>
           <td>0 - Keep old files<br>
@@ -21001,21 +20120,19 @@ tags:
       <tr><td>latitude</td><td>string</td><td>The latitude in degrees</td></tr>
       <tr><td>longitude</td><td>string</td><td>The longitude in degrees</td></tr>
       <tr><td>test</td><td>boolean</td><td>This is a test location.</td></tr>
-      <tr><td>codeType</td><td>integer</td><td>Location code type</td></tr>
       </table>
 
   - name: Locations
 
-  - name: Synthetic APIs
+  - name: Location Events
     description: |-
-      Synthetic APIs are provided exclusively by bots which run at the application layer.
+      Location Events is a a group of APIs related to business logic provided by bots which run at the application layer.
 
-      Advantages to Synthetic APIs include:
+      Advantages to Location Event APIs include:
       * Faster time-to-market
       * Rapid development of application capabilities without involving server engineering or QA platform regression testing
       * End-user facing capabilities can expand and contract based on the availability of subscriptions and bots
 
-      Specific Synthetic APIs are documented separately since they are not part of the platform itself.
       This style of API design is asynchronous or "split-phase",
       where a Data Stream Message forms the input to the API offered by a bot, and a State variable forms the output.
       Both data stream messages and state variables have addresses as keys, and arbitrary JSON content as values.
@@ -21132,6 +20249,14 @@ tags:
       The Care Daily AI Platform is wired for professional monitoring.
       We connect with a 5-diamond certified central station in North America.
       This can be replaced with your own professional monitoring call center to enable international services and professional monitoring.
+
+  - name: Clouds Integration
+    description: |-
+      OAuth 2.0 allows the Care Daily AI Platform to act as a client to obtain authorizations from third-party clouds and applications to access user data there.
+
+  - name: OAuth Hosting
+    description: |-
+      As a host the Care Daily AI Platform can provide data to OAuth 2.0 clients.
 
   - name: Device Files
     description: |-
@@ -21512,14 +20637,6 @@ tags:
       | M | 1000000 | Mega |
       | G | 1000000000 | Giga |
 
-  - name: Clouds Integration
-    description: |-
-      OAuth 2.0 allows the Care Daily AI Platform to act as a client to obtain authorizations from third-party clouds and applications to access user data there.
-
-  - name: OAuth Hosting
-    description: |-
-      As a host the Care Daily AI Platform can provide data to OAuth 2.0 clients.
-
   - name: Energy Management
     description: |-
       Electricity customers are billed on how much energy their homes, businesses, and appliances consume.
@@ -21528,6 +20645,3 @@ tags:
       The Care Daily AI Platform contains a Utility Rates Database in the backend to map utility names to their current rates and pricing information.
       This data can help smooth out the deployment of energy-related programs,
       and greatly improve the user experience by converting the nebulous units of kilowatt-hours into something more user-friendly, like monetary value.
-
-  - name: Weather
-    description: These APIs are available for certain organizations only.
