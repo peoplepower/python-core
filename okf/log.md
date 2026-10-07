@@ -1,5 +1,11 @@
 # Log
 
+## 2026-10-06
+### Graph gardening
+
+* Linked “App APIs” and “admin APIs” in [API Surface](/apis/api-surface.md) to the developer-knowledge Cloud API and Admin API concepts.
+* Link changes only; no claims or trust fields changed.
+
 ## 2026-10-05
 
 * **Update**: Server API spec v63 → v65. Removed the `Weather` (app) and `Challenges` (admin) API classes and their factory entries, user codes methods on `UserAccounts`, and bot `Analytic.get_challenge_participants`; added escalations (`get/create/update_escalation`) on `Locations`. Updated the api-surface concept.

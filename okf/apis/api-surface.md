@@ -34,7 +34,7 @@ endpoint docs: <https://app.peoplepowerco.com/cloud/apidocs/cloud.html>.
 server dropped those endpoints in API spec v65. Escalations (spec v65,
 `/cloud/json/escalations`) live on `Locations` alongside narratives.
 
-App APIs migrated from legacy `/espapi/cloud/json/` to `/cloud/json/` on
+[App APIs](bundle://developer-knowledge/apis/cloud-api.md) migrated from legacy `/espapi/cloud/json/` to `/cloud/json/` on
 2026-07-07 — the espapi route cannot validate EdDSA JWT API keys
 ("[2] JWK not found"). See
 [authentication](/apis/authentication-and-signature-login.md).
@@ -49,7 +49,7 @@ adapter: it fetches the websocket URL via REST, then provides an async client
 `AdminDevices`, `AdminLocations`, `AdminTags`, `Narratives`,
 `Billing`, `Firmware`, `Reports`.
 
-A few admin APIs (narratives, tags, groups) still use legacy
+A few [admin APIs](bundle://developer-knowledge/apis/admin-api.md) (narratives, tags, groups) still use legacy
 `/espapi/admin/json/...` paths — the same JWK failure class may surface there
 with JWT keys.
 
